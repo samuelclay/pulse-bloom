@@ -1,0 +1,187 @@
+GAS LISTING /var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//cc0LAyPt.s 			page 1
+
+
+   1               		.file	"wiring_shift.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__ = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+   8               		.global __do_copy_data
+   9               		.global __do_clear_bss
+  10               		.section	.text.shiftIn,"ax",@progbits
+  11               	.global	shiftIn
+  12               		.type	shiftIn, @function
+  13               	shiftIn:
+  14 0000 CF92      		push r12
+  15 0002 DF92      		push r13
+  16 0004 EF92      		push r14
+  17 0006 FF92      		push r15
+  18 0008 0F93      		push r16
+  19 000a 1F93      		push r17
+  20 000c CF93      		push r28
+  21 000e DF93      		push r29
+  22               	/* prologue: function */
+  23               	/* frame size = 0 */
+  24               	/* stack size = 8 */
+  25               	.L__stack_usage = 8
+  26 0010 182F      		mov r17,r24
+  27 0012 F62E      		mov r15,r22
+  28 0014 E42E      		mov r14,r20
+  29 0016 C7E0      		ldi r28,lo8(7)
+  30 0018 D0E0      		ldi r29,hi8(7)
+  31 001a 00E0      		ldi r16,lo8(0)
+  32 001c 87E0      		ldi r24,lo8(7)
+  33 001e C82E      		mov r12,r24
+  34 0020 D12C      		mov r13,__zero_reg__
+  35               	.L4:
+  36 0022 8F2D      		mov r24,r15
+  37 0024 61E0      		ldi r22,lo8(1)
+  38 0026 00D0      		rcall digitalWrite
+  39 0028 812F      		mov r24,r17
+  40 002a EE20      		tst r14
+  41 002c 01F4      		brne .L2
+  42 002e 00D0      		rcall digitalRead
+  43 0030 9601      		movw r18,r12
+  44 0032 2C1B      		sub r18,r28
+  45 0034 3D0B      		sbc r19,r29
+  46 0036 AC01      		movw r20,r24
+  47 0038 00C0      		rjmp 2f
+  48 003a 440F      	1:	lsl r20
+  49 003c 551F      		rol r21
+  50 003e 2A95      	2:	dec r18
+  51 0040 02F4      		brpl 1b
+  52 0042 042B      		or r16,r20
+  53 0044 00C0      		rjmp .L3
+  54               	.L2:
+  55 0046 00D0      		rcall digitalRead
+  56 0048 0C2E      		mov r0,r28
+  57 004a 00C0      		rjmp 2f
+GAS LISTING /var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//cc0LAyPt.s 			page 2
+
+
+  58 004c 880F      	1:	lsl r24
+  59 004e 991F      		rol r25
+  60 0050 0A94      	2:	dec r0
+  61 0052 02F4      		brpl 1b
+  62 0054 082B      		or r16,r24
+  63               	.L3:
+  64 0056 8F2D      		mov r24,r15
+  65 0058 60E0      		ldi r22,lo8(0)
+  66 005a 00D0      		rcall digitalWrite
+  67 005c 2197      		sbiw r28,1
+  68 005e 8FEF      		ldi r24,hi8(-1)
+  69 0060 CF3F      		cpi r28,lo8(-1)
+  70 0062 D807      		cpc r29,r24
+  71 0064 01F4      		brne .L4
+  72 0066 802F      		mov r24,r16
+  73               	/* epilogue start */
+  74 0068 DF91      		pop r29
+  75 006a CF91      		pop r28
+  76 006c 1F91      		pop r17
+  77 006e 0F91      		pop r16
+  78 0070 FF90      		pop r15
+  79 0072 EF90      		pop r14
+  80 0074 DF90      		pop r13
+  81 0076 CF90      		pop r12
+  82 0078 0895      		ret
+  83               		.size	shiftIn, .-shiftIn
+  84               		.section	.text.shiftOut,"ax",@progbits
+  85               	.global	shiftOut
+  86               		.type	shiftOut, @function
+  87               	shiftOut:
+  88 0000 BF92      		push r11
+  89 0002 CF92      		push r12
+  90 0004 DF92      		push r13
+  91 0006 EF92      		push r14
+  92 0008 FF92      		push r15
+  93 000a 0F93      		push r16
+  94 000c 1F93      		push r17
+  95 000e CF93      		push r28
+  96 0010 DF93      		push r29
+  97               	/* prologue: function */
+  98               	/* frame size = 0 */
+  99               	/* stack size = 9 */
+ 100               	.L__stack_usage = 9
+ 101 0012 182F      		mov r17,r24
+ 102 0014 062F      		mov r16,r22
+ 103 0016 B42E      		mov r11,r20
+ 104 0018 C7E0      		ldi r28,lo8(7)
+ 105 001a D0E0      		ldi r29,hi8(7)
+ 106 001c E22E      		mov r14,r18
+ 107 001e FF24      		clr r15
+ 108 0020 97E0      		ldi r25,lo8(7)
+ 109 0022 C92E      		mov r12,r25
+ 110 0024 D12C      		mov r13,__zero_reg__
+ 111               	.L9:
+ 112 0026 BB20      		tst r11
+ 113 0028 01F4      		brne .L7
+ 114 002a B601      		movw r22,r12
+GAS LISTING /var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//cc0LAyPt.s 			page 3
+
+
+ 115 002c 6C1B      		sub r22,r28
+ 116 002e 7D0B      		sbc r23,r29
+ 117 0030 C701      		movw r24,r14
+ 118 0032 00C0      		rjmp 2f
+ 119 0034 9595      	1:	asr r25
+ 120 0036 8795      		ror r24
+ 121 0038 6A95      	2:	dec r22
+ 122 003a 02F4      		brpl 1b
+ 123 003c BC01      		movw r22,r24
+ 124 003e 00C0      		rjmp .L11
+ 125               	.L7:
+ 126 0040 B701      		movw r22,r14
+ 127 0042 0C2E      		mov r0,r28
+ 128 0044 00C0      		rjmp 2f
+ 129 0046 7595      	1:	asr r23
+ 130 0048 6795      		ror r22
+ 131 004a 0A94      	2:	dec r0
+ 132 004c 02F4      		brpl 1b
+ 133               	.L11:
+ 134 004e 6170      		andi r22,lo8(1)
+ 135 0050 812F      		mov r24,r17
+ 136 0052 00D0      		rcall digitalWrite
+ 137 0054 802F      		mov r24,r16
+ 138 0056 61E0      		ldi r22,lo8(1)
+ 139 0058 00D0      		rcall digitalWrite
+ 140 005a 802F      		mov r24,r16
+ 141 005c 60E0      		ldi r22,lo8(0)
+ 142 005e 00D0      		rcall digitalWrite
+ 143 0060 2197      		sbiw r28,1
+ 144 0062 8FEF      		ldi r24,hi8(-1)
+ 145 0064 CF3F      		cpi r28,lo8(-1)
+ 146 0066 D807      		cpc r29,r24
+ 147 0068 01F4      		brne .L9
+ 148               	/* epilogue start */
+ 149 006a DF91      		pop r29
+ 150 006c CF91      		pop r28
+ 151 006e 1F91      		pop r17
+ 152 0070 0F91      		pop r16
+ 153 0072 FF90      		pop r15
+ 154 0074 EF90      		pop r14
+ 155 0076 DF90      		pop r13
+ 156 0078 CF90      		pop r12
+ 157 007a BF90      		pop r11
+ 158 007c 0895      		ret
+ 159               		.size	shiftOut, .-shiftOut
+GAS LISTING /var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//cc0LAyPt.s 			page 4
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 wiring_shift.c
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//cc0LAyPt.s:2      *ABS*:0000003f __SREG__
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//cc0LAyPt.s:3      *ABS*:0000003e __SP_H__
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//cc0LAyPt.s:4      *ABS*:0000003d __SP_L__
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//cc0LAyPt.s:5      *ABS*:00000034 __CCP__
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//cc0LAyPt.s:6      *ABS*:00000000 __tmp_reg__
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//cc0LAyPt.s:7      *ABS*:00000001 __zero_reg__
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//cc0LAyPt.s:13     .text.shiftIn:00000000 shiftIn
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//cc0LAyPt.s:87     .text.shiftOut:00000000 shiftOut
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss
+digitalWrite
+digitalRead

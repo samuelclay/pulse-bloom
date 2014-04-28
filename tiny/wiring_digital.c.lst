@@ -1,0 +1,293 @@
+GAS LISTING /var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccdhG95N.s 			page 1
+
+
+   1               		.file	"wiring_digital.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__ = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+   8               		.global __do_copy_data
+   9               		.global __do_clear_bss
+  10               		.section	.text.pinMode,"ax",@progbits
+  11               	.global	pinMode
+  12               		.type	pinMode, @function
+  13               	pinMode:
+  14 0000 CF93      		push r28
+  15 0002 DF93      		push r29
+  16               	/* prologue: function */
+  17               	/* frame size = 0 */
+  18               	/* stack size = 2 */
+  19               	.L__stack_usage = 2
+  20 0004 90E0      		ldi r25,lo8(0)
+  21 0006 FC01      		movw r30,r24
+  22 0008 E050      		subi r30,lo8(-(digital_pin_to_bit_mask_PGM))
+  23 000a F040      		sbci r31,hi8(-(digital_pin_to_bit_mask_PGM))
+  24               	/* #APP */
+  25               	 ;  36 "../lib/tiny/wiring_digital.c" 1
+  26 000c 2491      		lpm r18, Z
+  27               		
+  28               	 ;  0 "" 2
+  29               	/* #NOAPP */
+  30 000e 8050      		subi r24,lo8(-(digital_pin_to_port_PGM))
+  31 0010 9040      		sbci r25,hi8(-(digital_pin_to_port_PGM))
+  32 0012 FC01      		movw r30,r24
+  33               	/* #APP */
+  34               	 ;  37 "../lib/tiny/wiring_digital.c" 1
+  35 0014 8491      		lpm r24, Z
+  36               		
+  37               	 ;  0 "" 2
+  38               	/* #NOAPP */
+  39 0016 8823      		tst r24
+  40 0018 01F0      		breq .L1
+  41 001a 90E0      		ldi r25,lo8(0)
+  42 001c FC01      		movw r30,r24
+  43 001e E050      		subi r30,lo8(-(port_to_mode_PGM))
+  44 0020 F040      		sbci r31,hi8(-(port_to_mode_PGM))
+  45               	/* #APP */
+  46               	 ;  43 "../lib/tiny/wiring_digital.c" 1
+  47 0022 A491      		lpm r26, Z
+  48               		
+  49               	 ;  0 "" 2
+  50               	/* #NOAPP */
+  51 0024 B0E0      		ldi r27,lo8(0)
+  52 0026 8050      		subi r24,lo8(-(port_to_output_PGM))
+  53 0028 9040      		sbci r25,hi8(-(port_to_output_PGM))
+  54 002a FC01      		movw r30,r24
+  55               	/* #APP */
+  56               	 ;  44 "../lib/tiny/wiring_digital.c" 1
+  57 002c 8491      		lpm r24, Z
+GAS LISTING /var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccdhG95N.s 			page 2
+
+
+  58               		
+  59               	 ;  0 "" 2
+  60               	/* #NOAPP */
+  61 002e C82F      		mov r28,r24
+  62 0030 D0E0      		ldi r29,lo8(0)
+  63 0032 9FB7      		in r25,__SREG__
+  64               	/* #APP */
+  65               	 ;  48 "../lib/tiny/wiring_digital.c" 1
+  66 0034 F894      		cli
+  67               	 ;  0 "" 2
+  68               	/* #NOAPP */
+  69 0036 8C91      		ld r24,X
+  70 0038 6623      		tst r22
+  71 003a 01F4      		brne .L3
+  72 003c 2095      		com r18
+  73 003e 8223      		and r24,r18
+  74 0040 8C93      		st X,r24
+  75 0042 8881      		ld r24,Y
+  76 0044 8223      		and r24,r18
+  77 0046 00C0      		rjmp .L6
+  78               	.L3:
+  79 0048 6230      		cpi r22,lo8(2)
+  80 004a 01F4      		brne .L4
+  81 004c 322F      		mov r19,r18
+  82 004e 3095      		com r19
+  83 0050 8323      		and r24,r19
+  84 0052 8C93      		st X,r24
+  85 0054 8881      		ld r24,Y
+  86 0056 822B      		or r24,r18
+  87               	.L6:
+  88 0058 8883      		st Y,r24
+  89 005a 00C0      		rjmp .L5
+  90               	.L4:
+  91 005c 822B      		or r24,r18
+  92 005e 8C93      		st X,r24
+  93               	.L5:
+  94 0060 9FBF      		out __SREG__,r25
+  95               	.L1:
+  96               	/* epilogue start */
+  97 0062 DF91      		pop r29
+  98 0064 CF91      		pop r28
+  99 0066 0895      		ret
+ 100               		.size	pinMode, .-pinMode
+ 101               		.section	.text.digitalWrite,"ax",@progbits
+ 102               	.global	digitalWrite
+ 103               		.type	digitalWrite, @function
+ 104               	digitalWrite:
+ 105               	/* prologue: function */
+ 106               	/* frame size = 0 */
+ 107               	/* stack size = 0 */
+ 108               	.L__stack_usage = 0
+ 109 0000 282F      		mov r18,r24
+ 110 0002 30E0      		ldi r19,lo8(0)
+ 111 0004 F901      		movw r30,r18
+ 112 0006 E050      		subi r30,lo8(-(digital_pin_to_bit_mask_PGM))
+ 113 0008 F040      		sbci r31,hi8(-(digital_pin_to_bit_mask_PGM))
+ 114               	/* #APP */
+GAS LISTING /var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccdhG95N.s 			page 3
+
+
+ 115               	 ;  118 "../lib/tiny/wiring_digital.c" 1
+ 116 000a 9491      		lpm r25, Z
+ 117               		
+ 118               	 ;  0 "" 2
+ 119               	/* #NOAPP */
+ 120 000c F901      		movw r30,r18
+ 121 000e E050      		subi r30,lo8(-(digital_pin_to_port_PGM))
+ 122 0010 F040      		sbci r31,hi8(-(digital_pin_to_port_PGM))
+ 123               	/* #APP */
+ 124               	 ;  119 "../lib/tiny/wiring_digital.c" 1
+ 125 0012 E491      		lpm r30, Z
+ 126               		
+ 127               	 ;  0 "" 2
+ 128               	/* #NOAPP */
+ 129 0014 EE23      		tst r30
+ 130 0016 01F0      		breq .L7
+ 131 0018 8823      		tst r24
+ 132 001a 01F4      		brne .L9
+ 133 001c 8AB5      		in r24,74-32
+ 134 001e 8F73      		andi r24,lo8(63)
+ 135 0020 00C0      		rjmp .L13
+ 136               	.L9:
+ 137 0022 8130      		cpi r24,lo8(1)
+ 138 0024 01F4      		brne .L11
+ 139 0026 8AB5      		in r24,74-32
+ 140 0028 8F7C      		andi r24,lo8(-49)
+ 141               	.L13:
+ 142 002a 8ABD      		out 74-32,r24
+ 143 002c 00C0      		rjmp .L10
+ 144               	.L11:
+ 145 002e 8430      		cpi r24,lo8(4)
+ 146 0030 01F4      		brne .L10
+ 147 0032 8CB5      		in r24,76-32
+ 148 0034 8F7C      		andi r24,lo8(-49)
+ 149 0036 8CBD      		out 76-32,r24
+ 150               	.L10:
+ 151 0038 F0E0      		ldi r31,lo8(0)
+ 152 003a E050      		subi r30,lo8(-(port_to_output_PGM))
+ 153 003c F040      		sbci r31,hi8(-(port_to_output_PGM))
+ 154               	/* #APP */
+ 155               	 ;  128 "../lib/tiny/wiring_digital.c" 1
+ 156 003e A491      		lpm r26, Z
+ 157               		
+ 158               	 ;  0 "" 2
+ 159               	/* #NOAPP */
+ 160 0040 B0E0      		ldi r27,lo8(0)
+ 161 0042 2FB7      		in r18,__SREG__
+ 162               	/* #APP */
+ 163               	 ;  132 "../lib/tiny/wiring_digital.c" 1
+ 164 0044 F894      		cli
+ 165               	 ;  0 "" 2
+ 166               	/* #NOAPP */
+ 167 0046 8C91      		ld r24,X
+ 168 0048 6623      		tst r22
+ 169 004a 01F4      		brne .L12
+ 170 004c 9095      		com r25
+ 171 004e 8923      		and r24,r25
+GAS LISTING /var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccdhG95N.s 			page 4
+
+
+ 172 0050 8C93      		st X,r24
+ 173 0052 2FBF      		out __SREG__,r18
+ 174 0054 0895      		ret
+ 175               	.L12:
+ 176 0056 892B      		or r24,r25
+ 177 0058 8C93      		st X,r24
+ 178 005a 2FBF      		out __SREG__,r18
+ 179               	.L7:
+ 180 005c 0895      		ret
+ 181               		.size	digitalWrite, .-digitalWrite
+ 182               		.section	.text.digitalRead,"ax",@progbits
+ 183               	.global	digitalRead
+ 184               		.type	digitalRead, @function
+ 185               	digitalRead:
+ 186               	/* prologue: function */
+ 187               	/* frame size = 0 */
+ 188               	/* stack size = 0 */
+ 189               	.L__stack_usage = 0
+ 190 0000 282F      		mov r18,r24
+ 191 0002 30E0      		ldi r19,lo8(0)
+ 192 0004 F901      		movw r30,r18
+ 193 0006 E050      		subi r30,lo8(-(digital_pin_to_bit_mask_PGM))
+ 194 0008 F040      		sbci r31,hi8(-(digital_pin_to_bit_mask_PGM))
+ 195               	/* #APP */
+ 196               	 ;  145 "../lib/tiny/wiring_digital.c" 1
+ 197 000a 9491      		lpm r25, Z
+ 198               		
+ 199               	 ;  0 "" 2
+ 200               	/* #NOAPP */
+ 201 000c F901      		movw r30,r18
+ 202 000e E050      		subi r30,lo8(-(digital_pin_to_port_PGM))
+ 203 0010 F040      		sbci r31,hi8(-(digital_pin_to_port_PGM))
+ 204               	/* #APP */
+ 205               	 ;  146 "../lib/tiny/wiring_digital.c" 1
+ 206 0012 E491      		lpm r30, Z
+ 207               		
+ 208               	 ;  0 "" 2
+ 209               	/* #NOAPP */
+ 210 0014 EE23      		tst r30
+ 211 0016 01F0      		breq .L20
+ 212 0018 8823      		tst r24
+ 213 001a 01F4      		brne .L16
+ 214 001c 8AB5      		in r24,74-32
+ 215 001e 8F73      		andi r24,lo8(63)
+ 216 0020 00C0      		rjmp .L21
+ 217               	.L16:
+ 218 0022 8130      		cpi r24,lo8(1)
+ 219 0024 01F4      		brne .L18
+ 220 0026 8AB5      		in r24,74-32
+ 221 0028 8F7C      		andi r24,lo8(-49)
+ 222               	.L21:
+ 223 002a 8ABD      		out 74-32,r24
+ 224 002c 00C0      		rjmp .L17
+ 225               	.L18:
+ 226 002e 8430      		cpi r24,lo8(4)
+ 227 0030 01F4      		brne .L17
+ 228 0032 8CB5      		in r24,76-32
+GAS LISTING /var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccdhG95N.s 			page 5
+
+
+ 229 0034 8F7C      		andi r24,lo8(-49)
+ 230 0036 8CBD      		out 76-32,r24
+ 231               	.L17:
+ 232 0038 F0E0      		ldi r31,lo8(0)
+ 233 003a E050      		subi r30,lo8(-(port_to_input_PGM))
+ 234 003c F040      		sbci r31,hi8(-(port_to_input_PGM))
+ 235               	/* #APP */
+ 236               	 ;  154 "../lib/tiny/wiring_digital.c" 1
+ 237 003e E491      		lpm r30, Z
+ 238               		
+ 239               	 ;  0 "" 2
+ 240               	/* #NOAPP */
+ 241 0040 F0E0      		ldi r31,lo8(0)
+ 242 0042 2081      		ld r18,Z
+ 243 0044 2923      		and r18,r25
+ 244 0046 81E0      		ldi r24,lo8(1)
+ 245 0048 90E0      		ldi r25,hi8(1)
+ 246 004a 01F4      		brne .L15
+ 247 004c 80E0      		ldi r24,lo8(0)
+ 248 004e 90E0      		ldi r25,hi8(0)
+ 249 0050 0895      		ret
+ 250               	.L20:
+ 251 0052 80E0      		ldi r24,lo8(0)
+ 252 0054 90E0      		ldi r25,hi8(0)
+ 253               	.L15:
+ 254 0056 0895      		ret
+ 255               		.size	digitalRead, .-digitalRead
+GAS LISTING /var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccdhG95N.s 			page 6
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 wiring_digital.c
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccdhG95N.s:2      *ABS*:0000003f __SREG__
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccdhG95N.s:3      *ABS*:0000003e __SP_H__
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccdhG95N.s:4      *ABS*:0000003d __SP_L__
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccdhG95N.s:5      *ABS*:00000034 __CCP__
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccdhG95N.s:6      *ABS*:00000000 __tmp_reg__
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccdhG95N.s:7      *ABS*:00000001 __zero_reg__
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccdhG95N.s:13     .text.pinMode:00000000 pinMode
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccdhG95N.s:104    .text.digitalWrite:00000000 digitalWrite
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccdhG95N.s:185    .text.digitalRead:00000000 digitalRead
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss
+digital_pin_to_bit_mask_PGM
+digital_pin_to_port_PGM
+port_to_mode_PGM
+port_to_output_PGM
+port_to_input_PGM

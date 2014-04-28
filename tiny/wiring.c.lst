@@ -1,0 +1,375 @@
+GAS LISTING /var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccg46JKD.s 			page 1
+
+
+   1               		.file	"wiring.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__ = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+   8               		.global __do_copy_data
+   9               		.global __do_clear_bss
+  10               		.section	.text.initToneTimerInternal,"ax",@progbits
+  11               		.type	initToneTimerInternal, @function
+  12               	initToneTimerInternal:
+  13               	/* prologue: function */
+  14               	/* frame size = 0 */
+  15               	/* stack size = 0 */
+  16               	.L__stack_usage = 0
+  17 0000 83B7      		in r24,83-32
+  18 0002 887F      		andi r24,lo8(-8)
+  19 0004 83BF      		out 83-32,r24
+  20 0006 8AB5      		in r24,74-32
+  21 0008 8C7F      		andi r24,lo8(-4)
+  22 000a 8160      		ori r24,lo8(1)
+  23 000c 8ABD      		out 74-32,r24
+  24 000e 83B7      		in r24,83-32
+  25 0010 877F      		andi r24,lo8(-9)
+  26 0012 83BF      		out 83-32,r24
+  27 0014 83B7      		in r24,83-32
+  28 0016 887F      		andi r24,lo8(-8)
+  29 0018 8360      		ori r24,lo8(3)
+  30 001a 83BF      		out 83-32,r24
+  31               	/* epilogue start */
+  32 001c 0895      		ret
+  33               		.size	initToneTimerInternal, .-initToneTimerInternal
+  34               		.section	.text.__vector_4,"ax",@progbits
+  35               	.global	__vector_4
+  36               		.type	__vector_4, @function
+  37               	__vector_4:
+  38 0000 1F92      		push r1
+  39 0002 0F92      		push r0
+  40 0004 0FB6      		in r0,__SREG__
+  41 0006 0F92      		push r0
+  42 0008 1124      		clr __zero_reg__
+  43 000a 2F93      		push r18
+  44 000c 3F93      		push r19
+  45 000e 8F93      		push r24
+  46 0010 9F93      		push r25
+  47 0012 AF93      		push r26
+  48 0014 BF93      		push r27
+  49               	/* prologue: Signal */
+  50               	/* frame size = 0 */
+  51               	/* stack size = 9 */
+  52               	.L__stack_usage = 9
+  53 0016 8091 0000 		lds r24,millis_timer_millis
+  54 001a 9091 0000 		lds r25,millis_timer_millis+1
+  55 001e A091 0000 		lds r26,millis_timer_millis+2
+  56 0022 B091 0000 		lds r27,millis_timer_millis+3
+  57 0026 3091 0000 		lds r19,millis_timer_fract
+GAS LISTING /var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccg46JKD.s 			page 2
+
+
+  58 002a 232F      		mov r18,r19
+  59 002c 2458      		subi r18,lo8(-(124))
+  60 002e 2D37      		cpi r18,lo8(125)
+  61 0030 00F0      		brlo .L3
+  62 0032 2D57      		subi r18,lo8(-(-125))
+  63 0034 0196      		adiw r24,1
+  64 0036 A11D      		adc r26,__zero_reg__
+  65 0038 B11D      		adc r27,__zero_reg__
+  66               	.L3:
+  67 003a 2093 0000 		sts millis_timer_fract,r18
+  68 003e 8093 0000 		sts millis_timer_millis,r24
+  69 0042 9093 0000 		sts millis_timer_millis+1,r25
+  70 0046 A093 0000 		sts millis_timer_millis+2,r26
+  71 004a B093 0000 		sts millis_timer_millis+3,r27
+  72 004e 8091 0000 		lds r24,millis_timer_overflow_count
+  73 0052 9091 0000 		lds r25,millis_timer_overflow_count+1
+  74 0056 A091 0000 		lds r26,millis_timer_overflow_count+2
+  75 005a B091 0000 		lds r27,millis_timer_overflow_count+3
+  76 005e 0196      		adiw r24,1
+  77 0060 A11D      		adc r26,__zero_reg__
+  78 0062 B11D      		adc r27,__zero_reg__
+  79 0064 8093 0000 		sts millis_timer_overflow_count,r24
+  80 0068 9093 0000 		sts millis_timer_overflow_count+1,r25
+  81 006c A093 0000 		sts millis_timer_overflow_count+2,r26
+  82 0070 B093 0000 		sts millis_timer_overflow_count+3,r27
+  83               	/* epilogue start */
+  84 0074 BF91      		pop r27
+  85 0076 AF91      		pop r26
+  86 0078 9F91      		pop r25
+  87 007a 8F91      		pop r24
+  88 007c 3F91      		pop r19
+  89 007e 2F91      		pop r18
+  90 0080 0F90      		pop r0
+  91 0082 0FBE      		out __SREG__,r0
+  92 0084 0F90      		pop r0
+  93 0086 1F90      		pop r1
+  94 0088 1895      		reti
+  95               		.size	__vector_4, .-__vector_4
+  96               		.section	.text.millis,"ax",@progbits
+  97               	.global	millis
+  98               		.type	millis, @function
+  99               	millis:
+ 100 0000 0F93      		push r16
+ 101 0002 1F93      		push r17
+ 102               	/* prologue: function */
+ 103               	/* frame size = 0 */
+ 104               	/* stack size = 2 */
+ 105               	.L__stack_usage = 2
+ 106 0004 8FB7      		in r24,__SREG__
+ 107               	/* #APP */
+ 108               	 ;  118 "../lib/tiny/wiring.c" 1
+ 109 0006 F894      		cli
+ 110               	 ;  0 "" 2
+ 111               	/* #NOAPP */
+ 112 0008 0091 0000 		lds r16,millis_timer_millis
+ 113 000c 1091 0000 		lds r17,millis_timer_millis+1
+ 114 0010 2091 0000 		lds r18,millis_timer_millis+2
+GAS LISTING /var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccg46JKD.s 			page 3
+
+
+ 115 0014 3091 0000 		lds r19,millis_timer_millis+3
+ 116 0018 8FBF      		out __SREG__,r24
+ 117 001a B801      		movw r22,r16
+ 118 001c C901      		movw r24,r18
+ 119               	/* epilogue start */
+ 120 001e 1F91      		pop r17
+ 121 0020 0F91      		pop r16
+ 122 0022 0895      		ret
+ 123               		.size	millis, .-millis
+ 124               		.section	.text.micros,"ax",@progbits
+ 125               	.global	micros
+ 126               		.type	micros, @function
+ 127               	micros:
+ 128 0000 0F93      		push r16
+ 129 0002 1F93      		push r17
+ 130               	/* prologue: function */
+ 131               	/* frame size = 0 */
+ 132               	/* stack size = 2 */
+ 133               	.L__stack_usage = 2
+ 134 0004 9FB7      		in r25,__SREG__
+ 135               	/* #APP */
+ 136               	 ;  130 "../lib/tiny/wiring.c" 1
+ 137 0006 F894      		cli
+ 138               	 ;  0 "" 2
+ 139               	/* #NOAPP */
+ 140 0008 0091 0000 		lds r16,millis_timer_overflow_count
+ 141 000c 1091 0000 		lds r17,millis_timer_overflow_count+1
+ 142 0010 2091 0000 		lds r18,millis_timer_overflow_count+2
+ 143 0014 3091 0000 		lds r19,millis_timer_overflow_count+3
+ 144 0018 8FB5      		in r24,79-32
+ 145 001a 08B6      		in __tmp_reg__,88-32
+ 146 001c 02FE      		sbrs __tmp_reg__,2
+ 147 001e 00C0      		rjmp .L6
+ 148 0020 8F3F      		cpi r24,lo8(-1)
+ 149 0022 01F0      		breq .L6
+ 150 0024 0F5F      		subi r16,lo8(-(1))
+ 151 0026 1F4F      		sbci r17,hi8(-(1))
+ 152 0028 2F4F      		sbci r18,hlo8(-(1))
+ 153 002a 3F4F      		sbci r19,hhi8(-(1))
+ 154               	.L6:
+ 155 002c 9FBF      		out __SREG__,r25
+ 156 002e 322F      		mov r19,r18
+ 157 0030 212F      		mov r18,r17
+ 158 0032 102F      		mov r17,r16
+ 159 0034 0027      		clr r16
+ 160 0036 080F      		add r16,r24
+ 161 0038 111D      		adc r17,__zero_reg__
+ 162 003a 211D      		adc r18,__zero_reg__
+ 163 003c 311D      		adc r19,__zero_reg__
+ 164 003e 42E0      		ldi r20,2
+ 165 0040 000F      	1:	lsl r16
+ 166 0042 111F      		rol r17
+ 167 0044 221F      		rol r18
+ 168 0046 331F      		rol r19
+ 169 0048 4A95      		dec r20
+ 170 004a 01F4      		brne 1b
+ 171 004c B801      		movw r22,r16
+GAS LISTING /var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccg46JKD.s 			page 4
+
+
+ 172 004e C901      		movw r24,r18
+ 173               	/* epilogue start */
+ 174 0050 1F91      		pop r17
+ 175 0052 0F91      		pop r16
+ 176 0054 0895      		ret
+ 177               		.size	micros, .-micros
+ 178               		.section	.text.delay,"ax",@progbits
+ 179               	.global	delay
+ 180               		.type	delay, @function
+ 181               	delay:
+ 182 0000 CF92      		push r12
+ 183 0002 DF92      		push r13
+ 184 0004 EF92      		push r14
+ 185 0006 FF92      		push r15
+ 186 0008 CF93      		push r28
+ 187 000a DF93      		push r29
+ 188               	/* prologue: function */
+ 189               	/* frame size = 0 */
+ 190               	/* stack size = 6 */
+ 191               	.L__stack_usage = 6
+ 192 000c 6B01      		movw r12,r22
+ 193 000e 7C01      		movw r14,r24
+ 194 0010 00D0      		rcall micros
+ 195 0012 DC01      		movw r26,r24
+ 196 0014 CB01      		movw r24,r22
+ 197 0016 EC01      		movw r28,r24
+ 198 0018 00C0      		rjmp .L13
+ 199               	.L10:
+ 200 001a 00D0      		rcall micros
+ 201 001c 6C1B      		sub r22,r28
+ 202 001e 7D0B      		sbc r23,r29
+ 203 0020 83E0      		ldi r24,hi8(1000)
+ 204 0022 683E      		cpi r22,lo8(1000)
+ 205 0024 7807      		cpc r23,r24
+ 206 0026 00F0      		brlo .L13
+ 207 0028 0894      		sec
+ 208 002a C108      		sbc r12,__zero_reg__
+ 209 002c D108      		sbc r13,__zero_reg__
+ 210 002e E108      		sbc r14,__zero_reg__
+ 211 0030 F108      		sbc r15,__zero_reg__
+ 212 0032 C851      		subi r28,lo8(-(1000))
+ 213 0034 DC4F      		sbci r29,hi8(-(1000))
+ 214               	.L13:
+ 215 0036 C114      		cp r12,__zero_reg__
+ 216 0038 D104      		cpc r13,__zero_reg__
+ 217 003a E104      		cpc r14,__zero_reg__
+ 218 003c F104      		cpc r15,__zero_reg__
+ 219 003e 01F4      		brne .L10
+ 220               	/* epilogue start */
+ 221 0040 DF91      		pop r29
+ 222 0042 CF91      		pop r28
+ 223 0044 FF90      		pop r15
+ 224 0046 EF90      		pop r14
+ 225 0048 DF90      		pop r13
+ 226 004a CF90      		pop r12
+ 227 004c 0895      		ret
+ 228               		.size	delay, .-delay
+GAS LISTING /var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccg46JKD.s 			page 5
+
+
+ 229               		.section	.text.delayMicroseconds,"ax",@progbits
+ 230               	.global	delayMicroseconds
+ 231               		.type	delayMicroseconds, @function
+ 232               	delayMicroseconds:
+ 233               	/* prologue: function */
+ 234               	/* frame size = 0 */
+ 235               	/* stack size = 0 */
+ 236               	.L__stack_usage = 0
+ 237 0000 0197      		sbiw r24,1
+ 238 0002 01F0      		breq .L14
+ 239 0004 880F      		lsl r24
+ 240 0006 991F      		rol r25
+ 241 0008 880F      		lsl r24
+ 242 000a 991F      		rol r25
+ 243 000c 0297      		sbiw r24,2
+ 244               	/* #APP */
+ 245               	 ;  198 "../lib/tiny/wiring.c" 1
+ 246 000e 0197      		1: sbiw r24,1
+ 247 0010 01F4      		brne 1b
+ 248               	 ;  0 "" 2
+ 249               	/* #NOAPP */
+ 250               	.L14:
+ 251 0012 0895      		ret
+ 252               		.size	delayMicroseconds, .-delayMicroseconds
+ 253               		.section	.text.initToneTimer,"ax",@progbits
+ 254               	.global	initToneTimer
+ 255               		.type	initToneTimer, @function
+ 256               	initToneTimer:
+ 257               	/* prologue: function */
+ 258               	/* frame size = 0 */
+ 259               	/* stack size = 0 */
+ 260               	.L__stack_usage = 0
+ 261 0000 13BE      		out 83-32,__zero_reg__
+ 262 0002 1ABC      		out 74-32,__zero_reg__
+ 263 0004 12BE      		out 82-32,__zero_reg__
+ 264 0006 19BC      		out 73-32,__zero_reg__
+ 265 0008 18BC      		out 72-32,__zero_reg__
+ 266 000a 89B7      		in r24,89-32
+ 267 000c 857E      		andi r24,lo8(-27)
+ 268 000e 89BF      		out 89-32,r24
+ 269 0010 88B7      		in r24,88-32
+ 270 0012 8A61      		ori r24,lo8(26)
+ 271 0014 88BF      		out 88-32,r24
+ 272 0016 00D0      		rcall initToneTimerInternal
+ 273               	/* epilogue start */
+ 274 0018 0895      		ret
+ 275               		.size	initToneTimer, .-initToneTimer
+ 276               		.section	.text.init,"ax",@progbits
+ 277               	.global	init
+ 278               		.type	init, @function
+ 279               	init:
+ 280               	/* prologue: function */
+ 281               	/* frame size = 0 */
+ 282               	/* stack size = 0 */
+ 283               	.L__stack_usage = 0
+ 284               	/* #APP */
+ 285               	 ;  234 "../lib/tiny/wiring.c" 1
+GAS LISTING /var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccg46JKD.s 			page 6
+
+
+ 286 0000 7894      		sei
+ 287               	 ;  0 "" 2
+ 288               	/* #NOAPP */
+ 289 0002 80B7      		in r24,80-32
+ 290 0004 8068      		ori r24,lo8(-128)
+ 291 0006 80BF      		out 80-32,r24
+ 292 0008 80B7      		in r24,80-32
+ 293 000a 8064      		ori r24,lo8(64)
+ 294 000c 80BF      		out 80-32,r24
+ 295 000e 8CB5      		in r24,76-32
+ 296 0010 8064      		ori r24,lo8(64)
+ 297 0012 8CBD      		out 76-32,r24
+ 298 0014 8FEF      		ldi r24,lo8(-1)
+ 299 0016 8DBD      		out 77-32,r24
+ 300 0018 80B7      		in r24,80-32
+ 301 001a 807F      		andi r24,lo8(-16)
+ 302 001c 8760      		ori r24,lo8(7)
+ 303 001e 80BF      		out 80-32,r24
+ 304 0020 89B7      		in r24,89-32
+ 305 0022 8460      		ori r24,lo8(4)
+ 306 0024 89BF      		out 89-32,r24
+ 307 0026 00D0      		rcall initToneTimerInternal
+ 308 0028 86B1      		in r24,38-32
+ 309 002a 8760      		ori r24,lo8(7)
+ 310 002c 86B9      		out 38-32,r24
+ 311 002e 379A      		sbi 38-32,7
+ 312               	/* epilogue start */
+ 313 0030 0895      		ret
+ 314               		.size	init, .-init
+ 315               	.global	millis_timer_millis
+ 316               		.section	.bss.millis_timer_millis,"aw",@nobits
+ 317               		.type	millis_timer_millis, @object
+ 318               		.size	millis_timer_millis, 4
+ 319               	millis_timer_millis:
+ 320 0000 0000 0000 		.skip 4,0
+ 321               	.global	millis_timer_overflow_count
+ 322               		.section	.bss.millis_timer_overflow_count,"aw",@nobits
+ 323               		.type	millis_timer_overflow_count, @object
+ 324               		.size	millis_timer_overflow_count, 4
+ 325               	millis_timer_overflow_count:
+ 326 0000 0000 0000 		.skip 4,0
+ 327               		.section	.bss.millis_timer_fract,"aw",@nobits
+ 328               		.type	millis_timer_fract, @object
+ 329               		.size	millis_timer_fract, 1
+ 330               	millis_timer_fract:
+ 331 0000 00        		.skip 1,0
+GAS LISTING /var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccg46JKD.s 			page 7
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 wiring.c
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccg46JKD.s:2      *ABS*:0000003f __SREG__
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccg46JKD.s:3      *ABS*:0000003e __SP_H__
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccg46JKD.s:4      *ABS*:0000003d __SP_L__
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccg46JKD.s:5      *ABS*:00000034 __CCP__
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccg46JKD.s:6      *ABS*:00000000 __tmp_reg__
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccg46JKD.s:7      *ABS*:00000001 __zero_reg__
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccg46JKD.s:12     .text.initToneTimerInternal:00000000 initToneTimerInternal
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccg46JKD.s:37     .text.__vector_4:00000000 __vector_4
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccg46JKD.s:319    .bss.millis_timer_millis:00000000 millis_timer_millis
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccg46JKD.s:330    .bss.millis_timer_fract:00000000 millis_timer_fract
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccg46JKD.s:325    .bss.millis_timer_overflow_count:00000000 millis_timer_overflow_count
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccg46JKD.s:99     .text.millis:00000000 millis
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccg46JKD.s:127    .text.micros:00000000 micros
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccg46JKD.s:181    .text.delay:00000000 delay
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccg46JKD.s:232    .text.delayMicroseconds:00000000 delayMicroseconds
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccg46JKD.s:256    .text.initToneTimer:00000000 initToneTimer
+/var/folders/jy/pkqnkk1s5x97h68j2fkh30vh0000gq/T//ccg46JKD.s:279    .text.init:00000000 init
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss
