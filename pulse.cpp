@@ -16,10 +16,15 @@
 
 int leftLed = 7;
 int rightLed = 9;
-int leftSensor = 6;
-int rightSensor = 5;
+int leftSensor = PINA4;
+int rightSensor = PINA5;
+
+long timer = 0;
+int loops = 0;
 
 Sampler sampler;
+SoftwareSerial mySerial(2, 8); // RX, TX
+
 void checkPulse();
 
 void setup(){
@@ -27,6 +32,7 @@ void setup(){
     pinMode(leftLed, OUTPUT);
     pinMode(rightLed, OUTPUT);
     sampler.clear();
+    mySerial.begin(9600);
 }
 
 void loop(){
@@ -37,8 +43,17 @@ void checkPulse() {
     int leftSensorOn = analogRead(leftSensor);
     int rightSensorOn = analogRead(rightSensor);
     
-    digitalWrite(leftLed, leftSensorOn > 300);
-    digitalWrite(rightLed, rightSensorOn > 400);
+    digitalWrite(leftLed, leftSensorOn > 200);
+    digitalWrite(rightLed, rightSensorOn > 200);
     
     sampler.add(leftSensorOn);
+    mySerial.print(leftSensorOn);
+    mySerial.println("mV");
+    if (millis() - timer > 1000) {
+        mySerial.print("------------------ ");
+        mySerial.print(loops);
+        mySerial.println(" ------------------");
+        timer = millis();
+        loops += 1;
+    }
 }

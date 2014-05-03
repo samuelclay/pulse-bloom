@@ -6,9 +6,9 @@
 DEVICE      = attiny84
 DEVICE_MCCU = attiny84     # See http://gcc.gnu.org/onlinedocs/gcc/AVR-Options.html
 PROGRAMMER ?= usbtiny
-F_CPU       = 8000000   # in Hz
+F_CPU       = 16000000
 FUSE_L      = 0xFF
-FUSE_H      = 0xDF
+FUSE_H      = 0xD7
 
 AVRDUDE     = avrdude -v -v -v -v -c $(PROGRAMMER) -p $(DEVICE) -P usb
 
@@ -57,7 +57,7 @@ program: flash
 fuse:
 	@[ "$(FUSE_H)" != "" -a "$(FUSE_L)" != "" ] || \
 		{ echo "*** Edit Makefile and choose values for FUSE_L and FUSE_H!"; exit 1; }
-	$(AVRDUDE) -e -Uefuse:w:0xFF:m -U hfuse:w:$(FUSE_H):m -U lfuse:w:$(FUSE_L):m
+	$(AVRDUDE) -U lfuse:w:$(FUSE_L):m -U hfuse:w:$(FUSE_H):m -U efuse:w:0xFF:m
 
 # rule for uploading firmware:
 flash: pulse.hex

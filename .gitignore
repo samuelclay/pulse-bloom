@@ -19,3 +19,9 @@
 *.exe
 *.out
 *.app
+
+# AVR
+*.elf
+*.hex
+*.d
+core.a
