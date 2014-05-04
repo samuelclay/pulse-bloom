@@ -16,14 +16,14 @@
 #include "sampler.h"
 #include "smooth.h"
 
-int leftLedPin = 7;
-int rightLedPin = 9;
-int leftSensorPin = PINA4;
-int rightSensorPin = PINA5;
+uint8_t leftLedPin = 7;
+uint8_t rightLedPin = 9;
+uint8_t leftSensorPin = PINA4;
+uint8_t rightSensorPin = PINA5;
 
 long timer = 0;
-int loops = 0;
-int smoothedVoltages[filterSamples];
+long loops = 0;
+uint16_t smoothedVoltages[filterSamples];
 
 Sampler sampler = Sampler();
 SoftwareSerial mySerial(2, 8); // RX, TX
@@ -40,29 +40,32 @@ void setup(){
 void loop() {
     printHeader();
     
-    int leftSensorVoltage = readSensorValues(leftSensorPin);
-    int smoothedLeftVoltage = digitalSmooth(leftSensorVoltage, smoothedVoltages);
+    uint16_t leftSensorVoltage = readSensorValues(leftSensorPin);
+    uint16_t smoothedLeftVoltage = digitalSmooth(leftSensorVoltage, smoothedVoltages);
 
-    mySerial.print(leftSensorVoltage);
+    mySerial.print(leftSensorVoltage, DEC);
     mySerial.print("   ");
-    mySerial.print(smoothedLeftVoltage);
+    mySerial.print(smoothedLeftVoltage, DEC);
     
     sampler.add(smoothedLeftVoltage);
     bool peaked = sampler.isPeaked();
     digitalWrite(leftLedPin, peaked ? HIGH : LOW);
     mySerial.print("   ");
-    mySerial.print(sampler.getPercentile(.9));
+    mySerial.print(sampler.getPercentile(.9), DEC);
+    mySerial.print("   ");
+    mySerial.print(sampler.getPeriod(), DEC);
     mySerial.println(peaked ? " ***" : "");
 }
 
-int readSensorValues(int sensorPin) {
-    int sensorVoltage = analogRead(sensorPin);
+uint16_t readSensorValues(uint8_t sensorPin) {
+    uint16_t sensorVoltage = analogRead(sensorPin);
     
     return sensorVoltage;
 }
 
 void printHeader() {
     if (millis() - timer > 1000) {
+        sampler.calculateStats();
         mySerial.print("------------------ ");
         mySerial.print(loops);
         mySerial.println(" ------------------");

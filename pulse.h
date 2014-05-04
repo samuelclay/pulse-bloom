@@ -1,7 +1,7 @@
 #ifndef PULSE_H
 #define PULSE_H
 
-int readSensorValues(int sensorPin);
+uint16_t readSensorValues(uint8_t sensorPin);
 void printHeader();
 
 #endif

@@ -16,13 +16,13 @@
 #include <tiny/wiring.h>
 #include "smooth.h"
 
-int digitalSmooth(int rawIn, int *sensSmoothArray) {
-  int j, k, temp, top, bottom;
+uint16_t digitalSmooth(uint16_t rawIn, uint16_t *sensSmoothArray) {
+  uint16_t j, k, temp, top, bottom;
   long total;
-  static int i;
- // static int raw[filterSamples];
-  static int sorted[filterSamples];
-  int done;
+  static uint8_t i;
+ // static uint8_t raw[filterSamples];
+  static uint16_t sorted[filterSamples];
+  uint8_t done;
 
   i = (i + 1) % filterSamples;    // increment counter and roll over if necc. -  % (modulo operator) rolls over variable
   sensSmoothArray[i] = rawIn;                 // input new data into the oldest slot

@@ -7,78 +7,93 @@ Sampler::Sampler() {
 }
 
 void Sampler::clear() {
-    _sum = 0;
-    _period = 1;
+    _period = DEFAULT_HEARTBEAT_PERIOD;
     _peakedTime = 0;
-    _sorted = false;
     _count = 0;
     _idx = 0;
+    _max = 0;
+    _min = 0;
     _hitBottom = false;
     _hitTop = false;
 }
 
-void Sampler::add(int n) {
+void Sampler::add(uint16_t n) {
     _ar[_idx++] = n;
-    _sorted = false;
     
     if (_idx >= _count) _idx = 0;
     if (_count < _size) _count++;
+    if (n < _min) _min = n;
+    if (n > _max) {
+        _max = n;
+        _min = n;
+    }
 }
 
-int Sampler::count() {
-    return _sum;
-}
-
-int Sampler::getPercentile(float p) {
-    if (_count <= 0) return 0;
-    if (!_sorted) sort();
+void Sampler::calculateStats() {
+    uint16_t maxV = 0;
+    uint16_t minV = 0;
     
-    int i = round(_count*p);
-    return _as[i];
+    for (uint16_t i=0; i < _count; i++) {
+        if (!maxV || !minV) {
+            maxV = _ar[i];
+            minV = _ar[i];
+        }
+        if (_ar[i] > maxV) maxV = _ar[i];
+        if (_ar[i] < minV) minV = _ar[i];
+    }
+    
+    _max = maxV;
+    _min = minV;
+}
+
+uint8_t Sampler::count() {
+    return _count;
+}
+
+uint16_t Sampler::getPercentile(float p) {
+    if (_count <= 0) return 0;
+    uint16_t spread = _max - _min;
+    
+    return _max - round(spread*(1-p));
+}
+
+uint16_t Sampler::getPeriod() {
+    return _period;
 }
 
 bool Sampler::isPeaked() {
-    int p90 = getPercentile(.9);
-    int p10 = getPercentile(.1);
-    int i = _idx >= 1 ? (_idx - 1) : 0;
+    uint16_t p90 = getPercentile(.9);
+    uint16_t p10 = getPercentile(.1);
+    uint8_t i = _idx >= 1 ? (_idx - 1) : 0;
     bool peaked = false;
-    long diffTime = millis() - _peakedTime;
+    uint16_t diffTime = millis() - _peakedTime;
+    bool hitThreshold = false;
     
     if (!_hitTop && _ar[i] < p10) {
         _hitBottom = true;
-        _hitTop = false;
-    } else if (diffTime > _period/2 && _ar[i] > p90) {
+    } else if (_hitBottom && !_hitTop &&
+               _ar[i] > p90) {
         _hitTop = true;
         _hitBottom = false;
-        diffTime = DEFAULT_HEARTBEAT_PERIOD*_period + 1;
+        hitThreshold = true;
+        diffTime = _period + 1;
     }
     
-    if (diffTime > DEFAULT_HEARTBEAT_PERIOD*_period) {
+    if (hitThreshold || diffTime > _period) {
+        if (hitThreshold) {
+            _period = millis() - _peakedTime;
+        } else {
+            _period += 50;
+        }
         _peakedTime = millis();
         peaked = true;
     } else if (diffTime < HEARTBEAT_DURATION) {
         peaked = true;
-    } else {
+    } else if (_hitTop &&
+               diffTime > 500 &&
+               diffTime > _period/3){
         _hitTop = false;
     }
     
     return peaked;
-}
-
-void Sampler::sort() {
-    for (int i=0; i < _count; i++) _as[i] = _ar[i];
-
-    for (int i=0; i < _count-1; i++) {
-        int m = i;
-        for (int j=i+1; j < _count; j++) {
-            if (_as[j] < _as[m]) m = j;
-        }
-        if (m != i) {
-            int t = _as[m];
-            _as[m] = _as[i];
-            _as[i] = t;
-        }
-    }
-    
-    _sorted = true;
 }
