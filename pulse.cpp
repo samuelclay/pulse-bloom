@@ -12,43 +12,56 @@
 #include <avr/eeprom.h>
 #include <avr/pgmspace.h>   /* required by usbdrv.h */
 
+#include "pulse.h"
 #include "sampler.h"
+#include "smooth.h"
 
-int leftLed = 7;
-int rightLed = 9;
-int leftSensor = PINA4;
-int rightSensor = PINA5;
+int leftLedPin = 7;
+int rightLedPin = 9;
+int leftSensorPin = PINA4;
+int rightSensorPin = PINA5;
 
 long timer = 0;
 int loops = 0;
+int smoothedVoltages[filterSamples];
 
-Sampler sampler;
+Sampler sampler = Sampler();
 SoftwareSerial mySerial(2, 8); // RX, TX
 
-void checkPulse();
 
 void setup(){
     analogReference(EXTERNAL);
-    pinMode(leftLed, OUTPUT);
-    pinMode(rightLed, OUTPUT);
+    pinMode(leftLedPin, OUTPUT);
+    pinMode(rightLedPin, OUTPUT);
     sampler.clear();
     mySerial.begin(9600);
 }
 
-void loop(){
-    checkPulse();
+void loop() {
+    printHeader();
+    
+    int leftSensorVoltage = readSensorValues(leftSensorPin);
+    int smoothedLeftVoltage = digitalSmooth(leftSensorVoltage, smoothedVoltages);
+
+    mySerial.print(leftSensorVoltage);
+    mySerial.print("   ");
+    mySerial.print(smoothedLeftVoltage);
+    
+    sampler.add(smoothedLeftVoltage);
+    bool peaked = sampler.isPeaked();
+    digitalWrite(leftLedPin, peaked ? HIGH : LOW);
+    mySerial.print("   ");
+    mySerial.print(sampler.getPercentile(.9));
+    mySerial.println(peaked ? " ***" : "");
 }
 
-void checkPulse() {
-    int leftSensorOn = analogRead(leftSensor);
-    int rightSensorOn = analogRead(rightSensor);
+int readSensorValues(int sensorPin) {
+    int sensorVoltage = analogRead(sensorPin);
     
-    digitalWrite(leftLed, leftSensorOn > 200);
-    digitalWrite(rightLed, rightSensorOn > 200);
-    
-    sampler.add(leftSensorOn);
-    mySerial.print(leftSensorOn);
-    mySerial.println("mV");
+    return sensorVoltage;
+}
+
+void printHeader() {
     if (millis() - timer > 1000) {
         mySerial.print("------------------ ");
         mySerial.print(loops);
