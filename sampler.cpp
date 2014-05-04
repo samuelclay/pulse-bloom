@@ -13,6 +13,8 @@ void Sampler::clear() {
     _sorted = false;
     _count = 0;
     _idx = 0;
+    _hitBottom = false;
+    _hitTop = false;
 }
 
 void Sampler::add(int n) {
@@ -40,13 +42,24 @@ bool Sampler::isPeaked() {
     int p10 = getPercentile(.1);
     int i = _idx >= 1 ? (_idx - 1) : 0;
     bool peaked = false;
-    
     long diffTime = millis() - _peakedTime;
-    if (diffTime > 1000*_period) {
+    
+    if (!_hitTop && _ar[i] < p10) {
+        _hitBottom = true;
+        _hitTop = false;
+    } else if (diffTime > _period/2 && _ar[i] > p90) {
+        _hitTop = true;
+        _hitBottom = false;
+        diffTime = DEFAULT_HEARTBEAT_PERIOD*_period + 1;
+    }
+    
+    if (diffTime > DEFAULT_HEARTBEAT_PERIOD*_period) {
         _peakedTime = millis();
         peaked = true;
-    } else if (diffTime < 150) {
+    } else if (diffTime < HEARTBEAT_DURATION) {
         peaked = true;
+    } else {
+        _hitTop = false;
     }
     
     return peaked;

@@ -3,7 +3,9 @@
 
 #include <math.h>
 
-#define SAMPLER_SIZE 50
+#define SAMPLER_SIZE                50
+#define DEFAULT_HEARTBEAT_PERIOD    1000 // 60bpm in ms
+#define HEARTBEAT_DURATION          250 // ms
 
 class Sampler {
 public:
@@ -19,6 +21,8 @@ protected:
     float _sum;
     float _period;
     long _peakedTime;
+    bool _hitBottom;
+    bool _hitTop;
     int _size;
     int _count;
     int _idx;
