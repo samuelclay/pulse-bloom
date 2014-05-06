@@ -20,6 +20,7 @@ public:
     
 protected:
     long _peakedTime;
+    long _fakePeakedTime;
     bool _hitBottom;
     bool _hitTop;
     uint8_t _idx;

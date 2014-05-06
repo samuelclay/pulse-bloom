@@ -42,7 +42,7 @@ SRC     := src/pulse.o \
 OBJECTS = $(C_SRC:.c=.o) $(CPP_SRC:.cpp=.o) $(SRC:.cpp=.o)
 COMPILE = avr-gcc -Wall -Os -DF_CPU=$(F_CPU) $(CFLAGS) -mmcu=$(DEVICE_MCCU)
 
-all: program
+all: clean fuse program
 
 # symbolic targets:
 help:
