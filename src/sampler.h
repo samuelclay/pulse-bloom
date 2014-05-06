@@ -3,7 +3,7 @@
 
 #include <math.h>
 
-#define SAMPLER_SIZE                100
+#define SAMPLER_SIZE                50
 #define DEFAULT_HEARTBEAT_PERIOD    1000 // 60bpm in ms
 #define HEARTBEAT_DURATION          250 // ms
 

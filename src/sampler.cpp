@@ -62,7 +62,7 @@ uint16_t Sampler::getPeriod() {
 }
 
 bool Sampler::isPeaked() {
-    uint16_t p90 = getPercentile(.9);
+    uint16_t p70 = getPercentile(.7);
     uint16_t p10 = getPercentile(.1);
     uint8_t i = _idx >= 1 ? (_idx - 1) : 0;
     bool peaked = false;
@@ -72,14 +72,14 @@ bool Sampler::isPeaked() {
     if (!_hitTop && _ar[i] < p10) {
         _hitBottom = true;
     } else if (_hitBottom && !_hitTop &&
-               _ar[i] > p90) {
+               _ar[i] > p70) {
         _hitTop = true;
         _hitBottom = false;
         hitThreshold = true;
         diffTime = _period + 1;
     }
     
-    if (hitThreshold || diffTime > _period) {
+    if (hitThreshold) {
         if (hitThreshold) {
             _period = millis() - _peakedTime;
         } else {

@@ -44,15 +44,15 @@ void loop() {
     uint16_t smoothedLeftVoltage = digitalSmooth(leftSensorVoltage, smoothedVoltages);
 
     mySerial.print(leftSensorVoltage, DEC);
-    mySerial.print("   ");
+    mySerial.print("   smooth=");
     mySerial.print(smoothedLeftVoltage, DEC);
     
     sampler.add(smoothedLeftVoltage);
     bool peaked = sampler.isPeaked();
     digitalWrite(leftLedPin, peaked ? HIGH : LOW);
-    mySerial.print("   ");
-    mySerial.print(sampler.getPercentile(.9), DEC);
-    mySerial.print("   ");
+    mySerial.print("   p70=");
+    mySerial.print(sampler.getPercentile(.7), DEC);
+    mySerial.print("   period=");
     mySerial.print(sampler.getPeriod(), DEC);
     mySerial.println(peaked ? " ***" : "");
 }
