@@ -14,9 +14,10 @@
 
 #include <math.h>
 #include <tiny/wiring.h>
+#include <SoftwareSerial/SoftwareSerial.h>
 #include "smooth.h"
 
-uint16_t digitalSmooth(uint16_t rawIn, uint16_t *sensSmoothArray) {
+uint16_t digitalSmooth(uint16_t rawIn, uint16_t *sensSmoothArray, SoftwareSerial mySerial) {
   uint16_t j, k, temp, top, bottom;
   long total;
   static uint8_t i;
@@ -46,17 +47,19 @@ uint16_t digitalSmooth(uint16_t rawIn, uint16_t *sensSmoothArray) {
     }
   }
 
-/*
+
   for (j = 0; j < (filterSamples); j++){    // print the array to debug
-    Serial.print(sorted[j]); 
-    Serial.print("   "); 
+    mySerial.print(sorted[j]); 
+    mySerial.print("   "); 
   }
-  Serial.println();
-*/
+  mySerial.println();
+
 
   // throw out top and bottom 15% of samples - limit to throw out at least one from top and bottom
-  bottom = max(((filterSamples * 15)  / 100), 1); 
-  top = min((((filterSamples * 85) / 100) + 1  ), (filterSamples - 1));   // the + 1 is to make up for asymmetry caused by integer rounding
+  // bottom = max(((filterSamples * 15)  / 100), 1); 
+  // top = min((((filterSamples * 85) / 100) + 1  ), (filterSamples - 1));   // the + 1 is to make up for asymmetry caused by integer rounding
+  bottom = 0;
+  top = filterSamples;
   k = 0;
   total = 0;
   for ( j = bottom; j< top; j++){

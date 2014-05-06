@@ -2,10 +2,13 @@
 #define SAMPLER_H
 
 #include <math.h>
+#include <SoftwareSerial/SoftwareSerial.h>
 
 #define SAMPLER_SIZE                50
 #define DEFAULT_HEARTBEAT_PERIOD    1000 // 60bpm in ms
 #define HEARTBEAT_DURATION          250 // ms
+#define MAX_HEARTBEAT_PERIOD        1500 // 45bpm in ms isn't possible
+#define MIN_HEARTBEAT_PERIOD        500 // 120bpm in ms is too high
 
 class Sampler {
 public:
@@ -16,7 +19,7 @@ public:
     uint8_t count();
     uint16_t getPercentile(float);
     uint16_t getPeriod();
-    bool isPeaked();
+    bool isPeaked(SoftwareSerial);
     
 protected:
     long _peakedTime;

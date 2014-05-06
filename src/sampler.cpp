@@ -68,7 +68,7 @@ uint16_t Sampler::getPeriod() {
     return _period;
 }
 
-bool Sampler::isPeaked() {
+bool Sampler::isPeaked(SoftwareSerial mySerial) {
     uint16_t p70 = getPercentile(.7);
     uint16_t p30 = getPercentile(.3);
     uint8_t i = _idx >= 1 ? (_idx - 1) : 0;
@@ -83,7 +83,12 @@ bool Sampler::isPeaked() {
         _hitBottom = true;
     } else if (_hitBottom && !_hitTop &&
                _ar[i] > p70 &&
-               _ar[i] > p30*1.2) {
+               _ar[i] > p30*1.2 &&
+               diffTime > MIN_HEARTBEAT_PERIOD) {
+        _hitTop = true;
+        _hitBottom = false;
+        hitThreshold = true;
+    } else if (diffTime > MAX_HEARTBEAT_PERIOD) {
         _hitTop = true;
         _hitBottom = false;
         hitThreshold = true;
@@ -91,7 +96,7 @@ bool Sampler::isPeaked() {
     
     if (hitThreshold) {
         uint16_t unsmoothPeriod = millis() - _peakedTime;
-        _period = digitalSmooth(unsmoothPeriod, smoothedPeriods);
+        _period = digitalSmooth(unsmoothPeriod, smoothedPeriods, mySerial);
         _peakedTime = millis();
         _fakePeakedTime = _peakedTime;
         peaked = true;
