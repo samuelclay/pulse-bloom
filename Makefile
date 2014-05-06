@@ -12,27 +12,32 @@ FUSE_H      = 0xD7
 
 AVRDUDE     = avrdude -v -v -v -v -c $(PROGRAMMER) -p $(DEVICE) -P usb
 
-LIBS        = -I./tiny 
-LIBS        += -I./SoftwareSerial 
-LIBS        += -I./avr -I.
+LIBS        =  -I./libs/tiny 
+LIBS        += -I./libs/avr
+LIBS        += -I./libs/SoftwareSerial
+LIBS        += -I./libs
+LIBS        += -I./src
+LIBS        += -I.
 
 CFLAGS      = $(LIBS) \
               -fno-exceptions -ffunction-sections -fdata-sections \
               -Wl,--gc-sections
 
-C_SRC   := tiny/pins_arduino.o \
-           tiny/wiring.o \
-           tiny/wiring_analog.o \
-           tiny/wiring_digital.o \
-           tiny/wiring_pulse.o \
-           tiny/wiring_shift.o
-CPP_SRC := tiny/main.o \
-           tiny/Print.o \
-           tiny/Tone.o \
-           tiny/WMath.o \
-           tiny/WString.o \
-           SoftwareSerial/SoftwareSerial.o
-SRC     := pulse.o smooth.o sampler.o
+C_SRC   := libs/tiny/pins_arduino.o \
+           libs/tiny/wiring.o \
+           libs/tiny/wiring_analog.o \
+           libs/tiny/wiring_digital.o \
+           libs/tiny/wiring_pulse.o \
+           libs/tiny/wiring_shift.o
+CPP_SRC := libs/tiny/main.o \
+           libs/tiny/Print.o \
+           libs/tiny/Tone.o \
+           libs/tiny/WMath.o \
+           libs/tiny/WString.o \
+           libs/SoftwareSerial/SoftwareSerial.o
+SRC     := src/pulse.o \
+           src/smooth.o \
+           src/sampler.o
 
 OBJECTS = $(C_SRC:.c=.o) $(CPP_SRC:.cpp=.o) $(SRC:.cpp=.o)
 COMPILE = avr-gcc -Wall -Os -DF_CPU=$(F_CPU) $(CFLAGS) -mmcu=$(DEVICE_MCCU)
@@ -61,14 +66,14 @@ fuse:
 
 # rule for uploading firmware:
 flash: pulse.hex
-	$(AVRDUDE) -U flash:w:pulse.hex:i
+	$(AVRDUDE) -U flash:w:build/pulse.hex:i
 
 read:
 	$(AVRDUDE) -U lfuse:r:lfuse.txt:h -U hfuse:r:hfuse.txt:h -U efuse:r:efuse.txt:h -U lock:r:lock.txt:h 
 
 # rule for deleting dependent files (those which can be built by Make):
 clean:
-	rm -f pulse.hex pulse.lst pulse.obj pulse.cof pulse.list pulse.map pulse.eep.hex pulse.elf pulse.s core.a *.o **/*.o **/**/*.o *.d **/*.d **/**/*.d
+	rm -f build/* *.o **/*.o **/**/*.o *.d **/*.d **/**/*.d **/**/*.lst
 
 # Generic rule for compiling C files:
 .c.o:
@@ -82,18 +87,18 @@ clean:
 	$(COMPILE) -S $< -o $@
 
 core:
-	avr-ar rcs core.a $(C_SRC:.c=.o) $(CPP_SRC:.cpp=.o)
+	avr-ar rcs build/core.a $(C_SRC:.c=.o) $(CPP_SRC:.cpp=.o)
 
 # file targets:
 pulse.elf: $(OBJECTS) core
-	$(COMPILE) -o pulse.elf $(SRC:.cpp=.o) core.a -L. -lm
+	$(COMPILE) -o build/pulse.elf $(SRC:.cpp=.o) build/core.a -L. -lm
 
 pulse.hex: pulse.elf
-	rm -f pulse.hex pulse.eep.hex
-	avr-objcopy -j .eeprom --set-section-flags=.eeprom=alloc,load --no-change-warnings --change-section-lma .eeprom=0 -O ihex pulse.elf pulse.hex
-	avr-objcopy -O ihex -R .eeprom pulse.elf pulse.hex
-	avr-size pulse.hex
+	rm -f build/pulse.hex build/pulse.eep.hex
+	avr-objcopy -j .eeprom --set-section-flags=.eeprom=alloc,load --no-change-warnings --change-section-lma .eeprom=0 -O ihex build/pulse.elf build/pulse.hex
+	avr-objcopy -O ihex -R .eeprom build/pulse.elf build/pulse.hex
+	avr-size build/pulse.hex
 
 disasm: pulse.elf
-	avr-objdump -d pulse.elf
+	avr-objdump -d build/pulse.elf
 
