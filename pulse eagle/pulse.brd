@@ -133,9 +133,14 @@
 <wire x1="18.415" y1="31.115" x2="20.955" y2="28.575" width="0.0254" layer="20" curve="-90"/>
 <wire x1="20.955" y1="28.575" x2="20.955" y2="2.54" width="0.0254" layer="20"/>
 <wire x1="20.955" y1="2.54" x2="18.415" y2="0" width="0.0254" layer="20" curve="-90"/>
-<wire x1="1.27" y1="26.035" x2="1.27" y2="24.765" width="0.127" layer="22"/>
-<wire x1="16.51" y1="29.845" x2="16.51" y2="28.575" width="0.127" layer="22"/>
-<wire x1="20.32" y1="12.065" x2="20.32" y2="10.795" width="0.127" layer="22"/>
+<wire x1="1.27" y1="26.035" x2="1.27" y2="24.765" width="0.127" layer="21"/>
+<wire x1="16.51" y1="29.845" x2="16.51" y2="28.575" width="0.127" layer="21"/>
+<wire x1="20.32" y1="12.065" x2="20.32" y2="10.795" width="0.127" layer="21"/>
+<wire x1="9.525" y1="26.67" x2="10.4775" y2="26.67" width="0.127" layer="21"/>
+<wire x1="10.4775" y1="26.67" x2="11.1125" y2="26.67" width="0.127" layer="21"/>
+<wire x1="11.1125" y1="26.67" x2="12.065" y2="26.67" width="0.127" layer="21"/>
+<wire x1="9.525" y1="21.59" x2="12.065" y2="21.59" width="0.127" layer="21"/>
+<wire x1="11.1125" y1="26.67" x2="10.4775" y2="26.67" width="0.127" layer="21" curve="-180"/>
 </plain>
 <libraries>
 <library name="Atmel_By_element14_Batch_1">
@@ -640,10 +645,10 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="VALUE" x="7.9756" y="20.1168" size="2.0828" layer="27" ratio="10" rot="SR0"/>
 </element>
 <element name="C12" library="adafruit" package="C0805" value=".1uf" x="18.415" y="11.43" smashed="yes">
-<attribute name="NAME" x="20.574" y="10.8585" size="0.508" layer="25" rot="R90"/>
+<attribute name="NAME" x="19.14525" y="12.79525" size="0.508" layer="25" rot="R180"/>
 </element>
 <element name="R10" library="adafruit" package="R0805" value="10k" x="18.415" y="8.89" smashed="yes">
-<attribute name="NAME" x="20.574" y="8.28675" size="0.508" layer="25" rot="R90"/>
+<attribute name="NAME" x="19.177" y="8.03275" size="0.508" layer="25" rot="R180"/>
 </element>
 <element name="Y1" library="remote" package="NX8045GB" value="8MHz" x="5.08" y="12.7" smashed="yes" rot="R90">
 <attribute name="NAME" x="3.985" y="12.51" size="0.508" layer="25" font="vector" ratio="10" rot="R90"/>

@@ -123,7 +123,6 @@
 </layers>
 <board>
 <plain>
-<wire x1="16.957525" y1="31.74" x2="3.5850375" y2="31.74" width="0" layer="20"/>
 <text x="18.415" y="27.94" size="1.016" layer="22" font="vector" rot="MR0">Pulse &amp; Bloom
 9 May 2014 - Rev. A</text>
 <wire x1="18.415" y1="0" x2="2.54" y2="0" width="0.0254" layer="20"/>
@@ -134,6 +133,9 @@
 <wire x1="18.415" y1="31.115" x2="20.955" y2="28.575" width="0.0254" layer="20" curve="-90"/>
 <wire x1="20.955" y1="28.575" x2="20.955" y2="2.54" width="0.0254" layer="20"/>
 <wire x1="20.955" y1="2.54" x2="18.415" y2="0" width="0.0254" layer="20" curve="-90"/>
+<wire x1="1.27" y1="26.035" x2="1.27" y2="24.765" width="0.127" layer="22"/>
+<wire x1="16.51" y1="29.845" x2="16.51" y2="28.575" width="0.127" layer="22"/>
+<wire x1="20.32" y1="12.065" x2="20.32" y2="10.795" width="0.127" layer="22"/>
 </plain>
 <libraries>
 <library name="Atmel_By_element14_Batch_1">
@@ -724,7 +726,6 @@ Please make sure your boards conform to these design rules.</description>
 <contactref element="CN1" pad="2"/>
 <contactref element="C11" pad="1"/>
 <contactref element="C10" pad="1"/>
-<contactref element="J1" pad="6"/>
 <contactref element="R3" pad="1"/>
 <contactref element="R4" pad="1"/>
 <contactref element="R5" pad="1"/>
@@ -752,23 +753,26 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="5.5" y1="29.845" x2="6.135" y2="29.21" width="0.1524" layer="1"/>
 <wire x1="19.265" y1="26.67" x2="19.685" y2="26.67" width="0.1524" layer="1"/>
 <wire x1="19.685" y1="26.67" x2="20.32" y2="26.035" width="0.1524" layer="1"/>
-<wire x1="20.32" y1="26.035" x2="20.32" y2="13.97" width="0.1524" layer="1"/>
+<wire x1="20.32" y1="26.035" x2="20.32" y2="14.2875" width="0.1524" layer="1"/>
+<wire x1="20.32" y1="14.2875" x2="20.0025" y2="13.97" width="0.1524" layer="1"/>
 <wire x1="12.065" y1="19.05" x2="16.51" y2="19.05" width="0.1524" layer="16"/>
 <wire x1="16.51" y1="19.05" x2="20.32" y2="15.24" width="0.1524" layer="16"/>
-<wire x1="20.32" y1="15.24" x2="20.32" y2="13.97" width="0.1524" layer="16"/>
-<via x="20.32" y="13.97" extent="1-16" drill="0.3302"/>
-<wire x1="20.32" y1="13.97" x2="20.32" y2="12.485" width="0.1524" layer="1"/>
+<wire x1="20.32" y1="15.24" x2="20.32" y2="14.2875" width="0.1524" layer="16"/>
+<wire x1="20.32" y1="14.2875" x2="20.0025" y2="13.97" width="0.1524" layer="16"/>
+<via x="20.0025" y="13.97" extent="1-16" drill="0.3302"/>
+<wire x1="20.0025" y1="13.97" x2="20.32" y2="13.6525" width="0.1524" layer="1"/>
+<wire x1="20.32" y1="13.6525" x2="20.32" y2="12.485" width="0.1524" layer="1"/>
 <wire x1="20.32" y1="12.485" x2="19.265" y2="11.43" width="0.1524" layer="1"/>
 <wire x1="2.54" y1="19.685" x2="2.54" y2="19.05" width="0.1524" layer="1"/>
 <wire x1="2.54" y1="19.05" x2="3.81" y2="17.78" width="0.1524" layer="1"/>
 <wire x1="3.81" y1="17.78" x2="6.985" y2="17.78" width="0.1524" layer="1"/>
 <wire x1="6.985" y1="17.78" x2="10.795" y2="17.78" width="0.1524" layer="1"/>
 <wire x1="10.795" y1="17.78" x2="12.065" y2="19.05" width="0.1524" layer="1"/>
-<wire x1="15.97" y1="1.54" x2="17.415" y2="1.54" width="0.1524" layer="16"/>
 <wire x1="17.415" y1="1.54" x2="18.0975" y2="2.2225" width="0.1524" layer="16"/>
 <wire x1="18.0975" y1="2.2225" x2="18.0975" y2="3.4925" width="0.1524" layer="16"/>
 <wire x1="18.0975" y1="3.4925" x2="20.32" y2="5.715" width="0.1524" layer="16"/>
-<wire x1="20.32" y1="5.715" x2="20.32" y2="13.97" width="0.1524" layer="16"/>
+<wire x1="20.32" y1="5.715" x2="20.32" y2="13.6525" width="0.1524" layer="16"/>
+<wire x1="20.32" y1="13.6525" x2="20.0025" y2="13.97" width="0.1524" layer="16"/>
 <polygon width="0.1524" layer="1" spacing="0.254" pour="hatch">
 <vertex x="-0.635" y="31.75"/>
 <vertex x="21.59" y="31.75"/>
@@ -784,6 +788,7 @@ Please make sure your boards conform to these design rules.</description>
 <contactref element="IC1" pad="4"/>
 <wire x1="8.195" y1="22.225" x2="8.195" y2="18.99" width="0.1524" layer="1"/>
 <wire x1="8.195" y1="18.99" x2="6.985" y2="17.78" width="0.1524" layer="1"/>
+<contactref element="J1" pad="6"/>
 </signal>
 <signal name="MISO">
 <contactref element="ATTINY84" pad="8"/>
