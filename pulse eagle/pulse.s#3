@@ -7143,7 +7143,7 @@ Standard 1-pin 0.1" header. Use with straight break away headers (SKU : PRT-0011
 <part name="GND9" library="SparkFun" deviceset="GND" device=""/>
 <part name="SUPPLY6" library="SparkFun-Aesthetics" deviceset="VCC" device=""/>
 <part name="GND10" library="SparkFun" deviceset="GND" device=""/>
-<part name="JP1" library="SparkFun-Connectors" deviceset="M01" device="SMDNS"/>
+<part name="JP1" library="SparkFun-Connectors" deviceset="M01" device="PTH" value="M01PTH"/>
 </parts>
 <sheets>
 <sheet>
@@ -7526,8 +7526,8 @@ Standard 1-pin 0.1" header. Use with straight break away headers (SKU : PRT-0011
 </segment>
 <segment>
 <pinref part="JP1" gate="G$1" pin="1"/>
-<wire x1="124.46" y1="43.18" x2="134.62" y2="43.18" width="0.1524" layer="91"/>
-<label x="134.62" y="43.18" size="1.016" layer="95" xref="yes"/>
+<wire x1="124.46" y1="43.18" x2="129.54" y2="43.18" width="0.1524" layer="91"/>
+<label x="129.54" y="43.18" size="1.016" layer="95" xref="yes"/>
 </segment>
 </net>
 </nets>

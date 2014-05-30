@@ -141,6 +141,7 @@
 <wire x1="11.1125" y1="26.67" x2="12.065" y2="26.67" width="0.127" layer="21"/>
 <wire x1="9.525" y1="21.59" x2="12.065" y2="21.59" width="0.127" layer="21"/>
 <wire x1="11.1125" y1="26.67" x2="10.4775" y2="26.67" width="0.127" layer="21" curve="-180"/>
+<wire x1="0.79375" y1="7.3025" x2="0.79375" y2="5.87375" width="0.254" layer="21"/>
 </plain>
 <libraries>
 <library name="Atmel_By_element14_Batch_1">

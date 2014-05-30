@@ -460,8 +460,19 @@ We've spent an enormous amount of time creating and checking these footprints an
 &lt;br&gt;&lt;br&gt;
 &lt;b&gt;Licensing:&lt;/b&gt; CC v3.0 Share-Alike You are welcome to use this library for commercial purposes. For attribution, we ask that when you begin to sell your device using our footprint, you email us with a link to the product being sold. We want bragging rights that we helped (in a very small part) to create your 8th world wonder. We would like the opportunity to feature your device on our homepage.</description>
 <packages>
-<package name="1X01NS">
+<package name="1X01">
+<wire x1="1.27" y1="0.635" x2="0.635" y2="1.27" width="0.2032" layer="21"/>
+<wire x1="0.635" y1="1.27" x2="-0.635" y2="1.27" width="0.2032" layer="21"/>
+<wire x1="-0.635" y1="1.27" x2="-1.27" y2="0.635" width="0.2032" layer="21"/>
+<wire x1="-1.27" y1="0.635" x2="-1.27" y2="-0.635" width="0.2032" layer="21"/>
+<wire x1="-1.27" y1="-0.635" x2="-0.635" y2="-1.27" width="0.2032" layer="21"/>
+<wire x1="-0.635" y1="-1.27" x2="0.635" y2="-1.27" width="0.2032" layer="21"/>
+<wire x1="0.635" y1="-1.27" x2="1.27" y2="-0.635" width="0.2032" layer="21"/>
+<wire x1="1.27" y1="-0.635" x2="1.27" y2="0.635" width="0.2032" layer="21"/>
 <pad name="1" x="0" y="0" drill="1.016" diameter="1.8796" rot="R90"/>
+<text x="1.1938" y="1.8288" size="1.27" layer="25">&gt;NAME</text>
+<text x="-1.27" y="-3.175" size="1.27" layer="27">&gt;VALUE</text>
+<rectangle x1="-0.254" y1="-0.254" x2="0.254" y2="0.254" layer="51"/>
 </package>
 </packages>
 </library>
@@ -735,7 +746,7 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="NAME" x="4.92125" y="20.2184" size="0.508" layer="26" ratio="10" rot="MR0"/>
 <attribute name="VALUE" x="0.6096" y="17.2466" size="1.27" layer="28" ratio="10" rot="MR0"/>
 </element>
-<element name="JP1" library="SparkFun-Connectors" package="1X01NS" value="M01SMDNS" x="0" y="-3.175"/>
+<element name="JP1" library="SparkFun-Connectors" package="1X01" value="M01PTH" x="16.1925" y="13.6525"/>
 </elements>
 <signals>
 <signal name="GND">
@@ -1030,7 +1041,8 @@ Please make sure your boards conform to these design rules.</description>
 <signal name="SERIAL">
 <contactref element="ATTINY84" pad="12"/>
 <contactref element="JP1" pad="1"/>
-<wire x1="0" y1="-3.175" x2="13.8938" y2="13.97" width="0" layer="19" extent="1-1"/>
+<wire x1="13.8938" y1="13.97" x2="15.875" y2="13.97" width="0.1524" layer="1"/>
+<wire x1="15.875" y1="13.97" x2="16.1925" y2="13.6525" width="0.1524" layer="1"/>
 </signal>
 </signals>
 </board>
