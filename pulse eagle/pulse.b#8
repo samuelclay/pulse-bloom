@@ -754,7 +754,7 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="NAME" x="4.92125" y="20.2184" size="0.508" layer="26" ratio="10" rot="MR0"/>
 <attribute name="VALUE" x="0.6096" y="17.2466" size="1.27" layer="28" ratio="10" rot="MR0"/>
 </element>
-<element name="JP2" library="SparkFun-Connectors" package="1X02" value="M02PTH" x="0.635" y="-5.715"/>
+<element name="JP2" library="SparkFun-Connectors" package="1X02" value="M02PTH" x="10.16" y="6.985"/>
 </elements>
 <signals>
 <signal name="GND">
@@ -827,24 +827,32 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="8.195" y1="18.99" x2="6.985" y2="17.78" width="0.1524" layer="1"/>
 <contactref element="J1" pad="6"/>
 <contactref element="JP2" pad="1"/>
-<wire x1="2.81" y1="3.81" x2="0.635" y2="-5.715" width="0" layer="19" extent="1-1"/>
+<wire x1="10.16" y1="6.985" x2="5.23875" y2="2.06375" width="0.1524" layer="1"/>
+<wire x1="5.23875" y1="2.06375" x2="4.55625" y2="2.06375" width="0.1524" layer="1"/>
+<wire x1="4.55625" y1="2.06375" x2="2.81" y2="3.81" width="0.1524" layer="1"/>
 </signal>
 <signal name="MISO">
 <contactref element="ATTINY84" pad="8"/>
 <contactref element="J1" pad="1"/>
-<wire x1="10.97" y1="3.54" x2="10.97" y2="7.795" width="0.1524" layer="16"/>
-<wire x1="10.97" y1="7.795" x2="12.065" y2="8.89" width="0.1524" layer="16"/>
+<wire x1="10.97" y1="3.54" x2="10.97" y2="4.62" width="0.1524" layer="16"/>
+<wire x1="10.97" y1="4.62" x2="11.43" y2="5.08" width="0.1524" layer="16"/>
+<wire x1="11.43" y1="5.08" x2="11.44625" y2="8.27125" width="0.1524" layer="16"/>
+<wire x1="11.44625" y1="8.27125" x2="12.065" y2="8.89" width="0.1524" layer="16"/>
 <via x="12.065" y="8.89" extent="1-16" drill="0.3302"/>
 <wire x1="12.065" y1="8.89" x2="13.8938" y2="8.89" width="0.1524" layer="1"/>
 </signal>
 <signal name="MOSI">
 <contactref element="ATTINY84" pad="7"/>
 <contactref element="J1" pad="4"/>
-<wire x1="14.97" y1="3.54" x2="14.97" y2="5.445" width="0.1524" layer="16"/>
-<wire x1="14.97" y1="5.445" x2="15.5575" y2="6.0325" width="0.1524" layer="16"/>
-<via x="15.5575" y="6.0325" extent="1-16" drill="0.3302"/>
-<wire x1="15.5575" y1="6.0325" x2="11.8237" y2="6.0325" width="0.1524" layer="1"/>
-<wire x1="11.8237" y1="6.0325" x2="8.9662" y2="8.89" width="0.1524" layer="1"/>
+<wire x1="8.9662" y1="8.89" x2="10.16" y2="8.89" width="0.1524" layer="1"/>
+<wire x1="10.16" y1="8.89" x2="11.43" y2="7.62" width="0.1524" layer="1"/>
+<wire x1="11.43" y1="7.62" x2="11.43" y2="6.35" width="0.1524" layer="1"/>
+<wire x1="11.43" y1="6.35" x2="12.7" y2="5.08" width="0.1524" layer="1"/>
+<wire x1="12.7" y1="5.08" x2="14.2875" y2="5.08" width="0.1524" layer="1"/>
+<wire x1="14.2875" y1="5.08" x2="14.9225" y2="5.715" width="0.1524" layer="1"/>
+<via x="14.9225" y="5.715" extent="1-16" drill="0.3302"/>
+<wire x1="14.9225" y1="5.715" x2="14.9225" y2="3.5875" width="0.1524" layer="16"/>
+<wire x1="14.9225" y1="3.5875" x2="14.97" y2="3.54" width="0.1524" layer="16"/>
 </signal>
 <signal name="SCK">
 <contactref element="ATTINY84" pad="9"/>
@@ -1050,9 +1058,15 @@ Please make sure your boards conform to these design rules.</description>
 </signal>
 <signal name="SERIAL">
 <contactref element="ATTINY84" pad="12"/>
-<wire x1="13.8938" y1="13.97" x2="15.875" y2="13.97" width="0.1524" layer="1"/>
+<wire x1="13.8938" y1="13.97" x2="15.875" y2="13.97" width="0" layer="19" extent="1-16"/>
 <contactref element="JP2" pad="2"/>
-<wire x1="3.175" y1="-5.715" x2="13.8938" y2="13.97" width="0" layer="19" extent="1-1"/>
+<wire x1="12.7" y1="6.985" x2="12.7" y2="7.3025" width="0.1524" layer="1"/>
+<wire x1="12.7" y1="7.3025" x2="10.95375" y2="9.04875" width="0.1524" layer="1"/>
+<wire x1="10.95375" y1="9.04875" x2="10.95375" y2="11.90625" width="0.1524" layer="1"/>
+<wire x1="10.95375" y1="11.90625" x2="12.22375" y2="13.17625" width="0.1524" layer="1"/>
+<wire x1="12.22375" y1="13.17625" x2="12.22375" y2="13.49375" width="0.1524" layer="1"/>
+<wire x1="12.22375" y1="13.49375" x2="12.7" y2="13.97" width="0.1524" layer="1"/>
+<wire x1="12.7" y1="13.97" x2="13.8938" y2="13.97" width="0.1524" layer="1"/>
 </signal>
 </signals>
 </board>

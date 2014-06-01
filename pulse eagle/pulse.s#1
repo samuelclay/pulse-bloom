@@ -72,6 +72,7 @@
 <layer number="111" name="LPC17xx" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="112" name="tSilk" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="116" name="Patch_BOT" color="9" fill="4" visible="yes" active="yes"/>
+<layer number="118" name="Rect_Pads" color="7" fill="1" visible="no" active="no"/>
 <layer number="121" name="_tsilk" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="122" name="_bsilk" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="123" name="tTestmark" color="7" fill="1" visible="no" active="yes"/>
@@ -7491,7 +7492,7 @@ will be further integrated into the Sparkfun Library for other footprints.  It c
 <part name="C3" library="adafruit" deviceset="C-US" device="C0805" value="1uf"/>
 <part name="C2" library="SparkFun-Passives" deviceset="CAP" device="0805" value=".1uF"/>
 <part name="C4" library="SparkFun-Passives" deviceset="CAP" device="0805" value=".1uF"/>
-<part name="T1" library="transistor" deviceset="BC846" device="" value="2N3904"/>
+<part name="T1" library="transistor" deviceset="BC846" device="" value="MMBT3904"/>
 <part name="IC1" library="linear" deviceset="LM358" device="D"/>
 <part name="GND1" library="SparkFun" deviceset="GND" device=""/>
 <part name="GND2" library="SparkFun" deviceset="GND" device=""/>

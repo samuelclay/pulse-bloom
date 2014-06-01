@@ -72,6 +72,7 @@
 <layer number="111" name="LPC17xx" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="112" name="tSilk" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="116" name="Patch_BOT" color="9" fill="4" visible="yes" active="yes"/>
+<layer number="118" name="Rect_Pads" color="7" fill="1" visible="no" active="no"/>
 <layer number="121" name="_tsilk" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="122" name="_bsilk" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="123" name="tTestmark" color="7" fill="1" visible="no" active="yes"/>
@@ -7512,6 +7513,7 @@ will be further integrated into the Sparkfun Library for other footprints.  It c
 <part name="GND10" library="SparkFun" deviceset="GND" device=""/>
 <part name="JP2" library="SparkFun-Connectors" deviceset="M02" device="PTH"/>
 <part name="GND11" library="SparkFun" deviceset="GND" device=""/>
+<part name="SUPPLY7" library="SparkFun-Aesthetics" deviceset="VCC" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -7565,6 +7567,7 @@ will be further integrated into the Sparkfun Library for other footprints.  It c
 <instance part="GND10" gate="1" x="147.32" y="20.32"/>
 <instance part="JP2" gate="G$1" x="119.38" y="45.72"/>
 <instance part="GND11" gate="1" x="129.54" y="40.64"/>
+<instance part="SUPPLY7" gate="1" x="83.82" y="35.56"/>
 </instances>
 <busses>
 </busses>
@@ -7725,6 +7728,12 @@ will be further integrated into the Sparkfun Library for other footprints.  It c
 <pinref part="SUPPLY4" gate="1" pin="VCC"/>
 <wire x1="58.42" y1="83.82" x2="58.42" y2="86.36" width="0.1524" layer="91"/>
 </segment>
+<segment>
+<pinref part="ATTINY84" gate="A" pin="PA0"/>
+<wire x1="78.74" y1="33.02" x2="83.82" y2="33.02" width="0.1524" layer="91"/>
+<wire x1="83.82" y1="33.02" x2="83.82" y2="35.56" width="0.1524" layer="91"/>
+<pinref part="SUPPLY7" gate="1" pin="VCC"/>
+</segment>
 </net>
 <net name="RESET" class="0">
 <segment>
@@ -7881,27 +7890,27 @@ will be further integrated into the Sparkfun Library for other footprints.  It c
 </net>
 <net name="A0" class="0">
 <segment>
-<pinref part="ATTINY84" gate="A" pin="PA0"/>
-<wire x1="78.74" y1="33.02" x2="83.82" y2="33.02" width="0.1524" layer="91"/>
-<label x="83.82" y="33.02" size="1.016" layer="95" xref="yes"/>
-</segment>
-<segment>
 <pinref part="T1" gate="G$1" pin="E"/>
 <wire x1="137.16" y1="68.58" x2="137.16" y2="60.96" width="0.1524" layer="91"/>
 <wire x1="137.16" y1="60.96" x2="142.24" y2="60.96" width="0.1524" layer="91"/>
 <label x="142.24" y="60.96" size="1.016" layer="95" xref="yes"/>
 </segment>
-</net>
-<net name="SERIAL" class="0">
 <segment>
 <pinref part="ATTINY84" gate="A" pin="PA1"/>
 <wire x1="78.74" y1="30.48" x2="83.82" y2="30.48" width="0.1524" layer="91"/>
 <label x="83.82" y="30.48" size="1.016" layer="95" xref="yes"/>
 </segment>
+</net>
+<net name="SERIAL" class="0">
 <segment>
 <wire x1="127" y1="48.26" x2="129.54" y2="48.26" width="0.1524" layer="91"/>
 <label x="129.54" y="48.26" size="1.016" layer="95" xref="yes"/>
 <pinref part="JP2" gate="G$1" pin="2"/>
+</segment>
+<segment>
+<pinref part="ATTINY84" gate="A" pin="PA2"/>
+<wire x1="78.74" y1="27.94" x2="83.82" y2="27.94" width="0.1524" layer="91"/>
+<label x="83.82" y="27.94" size="1.016" layer="95" xref="yes"/>
 </segment>
 </net>
 </nets>

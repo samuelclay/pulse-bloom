@@ -7471,7 +7471,7 @@ will be further integrated into the Sparkfun Library for other footprints.  It c
 </classes>
 <parts>
 <part name="ATTINY84" library="Atmel_By_element14_Batch_1" deviceset="ATTINY84-20SSU" device="" value=""/>
-<part name="C12" library="adafruit" deviceset="C-US" device="C0805" value=".1uf"/>
+<part name="C12" library="adafruit" deviceset="C-US" device="C0805" value=".1uF"/>
 <part name="R10" library="adafruit" deviceset="R-US_" device="R0805" value="10k"/>
 <part name="Y1" library="remote" deviceset="CRYSTAL" device="" value="8MHz"/>
 <part name="GND3" library="SparkFun" deviceset="GND" device=""/>
@@ -7480,18 +7480,18 @@ will be further integrated into the Sparkfun Library for other footprints.  It c
 <part name="J1" library="remote" deviceset="ISPTOUCH" device="_HEADER" value="ISP Touch"/>
 <part name="CN1" library="adafruit" deviceset="JST_2PIN" device="-THM"/>
 <part name="R1" library="SparkFun-Resistors" deviceset="220-5%" device="" value="220"/>
-<part name="R2" library="SparkFun-Resistors" deviceset="220-5%" device="" value="220"/>
-<part name="R3" library="SparkFun-Resistors" deviceset="220-5%" device="" value="220"/>
-<part name="R4" library="SparkFun-Resistors" deviceset="220-5%" device="" value="220"/>
-<part name="R5" library="SparkFun-Resistors" deviceset="220-5%" device="" value="220"/>
-<part name="R6" library="SparkFun-Resistors" deviceset="220-5%" device="" value="220"/>
-<part name="R7" library="SparkFun-Resistors" deviceset="220-5%" device="" value="220"/>
-<part name="R8" library="SparkFun-Resistors" deviceset="220-5%" device="" value="220"/>
-<part name="C1" library="adafruit" deviceset="C-US" device="C0805" value=".1uf"/>
-<part name="C3" library="adafruit" deviceset="C-US" device="C0805" value=".1uf"/>
-<part name="C2" library="SparkFun-Passives" deviceset="CAP" device="0805" value="15pF"/>
-<part name="C4" library="SparkFun-Passives" deviceset="CAP" device="0805" value="15pF"/>
-<part name="T1" library="transistor" deviceset="BC846" device=""/>
+<part name="R2" library="SparkFun-Resistors" deviceset="220-5%" device="" value="39k"/>
+<part name="R3" library="SparkFun-Resistors" deviceset="220-5%" device="" value="68k"/>
+<part name="R4" library="SparkFun-Resistors" deviceset="220-5%" device="" value="8.2k"/>
+<part name="R5" library="SparkFun-Resistors" deviceset="220-5%" device="" value="68k"/>
+<part name="R6" library="SparkFun-Resistors" deviceset="220-5%" device="" value="1k"/>
+<part name="R7" library="SparkFun-Resistors" deviceset="220-5%" device="" value="470k"/>
+<part name="R8" library="SparkFun-Resistors" deviceset="220-5%" device="" value="1.8k"/>
+<part name="C1" library="adafruit" deviceset="C-US" device="C0805" value="1uf"/>
+<part name="C3" library="adafruit" deviceset="C-US" device="C0805" value="1uf"/>
+<part name="C2" library="SparkFun-Passives" deviceset="CAP" device="0805" value=".1uF"/>
+<part name="C4" library="SparkFun-Passives" deviceset="CAP" device="0805" value=".1uF"/>
+<part name="T1" library="transistor" deviceset="BC846" device="" value="MMBT3904"/>
 <part name="IC1" library="linear" deviceset="LM358" device="D"/>
 <part name="GND1" library="SparkFun" deviceset="GND" device=""/>
 <part name="GND2" library="SparkFun" deviceset="GND" device=""/>
@@ -7560,7 +7560,7 @@ will be further integrated into the Sparkfun Library for other footprints.  It c
 <instance part="GND8" gate="1" x="58.42" y="63.5"/>
 <instance part="SUPPLY4" gate="1" x="58.42" y="86.36"/>
 <instance part="SUPPLY5" gate="1" x="27.94" y="35.56"/>
-<instance part="GND9" gate="1" x="35.56" y="10.16"/>
+<instance part="GND9" gate="1" x="27.94" y="10.16"/>
 <instance part="SUPPLY6" gate="1" x="104.14" y="22.86"/>
 <instance part="GND10" gate="1" x="147.32" y="20.32"/>
 <instance part="JP2" gate="G$1" x="119.38" y="45.72"/>
@@ -7572,12 +7572,11 @@ will be further integrated into the Sparkfun Library for other footprints.  It c
 <net name="GND" class="0">
 <segment>
 <pinref part="ATTINY84" gate="A" pin="GND"/>
-<wire x1="43.18" y1="15.24" x2="35.56" y2="15.24" width="0.1524" layer="91"/>
-<wire x1="35.56" y1="15.24" x2="35.56" y2="12.7" width="0.1524" layer="91"/>
+<wire x1="43.18" y1="15.24" x2="27.94" y2="15.24" width="0.1524" layer="91"/>
+<wire x1="27.94" y1="15.24" x2="27.94" y2="12.7" width="0.1524" layer="91"/>
 <pinref part="C12" gate="G$1" pin="2"/>
 <wire x1="27.94" y1="20.32" x2="27.94" y2="15.24" width="0.1524" layer="91"/>
-<junction x="35.56" y="15.24"/>
-<wire x1="27.94" y1="15.24" x2="35.56" y2="15.24" width="0.1524" layer="91"/>
+<junction x="27.94" y="15.24"/>
 <junction x="27.94" y="15.24"/>
 <wire x1="27.94" y1="15.24" x2="15.24" y2="15.24" width="0.1524" layer="91"/>
 <wire x1="15.24" y1="15.24" x2="15.24" y2="22.86" width="0.1524" layer="91"/>

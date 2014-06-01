@@ -72,6 +72,7 @@
 <layer number="111" name="LPC17xx" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="112" name="tSilk" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="116" name="Patch_BOT" color="9" fill="4" visible="yes" active="yes"/>
+<layer number="118" name="Rect_Pads" color="7" fill="1" visible="no" active="no"/>
 <layer number="121" name="_tsilk" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="122" name="_bsilk" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="123" name="tTestmark" color="7" fill="1" visible="no" active="yes"/>
@@ -741,7 +742,7 @@ Please make sure your boards conform to these design rules.</description>
 <element name="C4" library="SparkFun-Passives" package="0805" value=".1uF" x="18.415" y="24.765" smashed="yes">
 <attribute name="NAME" x="16.9545" y="24.47925" size="0.4064" layer="25" rot="R90"/>
 </element>
-<element name="T1" library="transistor" package="SOT23" value="2N3904" x="18.415" y="15.24" smashed="yes" rot="R180">
+<element name="T1" library="transistor" package="SOT23" value="MMBT3904" x="18.415" y="15.24" smashed="yes" rot="R180">
 <attribute name="NAME" x="17.78" y="14.44625" size="0.508" layer="25" rot="R180"/>
 </element>
 <element name="IC1" library="linear" package="SO08" value="LM358D" x="10.795" y="24.13" smashed="yes" rot="R270">
