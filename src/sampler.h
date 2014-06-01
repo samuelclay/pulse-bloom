@@ -19,7 +19,7 @@ public:
     uint8_t count();
     uint16_t getPercentile(float);
     uint16_t getPeriod();
-    bool isPeaked(SoftwareSerial);
+    int isPeaked(SoftwareSerial);
     
 protected:
     long _peakedTime;

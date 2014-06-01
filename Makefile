@@ -6,7 +6,7 @@
 DEVICE      = attiny84
 DEVICE_MCCU = attiny84     # See http://gcc.gnu.org/onlinedocs/gcc/AVR-Options.html
 PROGRAMMER ?= usbtiny
-F_CPU       = 16000000
+F_CPU       = 8000000
 FUSE_L      = 0xFF
 FUSE_H      = 0xD7
 

@@ -68,10 +68,11 @@ uint16_t Sampler::getPeriod() {
     return _period;
 }
 
-bool Sampler::isPeaked(SoftwareSerial mySerial) {
-    uint16_t p70 = getPercentile(.7);
-    uint16_t p30 = getPercentile(.3);
+int Sampler::isPeaked(SoftwareSerial mySerial) {
+    uint16_t pTop = getPercentile(.5);
+    uint16_t pBottom = getPercentile(.3);
     uint8_t i = _idx >= 1 ? (_idx - 1) : 0;
+    bool isSpread = (pTop - pBottom) > 20;
     bool peaked = false;
     long currentTime = millis();
     uint16_t diffTime = currentTime - _peakedTime;
@@ -79,11 +80,11 @@ bool Sampler::isPeaked(SoftwareSerial mySerial) {
                             max(0, currentTime - _fakePeakedTime);
     bool hitThreshold = false;
     
-    if (!_hitTop && _ar[i] < p30) {
+    if (!_hitTop && _ar[i] < pBottom && isSpread) {
         _hitBottom = true;
     } else if (_hitBottom && !_hitTop &&
-               _ar[i] > p70 &&
-               _ar[i] > p30*1.2 &&
+               _ar[i] > pTop &&
+               _ar[i] > pBottom*1.2 &&
                diffTime > MIN_HEARTBEAT_PERIOD) {
         _hitTop = true;
         _hitBottom = false;
@@ -99,16 +100,18 @@ bool Sampler::isPeaked(SoftwareSerial mySerial) {
         _period = digitalSmooth(unsmoothPeriod, smoothedPeriods, mySerial);
         _peakedTime = millis();
         _fakePeakedTime = _peakedTime;
-        peaked = true;
-    } else if (diffTime < HEARTBEAT_DURATION || fakeDiffTime < HEARTBEAT_DURATION) {
-        peaked = true;
+        return 1;
+    } else if (diffTime < HEARTBEAT_DURATION) {
+        return 1;
+    } else if (fakeDiffTime < HEARTBEAT_DURATION) {
+        return -1;
     } else if (_hitTop &&
                diffTime > _period/3) {
         _hitTop = false;
-    } else if (fakeDiffTime > (_period + 100)) {
+    } else if (fakeDiffTime > (_peakedTime + _period + 100)) {
         _fakePeakedTime = millis() + 100;
-        peaked = true;
+        return -1;
     }
     
-    return peaked;
+    return 0;
 }
