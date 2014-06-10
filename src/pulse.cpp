@@ -89,20 +89,24 @@ void loop() {
     }
     
     if (peaked != 0 || appState == STATE_LED_RISING) {
+        if (appState != STATE_LED_RISING) {
+            for (int i=0; i < numPixels; i++) {
+                strip.setPixelColor(i, 0, 0, 0);
+            }
+            strip.show();
+        }
         appState = STATE_LED_RISING;
-        ledBrightness = min(ledBrightness + 6, 255*4);
+        ledBrightness = min(ledBrightness + 8, 255*4);
         analogWrite(leftLedPin, ledBrightness/4);
         
         int pixel = ledBrightness >> 4;
         // Reset old pixels that won't be refreshed
         strip.setPixelColor(max(0, pixel - 3), 0, 0, 0);
-        strip.setPixelColor(max(0, pixel - 3), 0, 0, 0);
-        strip.setPixelColor(max(0, pixel - 3), 0, 0, 0);
         
         // Fade new pixels
         strip.setPixelColor(pixel, strip.Color(255, 0, 0));
         strip.setPixelColor(max(0, pixel - 1), strip.Color(80, 0, 0));
-        strip.setPixelColor(min(-1, pixel + 1), strip.Color(80, 0, 0));
+        strip.setPixelColor(min(numPixels-1, pixel + 1), strip.Color(80, 0, 0));
         strip.setPixelColor(max(0, pixel - 2), strip.Color(6, 0, 0));
         strip.setPixelColor(min(numPixels-1, pixel + 2), strip.Color(6, 0, 0));
         strip.show();
@@ -112,6 +116,7 @@ void loop() {
             for (int i=0; i < numPixels; i++) {
                 strip.setPixelColor(i, 0, 0, 0);
             }
+            strip.show();
         }
     } else if ((peaked == 0 && appState == STATE_ON) || 
                appState == STATE_LED_FALLING) {
@@ -124,6 +129,7 @@ void loop() {
             for (int i=0; i < numPixels; i++) {
                 strip.setPixelColor(i, 0, 0, 0);
             }
+            strip.show();
         }
     }
         
