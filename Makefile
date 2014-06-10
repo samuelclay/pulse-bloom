@@ -7,14 +7,19 @@ DEVICE      = attiny84
 DEVICE_MCCU = attiny84     # See http://gcc.gnu.org/onlinedocs/gcc/AVR-Options.html
 PROGRAMMER ?= usbtiny
 F_CPU       = 8000000
-FUSE_L      = 0xFF
-FUSE_H      = 0xD7
+# Ext Clock
+# FUSE_L      = 0xFF
+# FUSE_H      = 0xD7
+# Int Clock
+FUSE_L      = 0xE2
+FUSE_H      = 0xDF
 
 AVRDUDE     = avrdude -v -v -v -v -c $(PROGRAMMER) -p $(DEVICE) -P usb
 
 LIBS        =  -I./libs/tiny 
 LIBS        += -I./libs/avr
 LIBS        += -I./libs/SoftwareSerial
+LIBS        += -I./libs/neopixel
 LIBS        += -I./libs
 LIBS        += -I./src
 LIBS        += -I.
@@ -34,7 +39,8 @@ CPP_SRC := libs/tiny/main.o \
            libs/tiny/Tone.o \
            libs/tiny/WMath.o \
            libs/tiny/WString.o \
-           libs/SoftwareSerial/SoftwareSerial.o
+           libs/SoftwareSerial/SoftwareSerial.o \
+           libs/neopixel/Adafruit_NeoPixel.o
 SRC     := src/pulse.o \
            src/smooth.o \
            src/sampler.o
