@@ -79,17 +79,17 @@ void loop() {
     
     if (peaked != 0 || appState == STATE_LED_RISING) {
         appState = STATE_LED_RISING;
-        ledBrightness = min(ledBrightness + 2, 255);
-        analogWrite(leftLedPin, ledBrightness);
+        ledBrightness = min(ledBrightness + 8, 255*4);
+        analogWrite(leftLedPin, ledBrightness/4);
         delay(1);
-        if (ledBrightness >= 255) {
+        if (ledBrightness >= (255*4)) {
             appState = STATE_ON;
         }
     } else if ((peaked == 0 && appState == STATE_ON) || 
                appState == STATE_LED_FALLING) {
         appState = STATE_LED_FALLING;
-        ledBrightness = max(0, ledBrightness - 1);
-        analogWrite(leftLedPin, ledBrightness);
+        ledBrightness = max(0, ledBrightness - 4);
+        analogWrite(leftLedPin, ledBrightness/4);
         delay(1);
         if (ledBrightness <= 0) {
             appState = STATE_RESTING;
