@@ -25,6 +25,9 @@ void Sampler::clear() {
 }
 
 void Sampler::add(uint16_t n) {
+    // Only keeping track of useful values
+    if (n == 0) return;
+
     _ar[_idx++] = n;
     
     if (_idx >= _count) _idx = 0;
@@ -69,27 +72,33 @@ uint16_t Sampler::getPeriod() {
 }
 
 int Sampler::isPeaked(SoftwareSerial mySerial) {
-    uint16_t pTop = getPercentile(.5);
-    uint16_t pBottom = getPercentile(.3);
+    calculateStats();
+    uint16_t pTop = getPercentile(.7);
+    uint16_t pBottom = getPercentile(.5);
     uint8_t i = _idx >= 1 ? (_idx - 1) : 0;
     bool isSpread = (pTop - pBottom) > 20;
     bool peaked = false;
     long currentTime = millis();
-    uint16_t diffTime = currentTime - _peakedTime;
+    uint16_t sinceLastRealBeat = currentTime - _peakedTime;
     uint16_t fakeDiffTime = _fakePeakedTime > currentTime ? 0 : 
                             max(0, currentTime - _fakePeakedTime);
     bool hitThreshold = false;
+    
+    // mySerial.print("sinceLastRealBeat=");
+    // mySerial.print(sinceLastRealBeat, DEC);
+    // mySerial.print("  fakeDiffTime=");
+    // mySerial.println(fakeDiffTime, DEC);
     
     if (!_hitTop && _ar[i] < pBottom && isSpread) {
         _hitBottom = true;
     } else if (_hitBottom && !_hitTop &&
                _ar[i] > pTop &&
                _ar[i] > pBottom*1.2 &&
-               diffTime > MIN_HEARTBEAT_PERIOD) {
+               sinceLastRealBeat > MIN_HEARTBEAT_PERIOD) {
         _hitTop = true;
         _hitBottom = false;
         hitThreshold = true;
-    } else if (diffTime > MAX_HEARTBEAT_PERIOD) {
+    } else if (sinceLastRealBeat > MAX_HEARTBEAT_PERIOD) {
         _hitTop = true;
         _hitBottom = false;
         hitThreshold = true;
@@ -101,15 +110,15 @@ int Sampler::isPeaked(SoftwareSerial mySerial) {
         _peakedTime = millis();
         _fakePeakedTime = _peakedTime;
         return 1;
-    } else if (diffTime < HEARTBEAT_DURATION) {
+    } else if (sinceLastRealBeat < HEARTBEAT_DURATION) {
         return 1;
     } else if (fakeDiffTime < HEARTBEAT_DURATION) {
         return -1;
     } else if (_hitTop &&
-               diffTime > _period/3) {
+               sinceLastRealBeat > _period/3) {
         _hitTop = false;
-    } else if (fakeDiffTime > (_peakedTime + _period + 100)) {
-        _fakePeakedTime = millis() + 100;
+    } else if (fakeDiffTime > _period + 100) {
+        _fakePeakedTime = millis();
         return -1;
     }
     

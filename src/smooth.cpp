@@ -47,12 +47,13 @@ uint16_t digitalSmooth(uint16_t rawIn, uint16_t *sensSmoothArray, SoftwareSerial
     }
   }
 
-
-  for (j = 0; j < (filterSamples); j++){    // print the array to debug
-    mySerial.print(sorted[j]); 
-    mySerial.print("   "); 
+  if (false) {
+      for (j = 0; j < (filterSamples); j++){    // print the array to debug
+        mySerial.print(sorted[j]); 
+        mySerial.print("   "); 
+      }
+      mySerial.println();
   }
-  mySerial.println();
 
 
   // throw out top and bottom 15% of samples - limit to throw out at least one from top and bottom
