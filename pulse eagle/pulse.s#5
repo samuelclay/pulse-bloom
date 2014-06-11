@@ -8452,14 +8452,14 @@ DIN A5, landscape with doc field</description>
 </net>
 <net name="SERIAL" class="0">
 <segment>
-<pinref part="ATTINY84" gate="A" pin="PB2"/>
-<wire x1="124.46" y1="45.72" x2="121.92" y2="45.72" width="0.1524" layer="91"/>
-<label x="121.92" y="45.72" size="1.016" layer="95" rot="R180" xref="yes"/>
-</segment>
-<segment>
 <pinref part="JP2" gate="G$1" pin="1"/>
 <wire x1="43.18" y1="66.04" x2="48.26" y2="66.04" width="0.1524" layer="91"/>
 <label x="48.26" y="66.04" size="1.016" layer="95" xref="yes"/>
+</segment>
+<segment>
+<pinref part="ATTINY84" gate="A" pin="PA3"/>
+<wire x1="160.02" y1="48.26" x2="165.1" y2="48.26" width="0.1524" layer="91"/>
+<label x="165.1" y="48.26" size="1.016" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="ELWIRE" class="0">
@@ -8476,14 +8476,14 @@ DIN A5, landscape with doc field</description>
 </net>
 <net name="REALLED" class="0">
 <segment>
-<pinref part="ATTINY84" gate="A" pin="PA3"/>
-<wire x1="160.02" y1="48.26" x2="165.1" y2="48.26" width="0.1524" layer="91"/>
-<label x="165.1" y="48.26" size="1.016" layer="95" xref="yes"/>
-</segment>
-<segment>
 <pinref part="LED1" gate="G$1" pin="A"/>
 <wire x1="40.64" y1="114.3" x2="48.26" y2="114.3" width="0.1524" layer="91"/>
 <label x="48.26" y="114.3" size="1.016" layer="95" xref="yes"/>
+</segment>
+<segment>
+<pinref part="ATTINY84" gate="A" pin="PB2"/>
+<wire x1="124.46" y1="45.72" x2="121.92" y2="45.72" width="0.1524" layer="91"/>
+<label x="121.92" y="45.72" size="1.016" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="BEATLED" class="0">

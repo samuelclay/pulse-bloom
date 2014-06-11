@@ -71,7 +71,7 @@ uint16_t Sampler::getPeriod() {
     return _period;
 }
 
-int Sampler::isPeaked(SoftwareSerial mySerial) {
+int Sampler::isPeaked() {
     calculateStats();
     uint16_t pTop = getPercentile(.7);
     uint16_t pBottom = getPercentile(.5);
@@ -83,11 +83,6 @@ int Sampler::isPeaked(SoftwareSerial mySerial) {
     uint16_t fakeDiffTime = _fakePeakedTime > currentTime ? 0 : 
                             max(0, currentTime - _fakePeakedTime);
     bool hitThreshold = false;
-    
-    // mySerial.print("sinceLastRealBeat=");
-    // mySerial.print(sinceLastRealBeat, DEC);
-    // mySerial.print("  fakeDiffTime=");
-    // mySerial.println(fakeDiffTime, DEC);
     
     if (!_hitTop && _ar[i] < pBottom && isSpread) {
         _hitBottom = true;
@@ -106,7 +101,7 @@ int Sampler::isPeaked(SoftwareSerial mySerial) {
     
     if (hitThreshold) {
         uint16_t unsmoothPeriod = millis() - _peakedTime;
-        _period = digitalSmooth(unsmoothPeriod, smoothedPeriods, mySerial);
+        _period = digitalSmooth(unsmoothPeriod, smoothedPeriods);
         _peakedTime = millis();
         _fakePeakedTime = _peakedTime;
         return 1;

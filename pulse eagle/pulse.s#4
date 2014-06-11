@@ -8094,11 +8094,11 @@ DIN A5, landscape with doc field</description>
 <part name="GND10" library="SparkFun" deviceset="GND" device=""/>
 <part name="SUPPLY7" library="SparkFun-Aesthetics" deviceset="VCC" device=""/>
 <part name="C5" library="SparkFun-Capacitors" deviceset="10UF-16V-10%(TANT)" device="" value="100uF"/>
-<part name="JP3" library="SparkFun-Connectors" deviceset="M01" device="PTH"/>
+<part name="JP3" library="SparkFun-Connectors" deviceset="M01" device="PTH" value="ELWire"/>
 <part name="LED1" library="SparkFun-LED" deviceset="LED" device="0603"/>
 <part name="R6" library="SparkFun-Resistors" deviceset="220-5%" device="" value="1.5k"/>
 <part name="GND7" library="SparkFun" deviceset="GND" device=""/>
-<part name="JP2" library="SparkFun-Connectors" deviceset="M01" device="PTH"/>
+<part name="JP2" library="SparkFun-Connectors" deviceset="M01" device="PTH" value="Serial"/>
 <part name="JP4" library="SparkFun-Connectors" deviceset="M03" device="PTH"/>
 <part name="R7" library="SparkFun-Resistors" deviceset="220-5%" device="" value="220"/>
 <part name="FRAME2" library="frames" deviceset="DINA5_L" device=""/>
@@ -8436,6 +8436,11 @@ DIN A5, landscape with doc field</description>
 </net>
 <net name="A0" class="0">
 <segment>
+<pinref part="ATTINY84" gate="A" pin="PA1"/>
+<wire x1="160.02" y1="53.34" x2="165.1" y2="53.34" width="0.1524" layer="91"/>
+<label x="165.1" y="53.34" size="1.016" layer="95" xref="yes"/>
+</segment>
+<segment>
 <pinref part="C3" gate="G$1" pin="2"/>
 <wire x1="160.02" y1="106.68" x2="162.56" y2="106.68" width="0.1524" layer="91"/>
 <pinref part="R5" gate="G$1" pin="2"/>
@@ -8443,11 +8448,6 @@ DIN A5, landscape with doc field</description>
 <wire x1="162.56" y1="106.68" x2="165.1" y2="106.68" width="0.1524" layer="91"/>
 <junction x="162.56" y="106.68"/>
 <label x="165.1" y="106.68" size="1.016" layer="95" xref="yes"/>
-</segment>
-<segment>
-<pinref part="ATTINY84" gate="A" pin="PB2"/>
-<wire x1="124.46" y1="45.72" x2="121.92" y2="45.72" width="0.1524" layer="91"/>
-<label x="121.92" y="45.72" size="1.016" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="SERIAL" class="0">
@@ -8457,9 +8457,9 @@ DIN A5, landscape with doc field</description>
 <label x="48.26" y="66.04" size="1.016" layer="95" xref="yes"/>
 </segment>
 <segment>
-<pinref part="ATTINY84" gate="A" pin="PA1"/>
-<wire x1="160.02" y1="53.34" x2="165.1" y2="53.34" width="0.1524" layer="91"/>
-<label x="165.1" y="53.34" size="1.016" layer="95" xref="yes"/>
+<pinref part="ATTINY84" gate="A" pin="PA3"/>
+<wire x1="160.02" y1="48.26" x2="165.1" y2="48.26" width="0.1524" layer="91"/>
+<label x="165.1" y="48.26" size="1.016" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="ELWIRE" class="0">
@@ -8476,14 +8476,14 @@ DIN A5, landscape with doc field</description>
 </net>
 <net name="REALLED" class="0">
 <segment>
-<pinref part="ATTINY84" gate="A" pin="PA3"/>
-<wire x1="160.02" y1="48.26" x2="165.1" y2="48.26" width="0.1524" layer="91"/>
-<label x="165.1" y="48.26" size="1.016" layer="95" xref="yes"/>
-</segment>
-<segment>
 <pinref part="LED1" gate="G$1" pin="A"/>
 <wire x1="40.64" y1="114.3" x2="48.26" y2="114.3" width="0.1524" layer="91"/>
 <label x="48.26" y="114.3" size="1.016" layer="95" xref="yes"/>
+</segment>
+<segment>
+<pinref part="ATTINY84" gate="A" pin="PB2"/>
+<wire x1="124.46" y1="45.72" x2="121.92" y2="45.72" width="0.1524" layer="91"/>
+<label x="121.92" y="45.72" size="1.016" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="BEATLED" class="0">

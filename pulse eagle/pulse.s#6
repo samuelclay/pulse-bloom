@@ -8106,6 +8106,7 @@ DIN A5, landscape with doc field</description>
 <sheets>
 <sheet>
 <plain>
+<text x="140.716" y="20.574" size="1.778" layer="91">Samuel Clay, @samuelclay</text>
 </plain>
 <instances>
 <instance part="ATTINY84" gate="A" x="142.24" y="50.8"/>

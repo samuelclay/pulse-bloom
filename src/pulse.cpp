@@ -2,8 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
+#if defined (__AVR_ATtiny84__)
 #include <tiny/wiring.h>
 #include <SoftwareSerial/SoftwareSerial.h>
+#endif
 #include <neopixel/Adafruit_NeoPixel.h>
 
 #include <avr/io.h>
@@ -17,26 +19,33 @@
 // = Pin Definitions =
 // ===================
 
+#if defined (__AVR_ATtiny84__)
 uint8_t leftLedPin = 5;
 uint8_t leftSensorPin = PA1;
 uint8_t leftRealLedPin = PB2;
 uint8_t serialPin = 7;
-int16_t ledBrightness = 0;
+#elif defined (__AVR_ATmega328P__)
+uint8_t leftLedPin = 10;
+uint8_t leftSensorPin = A0;
+uint8_t leftRealLedPin = 6;
+#endif
 
 // ===========
 // = Globals =
 // ===========
 
 // #define USE_SERIAL 1
-// #define DEBUG 1
 long timer = 0;
 long loops = 0;
 int numPixels;
 uint16_t smoothedVoltages[filterSamples];
+int16_t ledBrightness = 0;
 
 Sampler sampler = Sampler();
-SoftwareSerial mySerial(0, serialPin); // RX, TX
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(68, leftRealLedPin, NEO_GRB + NEO_KHZ800);
+#if defined (__AVR_ATtiny84__)
+SoftwareSerial Serial(0, serialPin); // RX, TX
+#endif
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, leftRealLedPin, NEO_GRB + NEO_KHZ800);
 
 typedef enum
 {
@@ -52,15 +61,14 @@ state_t appState;
 // ============
 
 void setup(){
-    // analogReference(EXTERNAL);
-    analogReference(DEFAULT);
+    analogReference(EXTERNAL);
+    // analogReference(DEFAULT);
     pinMode(leftLedPin, OUTPUT);
-    // pinMode(leftRealLedPin, OUTPUT);
     analogWrite(leftLedPin, ledBrightness);
     appState = STATE_RESTING;
     sampler.clear();
-#ifdef USE_SERIAL || DEBUG
-    mySerial.begin(9600);
+#ifdef USE_SERIAL
+    Serial.begin(9600);
 #endif
     printHeader();
     strip.begin();
@@ -79,11 +87,11 @@ void loop() {
 
     if (appState == STATE_RESTING || appState == STATE_ON || appState == STATE_LED_FALLING) {
         leftSensorVoltage = readSensorValues(leftSensorPin);
-        smoothedLeftVoltage = digitalSmooth(leftSensorVoltage, smoothedVoltages, mySerial);
+        smoothedLeftVoltage = digitalSmooth(leftSensorVoltage, smoothedVoltages);
         sampler.add(smoothedLeftVoltage);
-        peaked = sampler.isPeaked(mySerial);
-#ifdef DEBUG
-        mySerial.print(peaked < 0 ? "---" : peaked > 0 ? "***" : "...");
+        peaked = sampler.isPeaked();
+#ifdef USE_SERIAL
+        Serial.print(peaked < 0 ? "---" : peaked > 0 ? "***" : "...");
 #endif
         // digitalWrite(leftRealLedPin, peaked > 0 ? HIGH : LOW);
     }
@@ -104,11 +112,11 @@ void loop() {
         strip.setPixelColor(max(0, pixel - 3), 0, 0, 0);
         
         // Fade new pixels
+        strip.setPixelColor(min(numPixels-1, pixel + 2), strip.Color(6, 0, 0));
+        strip.setPixelColor(min(numPixels-1, pixel + 1), strip.Color(80, 0, 0));
         strip.setPixelColor(pixel, strip.Color(255, 0, 0));
         strip.setPixelColor(max(0, pixel - 1), strip.Color(80, 0, 0));
-        strip.setPixelColor(min(numPixels-1, pixel + 1), strip.Color(80, 0, 0));
         strip.setPixelColor(max(0, pixel - 2), strip.Color(6, 0, 0));
-        strip.setPixelColor(min(numPixels-1, pixel + 2), strip.Color(6, 0, 0));
         strip.show();
         delay(1);
         if (ledBrightness >= (255*4)) {
@@ -139,21 +147,21 @@ void loop() {
         return;
     }
     
-#ifdef DEBUG
-    mySerial.print(leftSensorVoltage, DEC);
-    mySerial.print("   smooth=");
-    mySerial.print(smoothedLeftVoltage, DEC);    
-    mySerial.print("   p50=");
-    mySerial.print(sampler.getPercentile(.5), DEC);
-    mySerial.print("   p70=");
-    mySerial.print(sampler.getPercentile(.7), DEC);
-    mySerial.print("   period=");
-    mySerial.print(sampler.getPeriod(), DEC);
-    mySerial.print(peaked ? " *** " : " ");
-    mySerial.print("   state=");
-    mySerial.print(appState, DEC);
-    mySerial.print("   brightness=");
-    mySerial.println(ledBrightness, DEC);
+#ifdef USE_SERIAL
+    Serial.print(leftSensorVoltage, DEC);
+    Serial.print("   smooth=");
+    Serial.print(smoothedLeftVoltage, DEC);    
+    Serial.print("   p50=");
+    Serial.print(sampler.getPercentile(.5), DEC);
+    Serial.print("   p70=");
+    Serial.print(sampler.getPercentile(.7), DEC);
+    Serial.print("   period=");
+    Serial.print(sampler.getPeriod(), DEC);
+    Serial.print(peaked ? " *** " : " ");
+    Serial.print("   state=");
+    Serial.print(appState, DEC);
+    Serial.print("   brightness=");
+    Serial.println(ledBrightness, DEC);
 #endif
 }
 
@@ -166,10 +174,10 @@ uint16_t readSensorValues(uint8_t sensorPin) {
 void printHeader() {
     if (millis() - timer > 1000) {
         sampler.calculateStats();
-#ifdef DEBUG
-        mySerial.print("------------------ ");
-        mySerial.print(loops);
-        mySerial.println(" ------------------");
+#ifdef USE_SERIAL
+        Serial.print("------------------ ");
+        Serial.print(loops);
+        Serial.println(" ------------------");
 #endif
         timer = millis();
         loops += 1;
