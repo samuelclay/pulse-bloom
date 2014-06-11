@@ -21,6 +21,7 @@ public:
     int isPeaked();
 protected:
     long _peakedTime;
+    long _fakePeakTime;
     long _fakePeakedTime;
     bool _hitBottom;
     bool _hitTop;

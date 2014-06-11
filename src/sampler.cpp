@@ -1,8 +1,20 @@
+#if defined (__AVR_ATtiny84__)
 #include <tiny/wiring.h>
+#include <SoftwareSerial/SoftwareSerial.h>
+#else
+#include <HardwareSerial.h>
+#include <Arduino.h>
+#endif
+#include <avr/io.h>
+#include <util/delay.h>     /* for _delay_ms() */
 #include "sampler.h"
 #include "smooth.h"
 
+#define USE_SERIAL 1
+
 uint16_t smoothedPeriods[filterSamples];
+const uint8_t maxFakeBeats = 2;
+uint8_t fakeBeats = 0;
 
 Sampler::Sampler() {
     _size = SAMPLER_SIZE;
@@ -12,7 +24,8 @@ Sampler::Sampler() {
 void Sampler::clear() {
     _period = DEFAULT_HEARTBEAT_PERIOD;
     _peakedTime = millis();
-    _fakePeakedTime = _peakedTime;
+    _fakePeakTime = _peakedTime + _period + 100;
+    _fakePeakedTime = 0;
     _count = 0;
     _idx = 0;
     _max = 0;
@@ -80,40 +93,59 @@ int Sampler::isPeaked() {
     bool peaked = false;
     long currentTime = millis();
     uint16_t sinceLastRealBeat = currentTime - _peakedTime;
-    uint16_t fakeDiffTime = _fakePeakedTime > currentTime ? 0 : 
-                            max(0, currentTime - _fakePeakedTime);
+    uint16_t sinceLastFakeBeat = currentTime - _fakePeakedTime;
+    uint16_t fakeDiffTime = _fakePeakTime < currentTime;
     bool hitThreshold = false;
     
-    if (!_hitTop && _ar[i] < pBottom && isSpread) {
+    if (!_hitBottom && !_hitTop && _ar[i] < pBottom) {
+#ifdef USE_SERIAL
+        Serial.println(" >>> Hit bottom");
+#endif
         _hitBottom = true;
     } else if (_hitBottom && !_hitTop &&
                _ar[i] > pTop &&
-               _ar[i] > pBottom*1.2 &&
+               isSpread &&
                sinceLastRealBeat > MIN_HEARTBEAT_PERIOD) {
-        _hitTop = true;
-        _hitBottom = false;
-        hitThreshold = true;
-    } else if (sinceLastRealBeat > MAX_HEARTBEAT_PERIOD) {
+#ifdef USE_SERIAL
+        Serial.println(" >>> Hit top");
+#endif
         _hitTop = true;
         _hitBottom = false;
         hitThreshold = true;
     }
     
     if (hitThreshold) {
+#ifdef USE_SERIAL
+        Serial.println(" >>> Hit threshold");
+#endif
         uint16_t unsmoothPeriod = millis() - _peakedTime;
-        _period = digitalSmooth(unsmoothPeriod, smoothedPeriods);
+        _period = min(MAX_HEARTBEAT_PERIOD, digitalSmooth(unsmoothPeriod, smoothedPeriods));
         _peakedTime = millis();
-        _fakePeakedTime = _peakedTime;
+        _fakePeakTime = _peakedTime + _period + 100;
+        fakeBeats = 0;
         return 1;
     } else if (sinceLastRealBeat < HEARTBEAT_DURATION) {
+#ifdef USE_SERIAL
+        Serial.println(" >>> In heartbeat");
+#endif
         return 1;
-    } else if (fakeDiffTime < HEARTBEAT_DURATION) {
+    } else if (fakeBeats < maxFakeBeats && fakeDiffTime) {
+#ifdef USE_SERIAL
+        Serial.println(" >>> Faking heartbeat");
+#endif        
+        fakeBeats++;
+        _fakePeakedTime = millis();
         return -1;
     } else if (_hitTop &&
-               sinceLastRealBeat > _period/3) {
+               sinceLastRealBeat > _period/6) {
+#ifdef USE_SERIAL
+        Serial.println(" >>> Resetting hitTop");
+#endif
         _hitTop = false;
-    } else if (fakeDiffTime > _period + 100) {
-        _fakePeakedTime = millis();
+    } else if (sinceLastFakeBeat < HEARTBEAT_DURATION) {
+#ifdef USE_SERIAL
+        Serial.println(" >>> In fake heartbeat");
+#endif        
         return -1;
     }
     

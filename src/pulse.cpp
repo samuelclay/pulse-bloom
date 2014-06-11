@@ -1,15 +1,15 @@
 #include <avr/io.h>
+#include <util/delay.h>     /* for _delay_ms() */
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
 #if defined (__AVR_ATtiny84__)
 #include <tiny/wiring.h>
 #include <SoftwareSerial/SoftwareSerial.h>
+#else
+#include <HardwareSerial.h>
 #endif
 #include <neopixel/Adafruit_NeoPixel.h>
-
-#include <avr/io.h>
-#include <util/delay.h>     /* for _delay_ms() */
 
 #include "pulse.h"
 #include "sampler.h"
@@ -34,7 +34,7 @@ uint8_t leftRealLedPin = 6;
 // = Globals =
 // ===========
 
-// #define USE_SERIAL 1
+#define USE_SERIAL 1
 long timer = 0;
 long loops = 0;
 int numPixels;
@@ -69,6 +69,7 @@ void setup(){
     sampler.clear();
 #ifdef USE_SERIAL
     Serial.begin(9600);
+    Serial.flush();
 #endif
     printHeader();
     strip.begin();
@@ -91,7 +92,9 @@ void loop() {
         sampler.add(smoothedLeftVoltage);
         peaked = sampler.isPeaked();
 #ifdef USE_SERIAL
-        Serial.print(peaked < 0 ? "---" : peaked > 0 ? "***" : "...");
+        if (peaked) {
+            Serial.println(peaked < 0 ? "---" : peaked > 0 ? "***" : "...");
+        }
 #endif
         // digitalWrite(leftRealLedPin, peaked > 0 ? HIGH : LOW);
     }
