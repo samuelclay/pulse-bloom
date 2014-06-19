@@ -6912,7 +6912,7 @@ We've spent an enormous amount of time creating and checking these footprints an
 <part name="GND10" library="SparkFun" deviceset="GND" device=""/>
 <part name="C5" library="SparkFun-Capacitors" deviceset="10UF-16V-10%(TANT)" device="" value="100uF"/>
 <part name="JP3" library="SparkFun-Connectors" deviceset="M01" device="PTH" value="ELWire"/>
-<part name="LED1" library="SparkFun-LED" deviceset="LED" device="0603"/>
+<part name="LED1" library="SparkFun-LED" deviceset="LED" device="1206"/>
 <part name="R6" library="SparkFun-Resistors" deviceset="220-5%" device="" value="1.5k"/>
 <part name="GND7" library="SparkFun" deviceset="GND" device=""/>
 <part name="JP2" library="SparkFun-Connectors" deviceset="M01" device="PTH" value="Serial"/>
@@ -6926,8 +6926,8 @@ We've spent an enormous amount of time creating and checking these footprints an
 <part name="SUPPLY1" library="SparkFun-Aesthetics" deviceset="VCC" device=""/>
 <part name="U$2" library="pulse" deviceset="SI1143" device=""/>
 <part name="GND2" library="SparkFun" deviceset="GND" device=""/>
-<part name="LED2" library="SparkFun-LED" deviceset="LED" device="0603"/>
-<part name="LED3" library="SparkFun-LED" deviceset="LED" device="0603"/>
+<part name="LED2" library="SparkFun-LED" deviceset="LED" device="1206"/>
+<part name="LED3" library="SparkFun-LED" deviceset="LED" device="1206"/>
 <part name="C1" library="SparkFun-Capacitors" deviceset=".1UF-CER" device="" value="0.1uF"/>
 <part name="SUPPLY2" library="SparkFun-Aesthetics" deviceset="VCC" device=""/>
 <part name="C2" library="SparkFun-Capacitors" deviceset=".1UF-CER" device="" value="0.1uF"/>

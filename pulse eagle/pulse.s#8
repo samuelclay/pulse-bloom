@@ -6737,6 +6737,68 @@ We've spent an enormous amount of time creating and checking these footprints an
 </deviceset>
 </devicesets>
 </library>
+<library name="pulse">
+<packages>
+<package name="SI1143">
+<smd name="10" x="0" y="0.85" dx="0.3" dy="0.8" layer="1"/>
+<smd name="5" x="0" y="-0.85" dx="0.3" dy="0.8" layer="1"/>
+<smd name="9" x="0.85" y="0.75" dx="0.3" dy="0.8" layer="1" rot="R90"/>
+<smd name="8" x="0.85" y="0.25" dx="0.3" dy="0.8" layer="1" rot="R90"/>
+<smd name="7" x="0.85" y="-0.25" dx="0.3" dy="0.8" layer="1" rot="R90"/>
+<smd name="6" x="0.85" y="-0.75" dx="0.3" dy="0.8" layer="1" rot="R90"/>
+<smd name="4" x="-0.85" y="-0.75" dx="0.3" dy="0.8" layer="1" rot="R90"/>
+<smd name="3" x="-0.85" y="-0.25" dx="0.3" dy="0.8" layer="1" rot="R90"/>
+<smd name="2" x="-0.85" y="0.25" dx="0.3" dy="0.8" layer="1" rot="R90"/>
+<smd name="1" x="-0.85" y="0.75" dx="0.3" dy="0.8" layer="1" rot="R90"/>
+</package>
+</packages>
+<symbols>
+<symbol name="SI1143">
+<wire x1="-7.62" y1="10.16" x2="-7.62" y2="-12.7" width="0.254" layer="94"/>
+<wire x1="-7.62" y1="-12.7" x2="7.62" y2="-12.7" width="0.254" layer="94"/>
+<wire x1="7.62" y1="-12.7" x2="7.62" y2="10.16" width="0.254" layer="94"/>
+<wire x1="7.62" y1="10.16" x2="-7.62" y2="10.16" width="0.254" layer="94"/>
+<pin name="SDA" x="12.7" y="7.62" length="middle" rot="R180"/>
+<pin name="SCL" x="12.7" y="5.08" length="middle" rot="R180"/>
+<pin name="INT" x="12.7" y="2.54" length="middle" rot="R180"/>
+<pin name="NC" x="12.7" y="0" length="middle" rot="R180"/>
+<pin name="LED2" x="12.7" y="-2.54" length="middle" rot="R180"/>
+<pin name="LED3" x="12.7" y="-5.08" length="middle" rot="R180"/>
+<pin name="LED1" x="12.7" y="-7.62" length="middle" rot="R180"/>
+<pin name="DNC" x="12.7" y="-10.16" length="middle" direction="nc" rot="R180"/>
+<pin name="VDD" x="-12.7" y="7.62" length="middle" direction="pwr"/>
+<pin name="GND" x="-12.7" y="-10.16" length="middle" direction="pwr"/>
+<text x="-7.62" y="-15.24" size="1.27" layer="95">&gt;NAME</text>
+<text x="-7.366" y="11.43" size="1.27" layer="96">&gt;VALUE</text>
+</symbol>
+</symbols>
+<devicesets>
+<deviceset name="SI1143">
+<gates>
+<gate name="SI1143" symbol="SI1143" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="SI1143">
+<connects>
+<connect gate="SI1143" pin="DNC" pad="10"/>
+<connect gate="SI1143" pin="GND" pad="8"/>
+<connect gate="SI1143" pin="INT" pad="4"/>
+<connect gate="SI1143" pin="LED1" pad="9"/>
+<connect gate="SI1143" pin="LED2" pad="6"/>
+<connect gate="SI1143" pin="LED3" pad="7"/>
+<connect gate="SI1143" pin="NC" pad="5"/>
+<connect gate="SI1143" pin="SCL" pad="2"/>
+<connect gate="SI1143" pin="SDA" pad="1"/>
+<connect gate="SI1143" pin="VDD" pad="3"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+</devicesets>
+</library>
 </libraries>
 <attributes>
 </attributes>
@@ -6773,6 +6835,7 @@ We've spent an enormous amount of time creating and checking these footprints an
 <part name="U$1" library="SparkFun-PowerIC" deviceset="LM3480IM4" device=""/>
 <part name="GND1" library="SparkFun" deviceset="GND" device=""/>
 <part name="SUPPLY1" library="SparkFun-Aesthetics" deviceset="VCC" device=""/>
+<part name="U$2" library="pulse" deviceset="SI1143" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -6809,6 +6872,7 @@ We've spent an enormous amount of time creating and checking these footprints an
 <instance part="U$1" gate="G$1" x="83.82" y="60.96"/>
 <instance part="GND1" gate="1" x="83.82" y="45.72"/>
 <instance part="SUPPLY1" gate="1" x="66.04" y="63.5"/>
+<instance part="U$2" gate="SI1143" x="83.82" y="25.4"/>
 </instances>
 <busses>
 </busses>

@@ -776,6 +776,9 @@ Please make sure your boards conform to these design rules.</description>
 <element name="C2" library="SparkFun-Capacitors" package="0402-CAP" value="0.1uF" x="2.286" y="21.844">
 <attribute name="PROD_ID" value="CAP-00810" x="2.286" y="21.844" size="1.778" layer="27" display="off"/>
 </element>
+<element name="JP1" library="SparkFun-Connectors" package="1X01" value="Petal" x="10.668" y="5.588" smashed="yes">
+<attribute name="VALUE" x="9.906" y="3.429" size="0.508" layer="27"/>
+</element>
 </elements>
 <signals>
 <signal name="GND">
@@ -968,6 +971,8 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="16.51" y1="10.922" x2="16.51" y2="22.86" width="0.1524" layer="16"/>
 <wire x1="16.51" y1="22.86" x2="17.272" y2="23.622" width="0.1524" layer="16"/>
 <via x="17.272" y="23.622" extent="1-16" drill="0.3302"/>
+<contactref element="JP1" pad="1"/>
+<wire x1="10.668" y1="5.588" x2="10.192" y2="7.6454" width="0" layer="19" extent="1-1"/>
 </signal>
 <signal name="N$7">
 <contactref element="JP4" pad="2"/>
@@ -1035,6 +1040,11 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="8.66" y1="29.718" x2="19.773" y2="21.844" width="0" layer="19" extent="1-1"/>
 <wire x1="9.168" y1="18.542" x2="8.66" y2="29.718" width="0" layer="19" extent="1-1"/>
 <wire x1="6.462" y1="18.542" x2="9.168" y2="18.542" width="0" layer="19" extent="1-1"/>
+</signal>
+<signal name="INT0">
+<contactref element="U$2" pad="4"/>
+<contactref element="U1" pad="32"/>
+<wire x1="9.392" y1="16.2306" x2="9.31" y2="22.364" width="0" layer="19" extent="1-1"/>
 </signal>
 </signals>
 </board>

@@ -7351,6 +7351,18 @@ We've spent an enormous amount of time creating and checking these footprints an
 <wire x1="43.18" y1="127" x2="38.1" y2="127" width="0.1524" layer="91"/>
 </segment>
 </net>
+<net name="INT0" class="0">
+<segment>
+<pinref part="U$2" gate="SI1143" pin="INT"/>
+<wire x1="96.52" y1="27.94" x2="99.06" y2="27.94" width="0.1524" layer="91"/>
+<label x="99.06" y="27.94" size="1.016" layer="95" xref="yes"/>
+</segment>
+<segment>
+<pinref part="U1" gate="G$1" pin="PD2(INT0)"/>
+<wire x1="175.26" y1="63.5" x2="177.8" y2="63.5" width="0.1524" layer="91"/>
+<label x="177.8" y="63.5" size="1.016" layer="95" xref="yes"/>
+</segment>
+</net>
 </nets>
 </sheet>
 </sheets>
