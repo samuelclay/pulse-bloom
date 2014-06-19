@@ -93,7 +93,7 @@ void loop() {
         peaked = sampler.isPeaked();
 #ifdef USE_SERIAL
         if (peaked) {
-            Serial.println(peaked < 0 ? "---" : peaked > 0 ? "***" : "...");
+            // Serial.println(peaked < 0 ? "---" : peaked > 0 ? "***" : "...");
         }
 #endif
         // digitalWrite(leftRealLedPin, peaked > 0 ? HIGH : LOW);
@@ -121,7 +121,7 @@ void loop() {
         strip.setPixelColor(max(0, pixel - 1), strip.Color(80, 0, 0));
         strip.setPixelColor(max(0, pixel - 2), strip.Color(6, 0, 0));
         strip.show();
-        delay(1);
+        // delay(1);
         if (ledBrightness >= (255*4)) {
             appState = STATE_ON;
             for (int i=0; i < numPixels; i++) {
@@ -134,7 +134,7 @@ void loop() {
         appState = STATE_LED_FALLING;
         ledBrightness = max(0, ledBrightness - 16);
         analogWrite(leftLedPin, ledBrightness/4);
-        delay(1);
+        // delay(1);
         if (ledBrightness <= 0) {
             appState = STATE_RESTING;
             for (int i=0; i < numPixels; i++) {

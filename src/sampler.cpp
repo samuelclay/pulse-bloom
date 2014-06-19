@@ -10,7 +10,7 @@
 #include "sampler.h"
 #include "smooth.h"
 
-#define USE_SERIAL 1
+// #define USE_SERIAL 1
 
 uint16_t smoothedPeriods[filterSamples];
 const uint8_t maxFakeBeats = 2;
@@ -22,6 +22,9 @@ Sampler::Sampler() {
 }
 
 void Sampler::clear() {
+#ifdef USE_SERIAL
+    Serial.println(" >>> CLEAR");
+#endif
     _period = DEFAULT_HEARTBEAT_PERIOD;
     _peakedTime = millis();
     _fakePeakTime = _peakedTime + _period + 100;
@@ -94,7 +97,7 @@ int Sampler::isPeaked() {
     long currentTime = millis();
     uint16_t sinceLastRealBeat = currentTime - _peakedTime;
     uint16_t sinceLastFakeBeat = currentTime - _fakePeakedTime;
-    uint16_t fakeDiffTime = _fakePeakTime < currentTime;
+    bool hitfakeThreshold = currentTime > _fakePeakTime;
     bool hitThreshold = false;
     
     if (!_hitBottom && !_hitTop && _ar[i] < pBottom) {
@@ -129,15 +132,16 @@ int Sampler::isPeaked() {
         Serial.println(" >>> In heartbeat");
 #endif
         return 1;
-    } else if (fakeBeats < maxFakeBeats && fakeDiffTime) {
+    } else if (fakeBeats < maxFakeBeats && hitfakeThreshold) {
 #ifdef USE_SERIAL
         Serial.println(" >>> Faking heartbeat");
 #endif        
         fakeBeats++;
         _fakePeakedTime = millis();
+        _fakePeakTime = _fakePeakedTime + _period + 100;
         return -1;
     } else if (_hitTop &&
-               sinceLastRealBeat > _period/6) {
+               sinceLastRealBeat > _period/8) {
 #ifdef USE_SERIAL
         Serial.println(" >>> Resetting hitTop");
 #endif
