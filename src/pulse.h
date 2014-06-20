@@ -1,7 +1,9 @@
 #ifndef PULSE_H
 #define PULSE_H
 
-uint16_t readSensorValues(uint8_t sensorPin);
+void setupPulseSensor();
+void readPulseSensor();
 void printHeader();
+void blink(int loops, int loopTime, bool half);
 
 #endif

@@ -1,2 +1,1 @@
-all:
-	make -f Makefile.atmega
+include Makefile.atmega

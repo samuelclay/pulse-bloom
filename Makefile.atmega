@@ -21,6 +21,7 @@ LIBS        =  -I./libs/arduino
 LIBS        += -I./libs/atmega328
 LIBS        += -I./libs/avr
 LIBS        += -I./libs/neopixel
+LIBS        += -I./libs/si114
 LIBS        += -I./libs
 LIBS        += -I./src
 LIBS        += -I.
@@ -41,10 +42,10 @@ CPP_SRC := libs/arduino/main.o \
            libs/arduino/Tone.o \
            libs/arduino/WMath.o \
            libs/arduino/WString.o \
-           libs/neopixel/Adafruit_NeoPixel.o
+           libs/neopixel/Adafruit_NeoPixel.o \
+           libs/si1143/si1143.o
 SRC     := src/pulse.o \
-           src/smooth.o \
-           src/sampler.o
+           src/smooth.o
 
 OBJECTS = $(C_SRC:.c=.o) $(CPP_SRC:.cpp=.o) $(SRC:.cpp=.o)
 COMPILE = avr-gcc -Wall -Os -DF_CPU=$(F_CPU) $(CFLAGS) -mmcu=$(DEVICE_MCCU)
