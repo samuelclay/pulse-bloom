@@ -92,21 +92,21 @@
 <devicesets>
 <deviceset name="SI1143">
 <gates>
-<gate name="G$1" symbol="SI1143" x="0" y="0"/>
+<gate name="SI1143" symbol="SI1143" x="0" y="0"/>
 </gates>
 <devices>
 <device name="" package="SI1143">
 <connects>
-<connect gate="G$1" pin="DNC" pad="DNC"/>
-<connect gate="G$1" pin="GND" pad="GND"/>
-<connect gate="G$1" pin="INT" pad="INT"/>
-<connect gate="G$1" pin="LED1" pad="LED1"/>
-<connect gate="G$1" pin="LED2" pad="LED2"/>
-<connect gate="G$1" pin="LED3" pad="LED3"/>
-<connect gate="G$1" pin="NC" pad="NC"/>
-<connect gate="G$1" pin="SCL" pad="SCL"/>
-<connect gate="G$1" pin="SDA" pad="SDA"/>
-<connect gate="G$1" pin="VDD" pad="VDD"/>
+<connect gate="SI1143" pin="DNC" pad="DNC"/>
+<connect gate="SI1143" pin="GND" pad="GND"/>
+<connect gate="SI1143" pin="INT" pad="INT"/>
+<connect gate="SI1143" pin="LED1" pad="LED1"/>
+<connect gate="SI1143" pin="LED2" pad="LED2"/>
+<connect gate="SI1143" pin="LED3" pad="LED3"/>
+<connect gate="SI1143" pin="NC" pad="NC"/>
+<connect gate="SI1143" pin="SCL" pad="SCL"/>
+<connect gate="SI1143" pin="SDA" pad="SDA"/>
+<connect gate="SI1143" pin="VDD" pad="VDD"/>
 </connects>
 <technologies>
 <technology name=""/>

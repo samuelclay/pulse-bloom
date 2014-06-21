@@ -83,8 +83,8 @@
 <pin name="LED3" x="12.7" y="-5.08" length="middle" rot="R180"/>
 <pin name="LED1" x="12.7" y="-7.62" length="middle" rot="R180"/>
 <pin name="DNC" x="12.7" y="-10.16" length="middle" direction="nc" rot="R180"/>
-<pin name="P$3" x="-12.7" y="7.62" length="middle" direction="pwr"/>
-<pin name="P$8" x="-12.7" y="-10.16" length="middle" direction="pwr"/>
+<pin name="VDD" x="-12.7" y="7.62" length="middle" direction="pwr"/>
+<pin name="GND" x="-12.7" y="-10.16" length="middle" direction="pwr"/>
 <text x="-7.62" y="11.43" size="1.27" layer="95">&gt;NAME</text>
 <text x="-7.62" y="-15.24" size="1.27" layer="96">&gt;VALUE</text>
 </symbol>
@@ -98,15 +98,15 @@
 <device name="" package="SI1143">
 <connects>
 <connect gate="G$1" pin="DNC" pad="DNC"/>
+<connect gate="G$1" pin="GND" pad="GND"/>
 <connect gate="G$1" pin="INT" pad="INT"/>
 <connect gate="G$1" pin="LED1" pad="LED1"/>
 <connect gate="G$1" pin="LED2" pad="LED2"/>
 <connect gate="G$1" pin="LED3" pad="LED3"/>
 <connect gate="G$1" pin="NC" pad="NC"/>
-<connect gate="G$1" pin="P$3" pad="VDD"/>
-<connect gate="G$1" pin="P$8" pad="GND"/>
 <connect gate="G$1" pin="SCL" pad="SCL"/>
 <connect gate="G$1" pin="SDA" pad="SDA"/>
+<connect gate="G$1" pin="VDD" pad="VDD"/>
 </connects>
 <technologies>
 <technology name=""/>
