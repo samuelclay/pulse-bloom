@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
+#include <wdt.h>
 #if defined (__AVR_ATtiny84__)
 #include <tiny/wiring.h>
 #include <SoftwareSerial/SoftwareSerial.h>
@@ -15,7 +16,7 @@
 #include "pulse.h"
 #include "smooth.h"
 
-// #define USE_SERIAL
+#define USE_SERIAL
 // #define PRINT_LED_VALS
 
 // ===================
@@ -23,15 +24,15 @@
 // ===================
 
 #if defined (__AVR_ATtiny84__)
-uint8_t leftLedPin = 5;
-uint8_t leftSensorPin = PA1;
-uint8_t leftRealLedPin = PB2;
-uint8_t serialPin = 7;
+const uint8_t leftLedPin = 5;
+const uint8_t leftSensorPin = PA1;
+const uint8_t leftRealLedPin = PB2;
+const uint8_t serialPin = 7;
 #elif defined (__AVR_ATmega328P__)
-uint8_t leftLedPin = 10;
-uint8_t leftSensorPin = A0;
-uint8_t leftRealLedPin = 6;
-const int SI114Pin = 0; // SCL=18, SDA=19
+const uint8_t leftLedPin = 10;
+const uint8_t leftSensorPin = A0;
+const uint8_t leftRealLedPin = 6;
+const uint8_t SI114Pin = 0; // SCL=18, SDA=19
 #endif
 
 // ===========
@@ -81,22 +82,29 @@ void setup(){
     pinMode(leftLedPin, OUTPUT);
     analogWrite(leftLedPin, ledBrightness);
     appState = STATE_RESTING;
+    delay(500);
 #ifdef USE_SERIAL
     Serial.begin(115200);
     Serial.flush();
 #endif
+
     printHeader();
-    setupPulseSensor();
-    
     strip.begin();
-    for (int i=0; i < stripLedCount; i++) {
-        strip.setPixelColor(i, 0, 0, 0);
-    }
-    strip.show(); // Initialize all pixels to 'off'
     stripLedCount = strip.numPixels();
+    clearStemLeds();
+    setupPulseSensor();
 }
 
 void setupPulseSensor() {
+    if (pulse.isPresent()) {
+        Serial.print("SI114x Pulse Sensor found on Port ");
+        Serial.println(SI114Pin);
+    }
+        else{
+        Serial.print("No SI114x found on Port ");
+        Serial.println(SI114Pin);
+    }
+    
     pulse.setReg(PulsePlug::HW_KEY, 0x17);  
     
     pulse.setReg(PulsePlug::INT_CFG, 0x03);       // turn on interrupts
@@ -298,7 +306,12 @@ int readPulseSensor() {
     IR2 = IR2 / i;
     total =  IR1 + IR2 + red;  // red excluded
     IRtotal = IR1 + IR2;
-
+    
+    if (red == 0 && IR1 == 0 && IR2 == 0) {
+        delay(500);
+        Serial.println(" ---> Resetting to fix Pulse Sensor");
+        resetArduino();
+    }
 #ifdef PRINT_LED_VALS
 
     Serial.print(red);
@@ -445,3 +458,8 @@ void blink(int loops, int loopTime, bool half) {
         delay(loopTime / (half ? 2 : 1));
     }
 }
+
+void resetArduino() {
+  asm volatile ("  jmp 0");  
+}
+

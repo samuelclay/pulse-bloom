@@ -8,5 +8,6 @@ void clearStemLeds();
 bool beginStemRising();
 void printHeader();
 void blink(int loops, int loopTime, bool half);
+void resetArduino();
 
 #endif
