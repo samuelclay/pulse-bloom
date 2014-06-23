@@ -125,7 +125,7 @@
 </layers>
 <board>
 <plain>
-<text x="2.159" y="3.81" size="1.016" layer="22" font="vector" rot="MR180">Pulse &amp; Bloom
+<text x="9.017" y="9.906" size="1.016" layer="22" font="vector" rot="MR180">Pulse &amp; Bloom
 19 June 2014 - Rev. 4</text>
 <wire x1="39.878" y1="18.923" x2="39.878" y2="3.302" width="0.0254" layer="20"/>
 <wire x1="39.878" y1="3.302" x2="37.338" y2="0.762" width="0.0254" layer="20" curve="-90"/>
@@ -140,7 +140,7 @@
 <text x="19.812" y="7.62" size="0.6096" layer="25" rot="SR0" align="top-center">Red Green Blue</text>
 <text x="31.496" y="16.002" size="0.6096" layer="25" rot="SR90" align="top-center">GND    5V    12V</text>
 <text x="31.496" y="16.002" size="0.6096" layer="25" rot="SR90" align="top-center">GND    5V    12V</text>
-<text x="36.068" y="8.89" size="0.6096" layer="25" rot="SR0" align="top-center">GND    12V</text>
+<text x="36.068" y="8.89" size="0.6096" layer="25" rot="SR0" align="top-center">12V    GND</text>
 <text x="16.51" y="14.732" size="0.6096" layer="25" rot="SR180" align="top-center">GND ELWire 12V</text>
 </plain>
 <libraries>
@@ -1773,10 +1773,12 @@ Please make sure your boards conform to these design rules.</description>
 <element name="R7" library="resistor" package="R0805" value="220" x="19.812" y="11.811" smashed="yes" rot="R270">
 <attribute name="NAME" x="19.558" y="9.017" size="0.508" layer="25" font="vector"/>
 </element>
-<element name="U1" library="SparkFun-DigitalIC" package="TQFP32-08" value="ATMEGA328P" x="8.128" y="12.192">
+<element name="U1" library="SparkFun-DigitalIC" package="TQFP32-08" value="ATMEGA328P" x="8.128" y="12.192" smashed="yes">
 <attribute name="PROD_ID" value="IC-09069" x="8.128" y="12.192" size="1.778" layer="27" display="off"/>
 </element>
-<element name="U$1" library="SparkFun-PowerIC" package="SOT23-3" value="LM3480IM4" x="29.21" y="11.938" smashed="yes" rot="R270"/>
+<element name="U$1" library="SparkFun-PowerIC" package="SOT23-3" value="LM3480IM4" x="29.21" y="11.938" smashed="yes" rot="R270">
+<attribute name="VALUE" x="29.0195" y="13.716" size="0.4064" layer="27" rot="R270"/>
+</element>
 <element name="SL2" library="SparkFun-Connectors" package="MOLEX-1X4_LOCK" value="" x="29.718" y="18.796" smashed="yes" rot="R180">
 <attribute name="VALUE" x="34.544" y="22.6314" size="1.27" layer="27" ratio="10" rot="R180"/>
 </element>
@@ -1812,7 +1814,6 @@ Please make sure your boards conform to these design rules.</description>
 <contactref element="U1" pad="5"/>
 <contactref element="U$1" pad="3"/>
 <contactref element="SL2" pad="1"/>
-<contactref element="JP6" pad="2"/>
 <contactref element="JP1" pad="1"/>
 <contactref element="C1" pad="2"/>
 <contactref element="JP3" pad="1"/>
@@ -1840,7 +1841,6 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="25.996" y1="11.176" x2="25.654" y2="10.834" width="0.1524" layer="1"/>
 <wire x1="25.654" y1="10.834" x2="24.856" y2="10.834" width="0.1524" layer="1"/>
 <wire x1="24.856" y1="10.834" x2="22.606" y2="13.084" width="0.1524" layer="1"/>
-<wire x1="34.1682" y1="4.318" x2="34.1682" y2="10.3684" width="0.1524" layer="16"/>
 <wire x1="34.1682" y1="10.3684" x2="36.068" y2="12.2682" width="0.1524" layer="16"/>
 <wire x1="29.718" y1="18.669" x2="29.718" y2="18.6182" width="0.1524" layer="16"/>
 <wire x1="29.718" y1="18.6182" x2="36.068" y2="12.2682" width="0.1524" layer="16"/>
@@ -1869,6 +1869,9 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="8.128" y1="13.208" x2="6.858" y2="14.478" width="0.1524" layer="16"/>
 <wire x1="3.8354" y1="13.392" x2="5.772" y2="13.392" width="0.1524" layer="1"/>
 <wire x1="5.772" y1="13.392" x2="6.858" y2="14.478" width="0.1524" layer="1"/>
+<contactref element="JP6" pad="1"/>
+<wire x1="38.0238" y1="4.318" x2="38.0238" y2="10.3124" width="0.1524" layer="16"/>
+<wire x1="38.0238" y1="10.3124" x2="36.068" y2="12.2682" width="0.1524" layer="16"/>
 </signal>
 <signal name="MISO">
 <contactref element="J1" pad="1"/>
@@ -2120,7 +2123,6 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="6.096" y1="7.8674" x2="6.128" y2="7.8994" width="0.1524" layer="1"/>
 </signal>
 <signal name="12V">
-<contactref element="JP6" pad="1"/>
 <contactref element="JP1" pad="3"/>
 <contactref element="JP3" pad="3"/>
 <wire x1="13.97" y1="18.669" x2="13.97" y2="20.066" width="0.508" layer="1"/>
@@ -2129,8 +2131,11 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="35.1178" y1="20.574" x2="36.068" y2="19.6238" width="0.508" layer="1"/>
 <wire x1="36.068" y1="19.6238" x2="38.0342" y2="19.6238" width="0.508" layer="1"/>
 <wire x1="38.0342" y1="19.6238" x2="39.116" y2="18.542" width="0.508" layer="1"/>
-<wire x1="39.116" y1="18.542" x2="39.116" y2="5.4102" width="0.508" layer="1"/>
-<wire x1="39.116" y1="5.4102" x2="38.0238" y2="4.318" width="0.508" layer="1"/>
+<wire x1="39.116" y1="18.542" x2="39.116" y2="8.9662" width="0.508" layer="1"/>
+<contactref element="JP6" pad="2"/>
+<wire x1="39.116" y1="8.89" x2="39.116" y2="8.9662" width="0.508" layer="1"/>
+<wire x1="34.1682" y1="4.318" x2="34.544" y2="4.318" width="0.508" layer="1"/>
+<wire x1="34.544" y1="4.318" x2="39.116" y2="8.89" width="0.508" layer="1"/>
 </signal>
 </signals>
 </board>
