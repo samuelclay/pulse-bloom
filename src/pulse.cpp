@@ -15,7 +15,7 @@
 #include "pulse.h"
 #include "smooth.h"
 
-#define USE_SERIAL
+// #define USE_SERIAL
 // #define PRINT_LED_VALS
 
 // ===================
@@ -42,9 +42,14 @@ PortI2C myBus(SI114Pin);
 PulsePlug pulse(myBus); 
 long timer = 0;
 long loops = 0;
-int numPixels;
 uint16_t ledBrightness = 0;
 const int SAMPLES_TO_AVERAGE = 5;             // samples for smoothing 1 to 10 seem useful 5 is default
+int latestBpm = 0;
+int stripLedCount = 0;
+int currentStripLed = 0;
+unsigned long lastBeat = 0;
+unsigned long previousBeat = 0;
+
 
 #if defined (__AVR_ATtiny84__)
 SoftwareSerial Serial(0, serialPin); // RX, TX
@@ -84,11 +89,11 @@ void setup(){
     setupPulseSensor();
     
     strip.begin();
-    for (int i=0; i < numPixels; i++) {
+    for (int i=0; i < stripLedCount; i++) {
         strip.setPixelColor(i, 0, 0, 0);
     }
     strip.show(); // Initialize all pixels to 'off'
-    numPixels = strip.numPixels();
+    stripLedCount = strip.numPixels();
 }
 
 void setupPulseSensor() {
@@ -136,54 +141,39 @@ void setupPulseSensor() {
 
 void loop() {
     printHeader();
-    readPulseSensor();
+    int sensorOn = readPulseSensor();
     
-    return;
-    
-    if (appState == STATE_RESTING) {
-        if (appState != STATE_STEM_RISING) {
-            for (int i=0; i < numPixels; i++) {
-                strip.setPixelColor(i, 0, 0, 0);
-            }
-            strip.show();
-            appState = STATE_STEM_RISING;
-        }
-        ledBrightness = min(ledBrightness + 8, 255*4);
-        analogWrite(leftLedPin, ledBrightness/4);
-        
-        int pixel = ledBrightness >> 4;
-        // Reset old pixels that won't be refreshed
-        strip.setPixelColor(max(0, pixel - 3), 0, 0, 0);
-        
-        // Fade new pixels
-        strip.setPixelColor(min(numPixels-1, pixel + 2), strip.Color(6, 0, 0));
-        strip.setPixelColor(min(numPixels-1, pixel + 1), strip.Color(80, 0, 0));
-        strip.setPixelColor(pixel, strip.Color(255, 0, 0));
-        strip.setPixelColor(max(0, pixel - 1), strip.Color(80, 0, 0));
-        strip.setPixelColor(max(0, pixel - 2), strip.Color(6, 0, 0));
-        strip.show();
-        // delay(1);
-        if (ledBrightness >= (255*4)) {
-            for (int i=0; i < numPixels; i++) {
-                strip.setPixelColor(i, 0, 0, 0);
-            }
-            strip.show();
+    if (sensorOn > 0) {
+        appState = STATE_STEM_RISING;
+    } else if (appState == STATE_STEM_RISING) {
+        Serial.println(" ---> STATE: Stem Rising");
+        bool stemDone = beginStemRising();
+        if (stemDone) {
+            appState = STATE_LED_RISING;
         }
     } else if (appState == STATE_LED_RISING) {
-                   
-    } else if (appState == STATE_LED_RISING) {
-        appState = STATE_LED_FALLING;
-        ledBrightness = max(0, ledBrightness - 16);
-        analogWrite(leftLedPin, ledBrightness/4);
-        // delay(1);
+        Serial.print(" ---> STATE: Led Rising - ");
+        Serial.println(ledBrightness, DEC);
+        // Set Lotus LED brightness
+        ledBrightness = min(ledBrightness + 10, 255);
+        analogWrite(leftLedPin, ledBrightness);
+        if (ledBrightness >= 255) {
+            appState = STATE_LED_FALLING;
+        }
+    } else if (appState == STATE_LED_FALLING) {
+        Serial.print(" ---> STATE: Led Falling - ");
+        Serial.println(ledBrightness, DEC);
+        ledBrightness = ledBrightness > 10 ? ledBrightness - 10 : 0;
+        analogWrite(leftLedPin, ledBrightness);
         if (ledBrightness <= 0) {
             appState = STATE_RESTING;
-            for (int i=0; i < numPixels; i++) {
-                strip.setPixelColor(i, 0, 0, 0);
-            }
-            strip.show();
         }
     }
+}
+
+void newHeartbeat() {
+    clearStemLeds();
+    currentStripLed = 0;    
 }
 
 // ==========
@@ -194,8 +184,70 @@ void beginStateOn() {
     
 }
 
-void beginStemRising() {
+void clearStemLeds() {
+    // Reset stem LEDs
+    for (int i=0; i < stripLedCount; i++) {
+        strip.setPixelColor(i, 0, 0, 0);
+    }
+    strip.show();
+}
+
+bool beginStemRising() {
+    unsigned long now = millis();
+    int bpm = max(min(latestBpm, 100), 45);
+    double stemPercentage = 0.50;
+    unsigned long nextBeat = lastBeat + 60000.0/(bpm/stemPercentage);
+    unsigned long millisToNextBeat = (now > nextBeat) ? 0 : (nextBeat - now);
+    unsigned long millisFromLastBeat = now - lastBeat;
+
+    double progress = (double)millisFromLastBeat / (double)(millisFromLastBeat + millisToNextBeat);
     
+    int newLed = floor(progress * stripLedCount);
+    if (currentStripLed != newLed) {
+        Serial.print(" ---> Stem Led: ");
+        Serial.print(bpm, DEC);
+        Serial.print("/");
+        Serial.print(newLed, DEC);
+
+        // Reset old pixels that won't be refreshed
+        // for (int i = 0; i < 6; i++) {
+            if (newLed > currentStripLed + 2) strip.setPixelColor(min(stripLedCount-1, currentStripLed + 4), strip.Color(0, 0, 0));
+            if (newLed > currentStripLed + 2) strip.setPixelColor(min(stripLedCount-1, currentStripLed + 3), strip.Color(0, 0, 0));
+            if (newLed > currentStripLed + 1) strip.setPixelColor(min(stripLedCount-1, currentStripLed + 2), strip.Color(0, 0, 0));
+            if (newLed > currentStripLed) strip.setPixelColor(min(stripLedCount-1, currentStripLed + 1), strip.Color(0, 0, 0));
+            if (newLed > currentStripLed - 1) strip.setPixelColor(currentStripLed, strip.Color(0, 0, 0));
+            if (newLed > currentStripLed - 2) strip.setPixelColor(max(0, currentStripLed - 1), strip.Color(0, 0, 0));
+            if (newLed > currentStripLed - 3) strip.setPixelColor(max(0, currentStripLed - 2), strip.Color(0, 0, 0));
+            if (newLed > currentStripLed - 4) strip.setPixelColor(max(0, currentStripLed - 3), strip.Color(0, 0, 0));
+            if (newLed > currentStripLed - 4) strip.setPixelColor(max(0, currentStripLed - 4), strip.Color(0, 0, 0));
+        // }
+
+        currentStripLed = newLed;
+
+        // Fade new pixels
+        strip.setPixelColor(min(stripLedCount-1, currentStripLed + 4), strip.Color(6, 0, 0));
+        strip.setPixelColor(min(stripLedCount-1, currentStripLed + 3), strip.Color(20, 0, 0));
+        strip.setPixelColor(min(stripLedCount-1, currentStripLed + 2), strip.Color(40, 0, 0));
+        strip.setPixelColor(min(stripLedCount-1, currentStripLed + 1), strip.Color(80, 0, 0));
+        strip.setPixelColor(currentStripLed, strip.Color(255, 0, 0));
+        strip.setPixelColor(max(0, currentStripLed - 1), strip.Color(80, 0, 0));
+        strip.setPixelColor(max(0, currentStripLed - 2), strip.Color(40, 0, 0));
+        strip.setPixelColor(max(0, currentStripLed - 3), strip.Color(20, 0, 0));
+        strip.setPixelColor(max(0, currentStripLed - 4), strip.Color(6, 0, 0));
+        strip.show();
+    }
+    
+    // At end of stem
+    if (currentStripLed == stripLedCount || progress >= 1.0) {
+        currentStripLed = 0;
+        for (int i=0; i < stripLedCount; i++) {
+            strip.setPixelColor(i, 0, 0, 0);
+        }
+        strip.show();
+        return true;
+    }
+
+    return false;
 }
 
 void beginLedRising() {
@@ -211,12 +263,12 @@ void beginLedFalling() {
 // ===========
 
 
-void readPulseSensor() {
+int readPulseSensor() {
     static int foundNewFinger, red_signalSize, red_smoothValley;
     static long red_valley, red_Peak, red_smoothRedPeak, red_smoothRedValley, 
                red_HFoutput, red_smoothPeak; // for PSO2 calc
     static  int IR_valley=0, IR_peak=0, IR_smoothPeak, IR_smoothValley, binOut, lastBinOut, BPM;
-    static unsigned long lastTotal, lastMillis, IRtotal, valleyTime, lastValleyTime, peakTime, lastPeakTime, lastBeat, beat;
+    static unsigned long lastTotal, lastMillis, IRtotal, valleyTime, lastValleyTime, peakTime, lastPeakTime;
     static float IR_baseline, red_baseline, IR_HFoutput, IR_HFoutput2, shiftedOutput, LFoutput, hysterisis;
     
     if (!valleyTime) valleyTime = millis();
@@ -343,12 +395,15 @@ void readPulseSensor() {
 
         if (lastBinOut == 1 && binOut == 0) {
             Serial.println(binOut);
+            return -1;
         }
 
         if (lastBinOut == 0 && binOut == 1) {
-            lastBeat = beat;
-            beat = millis();
-            BPM = 60000 / (beat - lastBeat);
+            previousBeat = lastBeat;
+            lastBeat = millis();
+            BPM = 60000 / (lastBeat - previousBeat);
+            latestBpm = BPM;
+            newHeartbeat();
             Serial.print(binOut);
             Serial.print("\t BPM ");
             Serial.print(BPM);  
@@ -356,9 +411,13 @@ void readPulseSensor() {
             Serial.print(IR_signalSize);
             Serial.print("\t PSO2 ");         
             Serial.println(((float)red_baseline / (float)(IR_baseline/2)), 3);                     
+
+            return 1;
         }
 
     }
+    
+    return 0;
 }
 
 // ====================
@@ -372,7 +431,7 @@ void printHeader() {
         Serial.print(loops);
         Serial.println(" ------------------");
 #endif
-        blink(3, 25, true);
+        // blink(3, 25, true);
         timer = millis();
         loops += 1;
     }

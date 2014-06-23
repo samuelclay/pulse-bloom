@@ -15,7 +15,7 @@ FUSE_H      = 0xD9
 # FUSE_H      = 0xD9
 FUSE_E      = 0x07
 
-AVRDUDE     = avrdude -v -v -v -v -c $(PROGRAMMER) -p $(DEVICE) -P usb
+AVRDUDE     = avrdude -v -v -v -v -c $(PROGRAMMER) -p $(DEVICE) -P usb -B1
 
 LIBS        =  -I./libs/arduino
 LIBS        += -I./libs/atmega328
