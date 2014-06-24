@@ -10472,10 +10472,10 @@ type 0309, grid 2.5 mm</description>
 <part name="SUPPLY1" library="SparkFun-Aesthetics" deviceset="VCC" device=""/>
 <part name="SL2" library="SparkFun-Connectors" deviceset="M04" device="POLAR_LOCK" value="Pulse Sensor"/>
 <part name="JP1" library="SparkFun-Connectors" deviceset="M03" device="SCREW_LOCK" value="Power"/>
-<part name="JP5" library="SparkFun-Connectors" deviceset="M04" device="SCREW_LOCK"/>
+<part name="JP5" library="SparkFun-Connectors" deviceset="M04" device="POLAR_LOCK"/>
 <part name="JP6" library="SparkFun-Connectors" deviceset="M02" device="3.5MM_LOCK" value="Petal Center"/>
 <part name="C1" library="adafruit" deviceset="C-US" device="C0805" value=".1uF"/>
-<part name="JP7" library="SparkFun-Connectors" deviceset="M04" device="SCREW_LOCK"/>
+<part name="JP7" library="SparkFun-Connectors" deviceset="M04" device="POLAR"/>
 <part name="JP8" library="SparkFun-Connectors" deviceset="M02" device="3.5MM_LOCK" value="Petal Color"/>
 <part name="JP9" library="SparkFun-Connectors" deviceset="M03" device="POLAR_LOCK" value="Stem"/>
 <part name="R3" library="resistor" deviceset="R-US_" device="R0805" value="220"/>

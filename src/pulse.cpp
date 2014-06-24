@@ -17,7 +17,7 @@
 #include "smooth.h"
 
 #define USE_SERIAL
-// #define PRINT_LED_VALS
+#define PRINT_LED_VALS
 
 // ===================
 // = Pin Definitions =
@@ -27,7 +27,9 @@
 const uint8_t stemLedPin = PB2;
 const uint8_t serialPin = 7;
 #elif defined (__AVR_ATmega328P__)
+// See si1143.h:digiPin for sensor pins
 const uint8_t sensorPin = 0; // SCL=18, SDA=19
+const uint8_t sensorPin2 = 14; // SCL=A0, SDA=A1
 const uint8_t stemLedPin = 8;
 const uint8_t stem2LedPin = 7;
 const uint8_t petalRedPin = 6;
@@ -67,7 +69,9 @@ unsigned long endLedFallTime = 0;
 
 // Pulse sensor
 PortI2C myBus(sensorPin);
-PulsePlug pulse(myBus); 
+PulsePlug pulse1(myBus); 
+PortI2C myBus2(sensorPin2);
+PulsePlug pulse2(myBus2); 
 
 // Pulse globals
 unsigned int binOut;    // 1 or 0 depending on state of heartbeat
@@ -117,10 +121,11 @@ void setup(){
     strip.begin();
     stripLedCount = strip.numPixels();
     clearStemLeds();
-    setupPulseSensor();
+    setupPulseSensor(pulse1);
+    setupPulseSensor(pulse2);
 }
 
-void setupPulseSensor() {
+void setupPulseSensor(PulsePlug pulse) {
 #ifdef USE_SERIAL
     if (pulse.isPresent()) {
         Serial.println("SI1143 Pulse Sensor found OK. Let's roll!");
@@ -173,7 +178,7 @@ void setupPulseSensor() {
 
 void loop() {
     // printHeader();
-    int sensorOn = readPulseSensor();
+    int sensorOn = readPulseSensor(pulse2);
     
     if (sensorOn > 0) {
         appState = STATE_STEM_RISING;
@@ -304,12 +309,12 @@ bool runLedRising() {
 
     double progress = (double)millisFromLastBeat / (double)(millisFromLastBeat + millisToNextBeat);
 
-    Serial.print(" ---> STATE: Led Rising - from:");
-    Serial.print(millisFromLastBeat, DEC);
-    Serial.print(" to:");
-    Serial.print(millisToNextBeat, DEC);
-    Serial.print(" Brightness: ");
-    Serial.println(max(8, min((int)floor(255 * progress), 255)), DEC);
+    // Serial.print(" ---> STATE: Led Rising - from:");
+    // Serial.print(millisFromLastBeat, DEC);
+    // Serial.print(" to:");
+    // Serial.print(millisToNextBeat, DEC);
+    // Serial.print(" Brightness: ");
+    // Serial.println(max(8, min((int)floor(255 * progress), 255)), DEC);
 
     // Set Lotus LED brightness
     ledBrightness = max(8, min((int)floor(255 * progress), 255));
@@ -339,12 +344,12 @@ bool runLedFalling() {
 
     double progress = (double)millisFromLastBeat / (double)(millisFromLastBeat + millisToNextBeat);
 
-    Serial.print(" ---> STATE: Led Falling - from:");
-    Serial.print(millisFromLastBeat, DEC);
-    Serial.print(" to:");
-    Serial.print(millisToNextBeat, DEC);
-    Serial.print(" Brightness: ");
-    Serial.println(max(255 - (int)floor(255 * progress), 8), DEC);
+    // Serial.print(" ---> STATE: Led Falling - from:");
+    // Serial.print(millisFromLastBeat, DEC);
+    // Serial.print(" to:");
+    // Serial.print(millisToNextBeat, DEC);
+    // Serial.print(" Brightness: ");
+    // Serial.println(max(255 - (int)floor(255 * progress), 8), DEC);
     ledBrightness = max(255 - (int)floor(255 * progress), 8);
     analogWrite(petalRedPin, ledBrightness);
     
@@ -360,7 +365,7 @@ bool runLedFalling() {
 // ===========
 
 
-int readPulseSensor() {
+int readPulseSensor(PulsePlug pulse) {
     static int foundNewFinger, red_signalSize, red_smoothValley;
     static long red_valley, red_Peak, red_smoothRedPeak, red_smoothRedValley, 
                red_HFoutput, red_smoothPeak; // for PSO2 calc

@@ -1,8 +1,8 @@
 #ifndef PULSE_H
 #define PULSE_H
 
-void setupPulseSensor();
-int readPulseSensor();
+void setupPulseSensor(PulsePlug pulse);
+int readPulseSensor(PulsePlug pulse);
 void newHeartbeat();
 void clearStemLeds();
 bool runStemRising();

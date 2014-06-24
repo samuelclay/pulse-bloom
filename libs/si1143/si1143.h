@@ -34,9 +34,9 @@ protected:
         { return 0; }
 #else
     inline uint8_t digiPin() const
-        { return portNum ? portNum + 3 : 18; }
+        { return portNum ? portNum : 18; }
     inline uint8_t digiPin2() const
-        { return portNum ? portNum + 13 : 19; }
+        { return portNum ? portNum + 1 : 19; }
     static uint8_t digiPin3()
         { return 3; }
     inline uint8_t anaPin() const
