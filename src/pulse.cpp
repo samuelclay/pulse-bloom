@@ -100,10 +100,10 @@ void setup(){
     pinMode(petalGreenPin, OUTPUT);
     pinMode(petalBluePin, OUTPUT);
     pinMode(petalWhitePin, OUTPUT);
-    analogWrite(petalRedPin, LOW);
-    analogWrite(petalGreenPin, LOW);
-    analogWrite(petalBluePin, LOW);
-    analogWrite(petalWhitePin, LOW);
+    analogWrite(petalRedPin, 8);
+    analogWrite(petalGreenPin, 0);
+    analogWrite(petalBluePin, 0);
+    analogWrite(petalWhitePin, 0);
     
     appState = STATE_RESTING;
     petalState = STATE_RESTING;
@@ -181,6 +181,7 @@ void loop() {
         bool stemDone = runStemRising();
         if (stemDone) {
             appState = STATE_LED_RISING;
+            petalState = STATE_LED_RISING;
             beginLedRising();
         }
     } 
@@ -278,17 +279,22 @@ void beginLedRising() {
 
     Serial.print(" ---> Led Rising: ");
     Serial.println(nextBeat);    
-    if (now > endLedRiseTime) {
+    // if (now < endLedRiseTime) {
         // If still rising from previous rise, ignore this signal
+    // } else {
         beginLedRiseTime = now;
-    }
+    // }
     if (now < endLedFallTime) {
         // Compensate for still falling led
-        unsigned int remainingRiseTime = endLedFallTime - now;
-        beginLedRiseTime = beginLedRiseTime - (600 - endLedFallTime);
+        Serial.print(" Compensating for still falling led: ");
+        unsigned int remainingFallTime = endLedFallTime - now;
+        Serial.println(remainingFallTime, DEC);
+        beginLedRiseTime = beginLedRiseTime - (int)floor((400.0*((double)remainingFallTime/800.0)));
+        beginLedFallTime = 0;
+        endLedFallTime = 0;
     }
     // endLedRiseTime = beginLedRiseTime + 0.4*(nextBeat - beginLedRiseTime);
-    endLedRiseTime = beginLedRiseTime + 300;
+    endLedRiseTime = beginLedRiseTime + 400;
 }
 
 bool runLedRising() {
@@ -298,10 +304,12 @@ bool runLedRising() {
 
     double progress = (double)millisFromLastBeat / (double)(millisFromLastBeat + millisToNextBeat);
 
-    // Serial.print(" ---> STATE: Led Rising - ");
-    // Serial.print(progress, DEC);
-    // Serial.print(" Brightness: ");
-    // Serial.println((int)floor(255 * progress), DEC);
+    Serial.print(" ---> STATE: Led Rising - from:");
+    Serial.print(millisFromLastBeat, DEC);
+    Serial.print(" to:");
+    Serial.print(millisToNextBeat, DEC);
+    Serial.print(" Brightness: ");
+    Serial.println(max(8, min((int)floor(255 * progress), 255)), DEC);
 
     // Set Lotus LED brightness
     ledBrightness = max(8, min((int)floor(255 * progress), 255));
@@ -321,7 +329,7 @@ void beginLedFalling() {
 
     beginLedFallTime = millis();
     // endLedFallTime = beginLedFallTime + 2*(nextBeat - beginLedFallTime);
-    endLedFallTime = beginLedFallTime + 600;
+    endLedFallTime = beginLedFallTime + 800;
 }
 
 bool runLedFalling() {
@@ -331,10 +339,12 @@ bool runLedFalling() {
 
     double progress = (double)millisFromLastBeat / (double)(millisFromLastBeat + millisToNextBeat);
 
-    // Serial.print(" ---> STATE: Led Falling - ");
-    // Serial.print(progress, DEC);
-    // Serial.print(" Brightness: ");
-    // Serial.println((int)floor(255 * progress), DEC);
+    Serial.print(" ---> STATE: Led Falling - from:");
+    Serial.print(millisFromLastBeat, DEC);
+    Serial.print(" to:");
+    Serial.print(millisToNextBeat, DEC);
+    Serial.print(" Brightness: ");
+    Serial.println(max(255 - (int)floor(255 * progress), 8), DEC);
     ledBrightness = max(255 - (int)floor(255 * progress), 8);
     analogWrite(petalRedPin, ledBrightness);
     
