@@ -138,16 +138,17 @@
 <text x="36.068" y="7.62" size="0.6096" layer="25" rot="SR0" align="top-center">GND  Data  5V</text>
 <text x="25.654" y="14.732" size="0.6096" layer="25" rot="SR180" align="top-center">GND SDA SCL 3V3</text>
 <text x="19.812" y="7.62" size="0.6096" layer="25" rot="SR0" align="top-center">Red Green Blue</text>
-<text x="48.006" y="15.748" size="0.6096" layer="25" rot="SR90" align="top-center">GND    5V    12V</text>
+<text x="48.26" y="15.748" size="0.6096" layer="25" rot="SR90" align="top-center">GND    5V    12V</text>
 <text x="52.578" y="8.89" size="0.6096" layer="25" rot="SR0" align="top-center">12V    GND</text>
 <text x="43.688" y="14.732" size="0.6096" layer="25" rot="SR180" align="top-center">GND ELWire 12V</text>
 <text x="35.306" y="14.732" size="0.6096" layer="25" rot="SR180" align="top-center">GND  Data  5V</text>
 <text x="27.94" y="7.62" size="0.6096" layer="25" rot="SR0" align="top-center">White White White</text>
 <text x="44.45" y="8.89" size="0.6096" layer="25" rot="SR0" align="top-center">12V    GND</text>
-<text x="44.45" y="9.652" size="0.762" layer="25" rot="SR0" align="top-center">PicoBuck</text>
-<text x="52.578" y="9.652" size="0.762" layer="25" rot="SR0" align="top-center">PicoBuck</text>
-<text x="27.94" y="8.382" size="0.762" layer="25" rot="SR0" align="top-center">Petals</text>
-<text x="19.812" y="8.382" size="0.762" layer="25" rot="SR0" align="top-center">Petals</text>
+<text x="44.45" y="9.906" size="0.762" layer="25" rot="SR0" align="top-center">PicoBuck</text>
+<text x="52.578" y="9.906" size="0.762" layer="25" rot="SR0" align="top-center">PicoBuck</text>
+<text x="27.94" y="8.636" size="0.762" layer="25" rot="SR0" align="top-center">Petals</text>
+<text x="19.812" y="8.636" size="0.762" layer="25" rot="SR0" align="top-center">Petals</text>
+<text x="35.306" y="13.716" size="0.762" layer="25" rot="SR180" align="top-center">Stem</text>
 </plain>
 <libraries>
 <library name="adafruit">
@@ -306,6 +307,31 @@ We've spent an enormous amount of time creating and checking these footprints an
 <circle x="3.5" y="0" radius="0.4318" width="0.0254" layer="51"/>
 <pad name="1" x="-0.1778" y="0" drill="1.2" diameter="2.032" shape="square"/>
 <pad name="2" x="3.6778" y="0" drill="1.2" diameter="2.032"/>
+<text x="-1.27" y="2.54" size="0.4064" layer="25">&gt;NAME</text>
+<text x="-1.27" y="1.27" size="0.4064" layer="27">&gt;VALUE</text>
+</package>
+<package name="SCREWTERMINAL-3.5MM-4_LOCK">
+<wire x1="-2.3" y1="3.4" x2="12.8" y2="3.4" width="0.2032" layer="21"/>
+<wire x1="12.8" y1="3.4" x2="12.8" y2="-2.8" width="0.2032" layer="21"/>
+<wire x1="12.8" y1="-2.8" x2="12.8" y2="-3.6" width="0.2032" layer="21"/>
+<wire x1="12.8" y1="-3.6" x2="-2.3" y2="-3.6" width="0.2032" layer="21"/>
+<wire x1="-2.3" y1="-3.6" x2="-2.3" y2="-2.8" width="0.2032" layer="21"/>
+<wire x1="-2.3" y1="-2.8" x2="-2.3" y2="3.4" width="0.2032" layer="21"/>
+<wire x1="12.8" y1="-2.8" x2="-2.3" y2="-2.8" width="0.2032" layer="21"/>
+<wire x1="-2.3" y1="-1.35" x2="-2.7" y2="-1.35" width="0.2032" layer="51"/>
+<wire x1="-2.7" y1="-1.35" x2="-2.7" y2="-2.35" width="0.2032" layer="51"/>
+<wire x1="-2.7" y1="-2.35" x2="-2.3" y2="-2.35" width="0.2032" layer="51"/>
+<wire x1="12.8" y1="3.15" x2="13.2" y2="3.15" width="0.2032" layer="51"/>
+<wire x1="13.2" y1="3.15" x2="13.2" y2="2.15" width="0.2032" layer="51"/>
+<wire x1="13.2" y1="2.15" x2="12.8" y2="2.15" width="0.2032" layer="51"/>
+<circle x="0" y="0" radius="0.425" width="0.001" layer="51"/>
+<circle x="3.5" y="0" radius="0.425" width="0.001" layer="51"/>
+<circle x="7" y="0" radius="0.425" width="0.001" layer="51"/>
+<circle x="10.5" y="0" radius="0.425" width="0.001" layer="51"/>
+<pad name="1" x="-0.1778" y="0" drill="1.2" diameter="2.032" shape="square"/>
+<pad name="2" x="3.6778" y="0" drill="1.2" diameter="2.032"/>
+<pad name="3" x="6.8222" y="0" drill="1.2" diameter="2.032"/>
+<pad name="4" x="10.6778" y="0" drill="1.2" diameter="2.032"/>
 <text x="-1.27" y="2.54" size="0.4064" layer="25">&gt;NAME</text>
 <text x="-1.27" y="1.27" size="0.4064" layer="27">&gt;VALUE</text>
 </package>
@@ -1767,7 +1793,7 @@ Please make sure your boards conform to these design rules.</description>
 <element name="C3" library="SparkFun-Capacitors" package="EIA3216" value="100uF" x="22.606" y="11.684" smashed="yes" rot="R270">
 <attribute name="PROD_ID" value="CAP-00811" x="22.606" y="11.684" size="1.778" layer="27" rot="R270" display="off"/>
 <attribute name="VALUE" value="10uF" x="22.606" y="11.684" size="1.778" layer="27" rot="R270" display="off"/>
-<attribute name="NAME" x="22.225" y="8.493" size="0.4064" layer="25"/>
+<attribute name="NAME" x="22.987" y="8.493" size="0.4064" layer="25"/>
 </element>
 <element name="JP3" library="SparkFun-Connectors" package="MOLEX-1X3_LOCK" value="ELWire" x="46.228" y="18.796" smashed="yes" rot="R180"/>
 <element name="JP2" library="SparkFun-Connectors" package="1X01" value="Serial" x="10.668" y="19.304" smashed="yes" rot="R270">
@@ -1777,7 +1803,7 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="VALUE" x="34.29" y="8.255" size="0.762" layer="27"/>
 </element>
 <element name="R1" library="resistor" package="R0805" value="220" x="19.812" y="11.811" smashed="yes" rot="R270">
-<attribute name="NAME" x="19.558" y="9.017" size="0.508" layer="25" font="vector"/>
+<attribute name="NAME" x="18.542" y="9.271" size="0.508" layer="25" font="vector"/>
 </element>
 <element name="U1" library="SparkFun-DigitalIC" package="TQFP32-08" value="ATMEGA328P" x="8.128" y="12.192" smashed="yes">
 <attribute name="PROD_ID" value="IC-09069" x="8.128" y="12.192" size="1.778" layer="27" display="off"/>
@@ -1789,37 +1815,36 @@ Please make sure your boards conform to these design rules.</description>
 <attribute name="VALUE" x="25.4" y="13.9954" size="0.6096" layer="27" ratio="10" rot="SR180" align="top-center"/>
 </element>
 <element name="JP1" library="SparkFun-Connectors" package="SCREWTERMINAL-3.5MM-3_LOCK.007S" value="Power" x="52.578" y="12.446" smashed="yes" rot="R90">
-<attribute name="NAME" x="50.038" y="11.176" size="0.4064" layer="25" rot="R90"/>
 <attribute name="VALUE" x="51.308" y="11.176" size="0.4064" layer="27" rot="R90"/>
 </element>
-<element name="JP5" library="SparkFun-Connectors" package="MOLEX-1X3_LOCK" value="" x="17.272" y="3.556" smashed="yes"/>
+<element name="JP5" library="SparkFun-Connectors" package="MOLEX-1X4_LOCK" value="" x="17.272" y="3.556" smashed="yes"/>
 <element name="JP6" library="SparkFun-Connectors" package="SCREWTERMINAL-3.5MM-2_LOCK" value="Petal Center" x="50.546" y="4.572" smashed="yes">
-<attribute name="NAME" x="49.276" y="7.112" size="0.4064" layer="25"/>
 <attribute name="VALUE" x="49.276" y="5.842" size="0.4064" layer="27"/>
 </element>
 <element name="C1" library="adafruit" package="C0805" value=".1uF" x="25.654" y="11.684" smashed="yes" rot="R270">
 <attribute name="NAME" x="25.273" y="9.144" size="0.508" layer="25"/>
 </element>
-<element name="JP7" library="SparkFun-Connectors" package="MOLEX-1X3_LOCK" value="" x="25.4" y="3.556" smashed="yes"/>
+<element name="JP7" library="SparkFun-Connectors" package="SCREWTERMINAL-3.5MM-4_LOCK" value="" x="25.4" y="3.556" smashed="yes"/>
 <element name="JP8" library="SparkFun-Connectors" package="SCREWTERMINAL-3.5MM-2_LOCK" value="Petal Color" x="42.672" y="4.572" smashed="yes">
-<attribute name="NAME" x="41.402" y="7.112" size="0.4064" layer="25"/>
 <attribute name="VALUE" x="41.402" y="5.842" size="0.4064" layer="27"/>
 </element>
 <element name="JP9" library="SparkFun-Connectors" package="MOLEX-1X3_LOCK" value="Stem" x="37.846" y="18.796" smashed="yes" rot="R180"/>
-<element name="R3" library="resistor" package="R0805" value="220" x="28.194" y="11.684" rot="R90"/>
+<element name="R3" library="resistor" package="R0805" value="220" x="28.194" y="11.684" smashed="yes" rot="R90">
+<attribute name="NAME" x="28.702" y="9.652" size="0.508" layer="25" rot="R180"/>
+</element>
 </elements>
 <signals>
 <signal name="GND">
 <contactref element="C2" pad="2"/>
 <contactref element="C11" pad="1"/>
 <contactref element="C10" pad="1"/>
-<polygon width="0.1524" layer="1" spacing="0.6096" pour="hatch">
+<polygon width="0.1524" layer="1" spacing="0.4064" pour="hatch">
 <vertex x="-0.762" y="0.127"/>
 <vertex x="-0.762" y="22.098"/>
 <vertex x="57.404" y="22.098"/>
 <vertex x="57.404" y="0.127"/>
 </polygon>
-<polygon width="0.1524" layer="16" spacing="0.6096" pour="hatch">
+<polygon width="0.1524" layer="16" spacing="0.4064" pour="hatch">
 <vertex x="0" y="-0.508"/>
 <vertex x="0" y="22.86"/>
 <vertex x="56.642" y="22.86"/>
@@ -2081,10 +2106,10 @@ Please make sure your boards conform to these design rules.</description>
 <contactref element="R1" pad="2"/>
 <wire x1="36.068" y1="3.429" x2="36.068" y2="4.318" width="0.1524" layer="16"/>
 <wire x1="36.068" y1="4.318" x2="33.02" y2="7.366" width="0.1524" layer="16"/>
-<wire x1="33.02" y1="7.366" x2="21.082" y2="7.366" width="0.1524" layer="16"/>
-<wire x1="21.082" y1="7.366" x2="19.812" y2="8.636" width="0.1524" layer="16"/>
-<via x="19.812" y="8.636" extent="1-16" drill="0.3302"/>
-<wire x1="19.812" y1="8.636" x2="19.812" y2="10.961" width="0.1524" layer="1"/>
+<wire x1="33.02" y1="7.366" x2="21.59" y2="7.366" width="0.1524" layer="16"/>
+<wire x1="21.59" y1="7.366" x2="19.812" y2="9.144" width="0.1524" layer="16"/>
+<via x="19.812" y="9.144" extent="1-16" drill="0.3302"/>
+<wire x1="19.812" y1="9.144" x2="19.812" y2="10.961" width="0.1524" layer="1"/>
 </signal>
 <signal name="STEMLED">
 <contactref element="R1" pad="1"/>
@@ -2205,11 +2230,11 @@ Please make sure your boards conform to these design rules.</description>
 <wire x1="13.97" y1="6.604" x2="14.224" y2="6.858" width="0.1524" layer="1"/>
 <via x="14.224" y="6.858" extent="1-16" drill="0.3302"/>
 <wire x1="14.224" y1="6.858" x2="24.511" y2="6.858" width="0.1524" layer="16"/>
-<wire x1="24.511" y1="6.858" x2="27.94" y2="3.429" width="0.1524" layer="16"/>
-<wire x1="30.48" y1="3.683" x2="28.194" y2="3.683" width="0.1524" layer="1"/>
-<wire x1="28.194" y1="3.683" x2="27.94" y2="3.429" width="0.1524" layer="1"/>
-<wire x1="27.94" y1="3.429" x2="25.654" y2="3.429" width="0.1524" layer="1"/>
-<wire x1="25.654" y1="3.429" x2="25.4" y2="3.683" width="0.1524" layer="1"/>
+<wire x1="24.511" y1="6.858" x2="29.0778" y2="3.556" width="0.1524" layer="16"/>
+<wire x1="32.2222" y1="3.556" x2="28.194" y2="3.683" width="0.1524" layer="1"/>
+<wire x1="28.194" y1="3.683" x2="29.0778" y2="3.556" width="0.1524" layer="1"/>
+<wire x1="29.0778" y1="3.556" x2="25.654" y2="3.429" width="0.1524" layer="1"/>
+<wire x1="25.654" y1="3.429" x2="25.2222" y2="3.556" width="0.1524" layer="1"/>
 </signal>
 <signal name="N$1">
 <contactref element="JP9" pad="2"/>

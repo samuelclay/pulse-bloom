@@ -5,7 +5,7 @@ void setupPulseSensor();
 int readPulseSensor();
 void newHeartbeat();
 void clearStemLeds();
-bool beginStemRising();
+bool runStemRising();
 void beginLedRising();
 bool runLedRising();
 void beginLedFalling();

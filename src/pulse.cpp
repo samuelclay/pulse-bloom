@@ -24,15 +24,16 @@
 // ===================
 
 #if defined (__AVR_ATtiny84__)
-const uint8_t leftLedPin = 5;
-const uint8_t leftSensorPin = PA1;
-const uint8_t leftRealLedPin = PB2;
+const uint8_t stemLedPin = PB2;
 const uint8_t serialPin = 7;
 #elif defined (__AVR_ATmega328P__)
-const uint8_t leftLedPin = 10;
-const uint8_t leftSensorPin = A0;
-const uint8_t leftRealLedPin = 6;
-const uint8_t SI114Pin = 0; // SCL=18, SDA=19
+const uint8_t sensorPin = 0; // SCL=18, SDA=19
+const uint8_t stemLedPin = 8;
+const uint8_t stem2LedPin = 7;
+const uint8_t petalRedPin = 6;
+const uint8_t petalGreenPin = 5;
+const uint8_t petalBluePin = 3;
+const uint8_t petalWhitePin = 9;
 #endif
 
 // ===========
@@ -49,20 +50,23 @@ SoftwareSerial Serial(0, serialPin); // RX, TX
 #endif
 
 // Stem
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(300, leftRealLedPin, NEO_GRB + NEO_KHZ800);
+const int NUMBER_OF_STEM_LEDS = 300;
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMBER_OF_STEM_LEDS, 
+                                            stemLedPin, 
+                                            NEO_GRB + NEO_KHZ800);
 const int STEM_PULSE_WIDTH = 20;
 int stripLedCount = 0;
 int currentStripLed = 0;
 
 // Petals
 uint16_t ledBrightness = 0;
-unsigned long beginLedRiseTime;
-unsigned long endLedRiseTime;
-unsigned long beginLedFallTime;
-unsigned long endLedFallTime;
+unsigned long beginLedRiseTime = 0;
+unsigned long endLedRiseTime = 0;
+unsigned long beginLedFallTime = 0;
+unsigned long endLedFallTime = 0;
 
 // Pulse sensor
-PortI2C myBus(SI114Pin);
+PortI2C myBus(sensorPin);
 PulsePlug pulse(myBus); 
 
 // Pulse globals
@@ -92,8 +96,15 @@ state_app_t petalState;
 
 void setup(){
     analogReference(EXTERNAL);
-    pinMode(leftLedPin, OUTPUT);
-    analogWrite(leftLedPin, ledBrightness);
+    pinMode(petalRedPin, OUTPUT);
+    pinMode(petalGreenPin, OUTPUT);
+    pinMode(petalBluePin, OUTPUT);
+    pinMode(petalWhitePin, OUTPUT);
+    analogWrite(petalRedPin, LOW);
+    analogWrite(petalGreenPin, LOW);
+    analogWrite(petalBluePin, LOW);
+    analogWrite(petalWhitePin, LOW);
+    
     appState = STATE_RESTING;
     petalState = STATE_RESTING;
     delay(50);
@@ -110,13 +121,14 @@ void setup(){
 }
 
 void setupPulseSensor() {
+#ifdef USE_SERIAL
     if (pulse.isPresent()) {
         Serial.println("SI1143 Pulse Sensor found OK. Let's roll!");
-    }
-        else{
+    } else {
         Serial.println("No SI1143 found!");
     }
-    
+#endif
+
     pulse.setReg(PulsePlug::HW_KEY, 0x17);  
     
     pulse.setReg(PulsePlug::INT_CFG, 0x03);       // turn on interrupts
@@ -160,13 +172,13 @@ void setupPulseSensor() {
 }
 
 void loop() {
-    printHeader();
+    // printHeader();
     int sensorOn = readPulseSensor();
     
     if (sensorOn > 0) {
         appState = STATE_STEM_RISING;
     } else if (appState == STATE_STEM_RISING) {
-        bool stemDone = beginStemRising();
+        bool stemDone = runStemRising();
         if (stemDone) {
             appState = STATE_LED_RISING;
             beginLedRising();
@@ -210,7 +222,7 @@ void clearStemLeds() {
     strip.show();
 }
 
-bool beginStemRising() {
+bool runStemRising() {
     unsigned long now = millis();
     int bpm = max(min(latestBpm, 100), 45);
     unsigned long nextBeat = lastBeat + 60000.0/(bpm/0.50);
@@ -262,9 +274,21 @@ bool beginStemRising() {
 void beginLedRising() {
     int bpm = max(min(latestBpm, 100), 45);
     unsigned long nextBeat = lastBeat + 60000.0/bpm;
+    unsigned long now = millis();
 
-    beginLedRiseTime = millis();
-    endLedRiseTime = beginLedRiseTime + 0.4*(nextBeat - beginLedRiseTime);
+    Serial.print(" ---> Led Rising: ");
+    Serial.println(nextBeat);    
+    if (now > endLedRiseTime) {
+        // If still rising from previous rise, ignore this signal
+        beginLedRiseTime = now;
+    }
+    if (now < endLedFallTime) {
+        // Compensate for still falling led
+        unsigned int remainingRiseTime = endLedFallTime - now;
+        beginLedRiseTime = beginLedRiseTime - (600 - endLedFallTime);
+    }
+    // endLedRiseTime = beginLedRiseTime + 0.4*(nextBeat - beginLedRiseTime);
+    endLedRiseTime = beginLedRiseTime + 300;
 }
 
 bool runLedRising() {
@@ -280,8 +304,8 @@ bool runLedRising() {
     // Serial.println((int)floor(255 * progress), DEC);
 
     // Set Lotus LED brightness
-    ledBrightness = min((int)floor(255 * progress), 255);
-    analogWrite(leftLedPin, ledBrightness);
+    ledBrightness = max(8, min((int)floor(255 * progress), 255));
+    analogWrite(petalRedPin, ledBrightness);
     if (progress >= 1.0) {
         return true;
     }
@@ -292,9 +316,12 @@ bool runLedRising() {
 void beginLedFalling() {
     int bpm = max(min(latestBpm, 100), 45);
     unsigned long nextBeat = lastBeat + 60000.0/bpm;
+    Serial.print(" ---> Led Falling: ");
+    Serial.println(nextBeat);    
 
     beginLedFallTime = millis();
-    endLedFallTime = beginLedFallTime + 2*(nextBeat - beginLedFallTime);
+    // endLedFallTime = beginLedFallTime + 2*(nextBeat - beginLedFallTime);
+    endLedFallTime = beginLedFallTime + 600;
 }
 
 bool runLedFalling() {
@@ -308,8 +335,8 @@ bool runLedFalling() {
     // Serial.print(progress, DEC);
     // Serial.print(" Brightness: ");
     // Serial.println((int)floor(255 * progress), DEC);
-    ledBrightness = max(255 - (int)floor(255 * progress), 0);
-    analogWrite(leftLedPin, ledBrightness);
+    ledBrightness = max(255 - (int)floor(255 * progress), 8);
+    analogWrite(petalRedPin, ledBrightness);
     
     if (progress >= 1.0) {
         return true;
@@ -503,9 +530,9 @@ void printHeader() {
 
 void blink(int loops, int loopTime, bool half) {
     while (loops--) {
-        digitalWrite(leftLedPin, HIGH);
+        digitalWrite(petalRedPin, HIGH);
         delay(loopTime);
-        digitalWrite(leftLedPin, LOW);
+        digitalWrite(petalRedPin, LOW);
         delay(loopTime / (half ? 2 : 1));
     }
 }
