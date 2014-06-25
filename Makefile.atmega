@@ -28,7 +28,9 @@ LIBS        += -I.
 
 CFLAGS      = $(LIBS) \
               -fno-exceptions -ffunction-sections -fdata-sections \
-              -Wl,--gc-sections
+              -Wl,--gc-sections \
+              -felide-constructors \
+              -std=c++0x
 
 C_SRC   := libs/arduino/wiring.o \
            libs/arduino/wiring_analog.o \

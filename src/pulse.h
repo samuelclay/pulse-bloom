@@ -13,5 +13,6 @@ bool runLedFalling(PulsePlug *pulse);
 void printHeader();
 void blink(int loops, int loopTime, bool half);
 void resetArduino();
+int freeRam ();
 
 #endif
