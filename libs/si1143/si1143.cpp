@@ -228,15 +228,15 @@ char Scheduler::poll() {
             if (tasks[i] < lowest)
                 lowest = tasks[i];
         }
-        if (lowest != ~0) {
+        if (lowest != (unsigned)~0) {
             for (byte i = 0; i < maxTasks; ++i) {
-                if(tasks[i] != ~0) {
+                if(tasks[i] != (unsigned)~0) {
                     tasks[i] -= lowest;
                 }
             }
         }
         remaining = lowest;
-    } else if (remaining == ~0) //remaining == ~0 means nothing running
+    } else if (remaining == (unsigned)~0) //remaining == ~0 means nothing running
         return -2;
     else if (ms100.poll(100))
         --remaining;
@@ -249,7 +249,7 @@ void Scheduler::timer(byte task, word tenths) {
     if (tenths < remaining) {
         word diff = remaining - tenths;
         for (byte i = 0; i < maxTasks; ++i)
-            if (tasks[i] != ~0)
+            if (tasks[i] != (unsigned)~0)
                 tasks[i] += diff;
         remaining = tenths;
     }

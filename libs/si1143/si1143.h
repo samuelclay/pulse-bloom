@@ -18,6 +18,11 @@
 #include <avr/pgmspace.h>
 //#include <util/delay.h>
 
+typedef enum
+{
+    ROLE_PRIMARY = 0,
+    ROLE_SECONDARY = 1
+} role_t;
 
 class Port {
 protected:
@@ -149,7 +154,7 @@ public:
     uint8_t read(uint8_t last) const
         { return port.read(last); }
         
-    uint8_t setAddress(uint8_t me)
+    void setAddress(uint8_t me)
         { addr = me << 1; }
 };
 
@@ -177,8 +182,8 @@ public:
 // simple task scheduler for times up to 6000 seconds
 class Scheduler {
     word* tasks;
-    word remaining;
     byte maxTasks;
+    word remaining;
     MilliTimer ms100;
 public:
     // initialize for a specified maximum number of tasks
@@ -197,7 +202,7 @@ public:
     void cancel(byte task);
     
     // return true if a task timer is not running
-    byte idle(byte task) { return tasks[task] == ~0; }
+    byte idle(byte task) { return tasks[task] == (unsigned)~0; }
 };
 
 
@@ -281,8 +286,25 @@ public:
     byte readParam (byte addr);
     void writeParam (byte addr, byte val);
 
-   // variables for output
-   unsigned int resp, als_vis, als_ir, ps1, ps2, ps3, aux, more; // keep in this order!
+    // variables for output
+    unsigned int resp, als_vis, als_ir, ps1, ps2, ps3, aux, more; // keep in this order!
+    
+    // Pulse values
+    int foundNewFinger, red_signalSize, red_smoothValley;
+    long red_valley, red_Peak, red_HFoutput, red_smoothPeak; // for PSO2 calc
+    int IR_valley, IR_peak, IR_smoothPeak, IR_smoothValley, binOut, lastBinOut;
+    unsigned long lastTotal, IRtotal, valleyTime, lastValleyTime, peakTime, lastPeakTime;
+    float IR_baseline, red_baseline, IR_HFoutput, IR_HFoutput2, shiftedOutput, LFoutput, hysterisis;
+    
+    // Pulse globals
+    unsigned long red;      // read value from visible red LED
+    unsigned long IR1;      // read value from infrared LED1
+    unsigned long IR2;      // read value from infrared LED2
+    unsigned long lastBeat;
+    unsigned long previousBeat;
+    unsigned int latestBpm;
+    
+    role_t role;
 };
 
 
