@@ -61,7 +61,7 @@ Adafruit_NeoPixel::Adafruit_NeoPixel(uint16_t n, uint8_t p, uint8_t t) : numLEDs
 
 Adafruit_NeoPixel::~Adafruit_NeoPixel() {
   if(pixels) free(pixels);
-  pinMode(pin, INPUT);
+  // pinMode(pin, INPUT);
 }
 
 void Adafruit_NeoPixel::begin(void) {

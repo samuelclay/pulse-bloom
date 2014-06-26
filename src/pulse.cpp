@@ -45,7 +45,7 @@ const uint8_t petalWhitePin = 9;
 
 long timer = 0;
 long loops = 0;
-const int SAMPLES_TO_AVERAGE = 5;
+const int SAMPLES_TO_AVERAGE = 3;
 
 // Serial
 #if defined (__AVR_ATtiny84__)
@@ -56,7 +56,7 @@ SoftwareSerial Serial(0, serialPin); // RX, TX
 const int NUMBER_OF_STEM1_LEDS = 300;
 const int NUMBER_OF_STEM2_LEDS = 60;
 const int8_t STEM1_PULSE_WIDTH = 32;
-const int8_t STEM2_PULSE_WIDTH = 4;
+const int8_t STEM2_PULSE_WIDTH = 8;
 volatile int strip1CurrentLed = 0;
 volatile int strip2CurrentLed = 0;
 
@@ -89,7 +89,7 @@ state_app_t petalState;
 // ============
 
 void setup(){
-    int startRam = freeRam();
+    // int startRam = freeRam();
     analogReference(EXTERNAL);
     pinMode(petalRedPin, OUTPUT);
     pinMode(petalGreenPin, OUTPUT);
@@ -109,10 +109,10 @@ void setup(){
     Serial.flush();
 #endif
     
-    Serial.print(F(" ---> Free RAM: "));
-    Serial.print(startRam);
-    Serial.print(F(" - "));
-    Serial.println(freeRam());
+    // Serial.print(F(" ---> Free RAM: "));
+    // Serial.print(startRam);
+    // Serial.print(F(" - "));
+    // Serial.println(freeRam());
     printHeader();
     
     pinMode(stem1LedPin, OUTPUT);
@@ -224,13 +224,8 @@ void loop() {
 }
 
 void newHeartbeat(PulsePlug *pulse) {
-    Serial.print(F(" ---> Free RAM: "));
-    Serial.println(freeRam());
-
-    Serial.println(" ---> newHeartbeat");
     clearStemLeds(pulse);
-    Serial.print(F(" ---> Free RAM: "));
-    Serial.println(freeRam());
+
     if (pulse->role == ROLE_PRIMARY) {
         strip1CurrentLed = 0;
     } else if (pulse->role == ROLE_SECONDARY) {
@@ -249,7 +244,7 @@ void beginStateOn(PulsePlug *pulse) {
 void clearStemLeds(PulsePlug *pulse) {
     // Reset stem LEDs
     int ledCount = pulse->role == ROLE_PRIMARY ? NUMBER_OF_STEM1_LEDS : NUMBER_OF_STEM2_LEDS;
-    Adafruit_NeoPixel strip = Adafruit_NeoPixel(pulse->role == ROLE_PRIMARY ? NUMBER_OF_STEM1_LEDS : NUMBER_OF_STEM2_LEDS, 
+    Adafruit_NeoPixel strip = Adafruit_NeoPixel(ledCount, 
                                              pulse->role == ROLE_PRIMARY ? stem1LedPin : stem2LedPin, 
                                              NEO_GRB + NEO_KHZ800);
     strip.begin();
@@ -257,30 +252,29 @@ void clearStemLeds(PulsePlug *pulse) {
         strip.setPixelColor(i, 0, 0, 0);
     }
     strip.show();
-    Serial.print(F(" ---> Free RAM: "));
-    Serial.println(freeRam());
+    // Serial.print(F(" ---> Clearing stem #"));
+    // Serial.println(pulse->role);
 
 }
 
 bool runStemRising(PulsePlug *pulse) {
     unsigned long now = millis();
     int8_t bpm = max(min(pulse->latestBpm, 100), 45);
-    unsigned long nextBeat = pulse->lastBeat + 60000.0/(bpm/0.50);
+    unsigned long nextBeat = pulse->lastBeat + (int)floor(60000.0/(bpm/.5));
     unsigned long millisToNextBeat = (now > nextBeat) ? 0 : (nextBeat - now);
     unsigned long millisFromLastBeat = now - pulse->lastBeat;
     double progress = (double)millisFromLastBeat / (double)(millisFromLastBeat + millisToNextBeat);
 
-    Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMBER_OF_STEM1_LEDS, 
+    Adafruit_NeoPixel strip = Adafruit_NeoPixel(pulse->role == ROLE_PRIMARY ? NUMBER_OF_STEM1_LEDS : NUMBER_OF_STEM2_LEDS, 
                                              pulse->role == ROLE_PRIMARY ? stem1LedPin : stem2LedPin, 
                                              NEO_GRB + NEO_KHZ800);
-    strip.begin();
     // Serial.print(" ---> Strip: ");
     // Serial.print(pulse->role);
     // Serial.print("=");
     // Serial.print(pulse->role==ROLE_PRIMARY);
     // Serial.print("=");
     // Serial.println(pulse->role==ROLE_SECONDARY);
-    int ledCount = pulse->role == ROLE_PRIMARY ? NUMBER_OF_STEM1_LEDS : NUMBER_OF_STEM2_LEDS;
+    int ledCount = strip.numPixels();
     int currentLed = pulse->role == ROLE_PRIMARY ? strip1CurrentLed : strip2CurrentLed;
     int newLed = (int)floor(progress * ledCount);
     
@@ -292,7 +286,7 @@ bool runStemRising(PulsePlug *pulse) {
     // Serial.println(newLed);
     
     if (currentLed != newLed) {
-        uint8_t pulseWidth = STEM2_PULSE_WIDTH;
+        uint8_t pulseWidth;
         if (pulse->role == ROLE_PRIMARY) {
             pulseWidth = STEM1_PULSE_WIDTH;
         } else if (pulse->role == ROLE_SECONDARY) {
@@ -336,11 +330,13 @@ bool runStemRising(PulsePlug *pulse) {
             // Serial.print(i);
             // Serial.print(F(") / "));
             // Serial.println((int)floor(255.0/(abs(i)+1)));
-            uint32_t color = strip.Color((int)floor(255.0/(abs(i)+1)), 0, 0);
+            uint32_t color;
+            if (abs(i) <= 2) {
+                color = strip.Color(255, 0, 0);
+            } else {
+                color = strip.Color((int)floor(255.0/(abs(i)-1)), 0, 0);
+            }
             strip.setPixelColor(currentLed + i, color);
-            // Serial.print(" Turning on ");
-            // Serial.println(currentLed+i);
-            // Serial.flush();
         }
         strip.show();
     }
@@ -368,24 +364,22 @@ void beginLedRising(PulsePlug *pulse) {
     unsigned long nextBeat = pulse->lastBeat + 60000.0/bpm;
     unsigned long now = millis();
 
-    Serial.print(F(" ---> Led Rising: "));
-    Serial.println(nextBeat);    
-    // if (now < endLedRiseTime) {
-        // If still rising from previous rise, ignore this signal
-    // } else {
-        beginLedRiseTime = now;
-    // }
+    // Serial.print(F(" ---> Led Rising: "));
+    // Serial.println(nextBeat);    
+
+    beginLedRiseTime = now;
+
     if (now < endLedFallTime) {
         // Compensate for still falling led
-        Serial.print(F(" Compensating for still falling led: "));
         unsigned int remainingFallTime = endLedFallTime - now;
-        Serial.println(remainingFallTime, DEC);
+        // Serial.print(F(" Compensating for still falling led: "));
+        // Serial.println(remainingFallTime, DEC);
         beginLedRiseTime = beginLedRiseTime - (int)floor((400.0*((double)remainingFallTime/800.0)));
         beginLedFallTime = 0;
         endLedFallTime = 0;
     }
-    // endLedRiseTime = beginLedRiseTime + 0.4*(nextBeat - beginLedRiseTime);
-    endLedRiseTime = beginLedRiseTime + 400;
+    endLedRiseTime = beginLedRiseTime + 0.6*(nextBeat - beginLedRiseTime);
+    // endLedRiseTime = beginLedRiseTime + 400;
 }
 
 bool runLedRising(PulsePlug *pulse) {
@@ -415,8 +409,8 @@ bool runLedRising(PulsePlug *pulse) {
 void beginLedFalling(PulsePlug *pulse) {
     int bpm = max(min(pulse->latestBpm, 100), 45);
     unsigned long nextBeat = pulse->lastBeat + 60000.0/bpm;
-    Serial.print(F(" ---> Led Falling: "));
-    Serial.println(nextBeat);    
+    // Serial.print(F(" ---> Led Falling: "));
+    // Serial.println(nextBeat);    
 
     beginLedFallTime = millis();
     // endLedFallTime = beginLedFallTime + 2*(nextBeat - beginLedFallTime);
@@ -505,8 +499,14 @@ int readPulseSensor(PulsePlug *pulse) {
     
     if (pulse->foundNewFinger < 20) {
         pulse->IR_baseline = total - 200;   // take a guess at the baseline to prime smooth filter
-        Serial.print(F(" ---> Found new finger - "));
-        Serial.println(pulse->foundNewFinger, DEC);
+        if (pulse->foundNewFinger == 2) {
+            Serial.print(F(" ---> Found new finger - "));
+            if (pulse->role == ROLE_PRIMARY) {
+                Serial.println(F("primary"));
+            } else if (pulse->role == ROLE_SECONDARY) {
+                Serial.println(F("secondary"));
+            }
+        }
     } else if (total > 20000L) {    // main running function
         // baseline is the moving average of the signal - the middle of the waveform
         // the idea here is to keep track of a high frequency signal, HFoutput and a 
@@ -584,7 +584,7 @@ int readPulseSensor(PulsePlug *pulse) {
         } 
 
         if (pulse->lastBinOut == 1 && pulse->binOut == 0) {
-            Serial.println(" ---> Heartbeat finished");
+            // Serial.println(" ---> Heartbeat finished");
             return -1;
         }
 
@@ -592,7 +592,9 @@ int readPulseSensor(PulsePlug *pulse) {
             pulse->previousBeat = pulse->lastBeat;
             pulse->lastBeat = millis();
             pulse->latestBpm = 60000 / (pulse->lastBeat - pulse->previousBeat);
-            Serial.print(F(" ---> Heartbeat started: "));
+            Serial.print(F(" ---> Heartbeat started on "));
+            Serial.print(pulse->role);
+            Serial.print(F(": "));
             Serial.print(F("\t BPM "));
             Serial.print(pulse->latestBpm);  
             Serial.print(F("\t IR "));
