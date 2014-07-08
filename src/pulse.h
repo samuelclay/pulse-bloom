@@ -1,3 +1,5 @@
+#include <easing/QuinticEase.h>
+
 #ifndef PULSE_H
 #define PULSE_H
 
@@ -14,5 +16,8 @@ void printHeader();
 void blink(int loops, int loopTime, bool half);
 void resetArduino();
 int freeRam ();
+QuinticEase ease;
+
+extern "C" void __cxa_pure_virtual() { }
 
 #endif

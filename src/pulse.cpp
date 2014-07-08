@@ -8,6 +8,7 @@
 #if defined (__AVR_ATtiny84__)
 #include <tiny/wiring.h>
 #include <SoftwareSerial/SoftwareSerial.h>
+#include <easing/QuinticEase.h>
 #else
 #include <HardwareSerial.h>
 #endif
@@ -107,12 +108,12 @@ void setup(){
 #ifdef USE_SERIAL
     Serial.begin(115200);
     Serial.flush();
-#endif
     
     // Serial.print(F(" ---> Free RAM: "));
     // Serial.print(startRam);
     // Serial.print(F(" - "));
     // Serial.println(freeRam());
+#endif
     printHeader();
     
     pinMode(stem1LedPin, OUTPUT);
@@ -148,10 +149,12 @@ void setupPulseSensor(PulsePlug *pulse) {
     pulse->setReg(PulsePlug::PS_LED21, 0x39);      // LED current for 2 (IR1 - high nibble) & LEDs 1 (red - low nibble) 
     pulse->setReg(PulsePlug::PS_LED3, 0x02);       // LED current for LED 3 (IR2)
 /*  debug infor for the led currents
+#ifdef USE_SERIAL
     Serial.print( "PS_LED21 = ");                                         
     Serial.println(pulse->getReg(PulsePlug::PS_LED21), BIN);                                          
     Serial.print("CHLIST = ");
     Serial.println(pulse->readParam(0x01), BIN);
+#endif
 */
 
     pulse->writeParam(PulsePlug::PARAM_CH_LIST, 0x77);         // all measurements on
@@ -252,9 +255,17 @@ void clearStemLeds(PulsePlug *pulse) {
         strip.setPixelColor(i, 0, 0, 0);
     }
     strip.show();
+#ifdef USE_SERIAL
     // Serial.print(F(" ---> Clearing stem #"));
     // Serial.println(pulse->role);
+#endif
+    unsigned long now = millis();
+    int8_t bpm = max(min(pulse->latestBpm, 100), 45);
+    unsigned long nextBeat = pulse->lastBeat + (int)floor(60000.0/(bpm/.5));
+    unsigned long millisToNextBeat = (now > nextBeat) ? 0 : (nextBeat - now);
 
+    ease.setDuration(millisToNextBeat);
+    ease.setTotalChangeInPosition(ledCount);
 }
 
 bool runStemRising(PulsePlug *pulse) {
@@ -263,27 +274,32 @@ bool runStemRising(PulsePlug *pulse) {
     unsigned long nextBeat = pulse->lastBeat + (int)floor(60000.0/(bpm/.5));
     unsigned long millisToNextBeat = (now > nextBeat) ? 0 : (nextBeat - now);
     unsigned long millisFromLastBeat = now - pulse->lastBeat;
-    double progress = (double)millisFromLastBeat / (double)(millisFromLastBeat + millisToNextBeat);
-
+    double progress = (double)millisFromLastBeat / 
+                      (double)(millisFromLastBeat + millisToNextBeat);
     Adafruit_NeoPixel strip = Adafruit_NeoPixel(pulse->role == ROLE_PRIMARY ? NUMBER_OF_STEM1_LEDS : NUMBER_OF_STEM2_LEDS, 
                                              pulse->role == ROLE_PRIMARY ? stem1LedPin : stem2LedPin, 
                                              NEO_GRB + NEO_KHZ800);
+#ifdef USE_SERIAL
     // Serial.print(" ---> Strip: ");
     // Serial.print(pulse->role);
     // Serial.print("=");
     // Serial.print(pulse->role==ROLE_PRIMARY);
     // Serial.print("=");
     // Serial.println(pulse->role==ROLE_SECONDARY);
+#endif
     int ledCount = strip.numPixels();
     int currentLed = pulse->role == ROLE_PRIMARY ? strip1CurrentLed : strip2CurrentLed;
-    int newLed = (int)floor(progress * ledCount);
-    
+    // int newLed = (int)floor(progress * ledCount); // Linear
+    int newLed = (int)floor(ease.easeIn(millisFromLastBeat));
+
+#ifdef USE_SERIAL
     // Serial.print("LEDs (");
     // Serial.print(ledCount);
     // Serial.print(") ");
     // Serial.print(currentLed);
     // Serial.print(" -> ");
     // Serial.println(newLed);
+#endif
     
     if (currentLed != newLed) {
         uint8_t pulseWidth;
@@ -306,6 +322,7 @@ bool runStemRising(PulsePlug *pulse) {
         }
 
         // Fade new pixels
+#ifdef USE_SERIAL
         // Serial.print("LEDs (");
         // Serial.print(ledCount);
         // Serial.print(") ");
@@ -314,22 +331,27 @@ bool runStemRising(PulsePlug *pulse) {
         // Serial.println(") ");
         // Serial.print(" ---> Free RAM: ");
         // Serial.println(freeRam());
+#endif
         for (int i = -1*pulseWidth; i < pulseWidth; i++) {
             if ((currentLed + i < 0) || (currentLed + i >= ledCount)) {
+#ifdef USE_SERIAL
                 // Serial.print(F(" ---> REJECTED in stem pulse width: "));
                 // Serial.print(currentLed + i, DEC);
                 // Serial.print(F(" ("));
                 // Serial.print(i);
                 // Serial.print(F(") / "));
                 // Serial.println(ledCount, DEC);
+#endif
                 continue;
             }
+#ifdef USE_SERIAL
             // Serial.print(F(" ---> in stem pulse width: "));
             // Serial.print(currentLed + i);
             // Serial.print(F(" ("));
             // Serial.print(i);
             // Serial.print(F(") / "));
             // Serial.println((int)floor(255.0/(abs(i)+1)));
+#endif
             uint32_t color;
             if (abs(i) <= 2) {
                 color = strip.Color(255, 0, 0);
@@ -364,16 +386,20 @@ void beginLedRising(PulsePlug *pulse) {
     unsigned long nextBeat = pulse->lastBeat + 60000.0/bpm;
     unsigned long now = millis();
 
+#ifdef USE_SERIAL
     // Serial.print(F(" ---> Led Rising: "));
     // Serial.println(nextBeat);    
+#endif
 
     beginLedRiseTime = now;
 
     if (now < endLedFallTime) {
         // Compensate for still falling led
         unsigned int remainingFallTime = endLedFallTime - now;
+#ifdef USE_SERIAL
         // Serial.print(F(" Compensating for still falling led: "));
         // Serial.println(remainingFallTime, DEC);
+#endif
         beginLedRiseTime = beginLedRiseTime - (int)floor((400.0*((double)remainingFallTime/800.0)));
         beginLedFallTime = 0;
         endLedFallTime = 0;
@@ -389,12 +415,14 @@ bool runLedRising(PulsePlug *pulse) {
     unsigned long millisFromLastBeat = now - beginLedRiseTime;
     double progress = (double)millisFromLastBeat / (double)(millisFromLastBeat + millisToNextBeat);
 
+#ifdef USE_SERIAL
     // Serial.print(" ---> STATE: Led Rising - from:");
     // Serial.print(millisFromLastBeat, DEC);
     // Serial.print(" to:");
     // Serial.print(millisToNextBeat, DEC);
     // Serial.print(" Brightness: ");
     // Serial.println(max(8, min((int)floor(255 * progress), 255)), DEC);
+#endif
 
     // Set Lotus LED brightness
     ledBrightness = max(8, min((int)floor(255 * progress), 255));
@@ -409,8 +437,10 @@ bool runLedRising(PulsePlug *pulse) {
 void beginLedFalling(PulsePlug *pulse) {
     int bpm = max(min(pulse->latestBpm, 100), 45);
     unsigned long nextBeat = pulse->lastBeat + 60000.0/bpm;
+#ifdef USE_SERIAL
     // Serial.print(F(" ---> Led Falling: "));
     // Serial.println(nextBeat);    
+#endif
 
     beginLedFallTime = millis();
     // endLedFallTime = beginLedFallTime + 2*(nextBeat - beginLedFallTime);
@@ -424,12 +454,14 @@ bool runLedFalling(PulsePlug *pulse) {
     unsigned long millisFromLastBeat = now - beginLedFallTime;
     double progress = (double)millisFromLastBeat / (double)(millisFromLastBeat + millisToNextBeat);
 
+#ifdef USE_SERIAL
     // Serial.print(" ---> STATE: Led Falling - from:");
     // Serial.print(millisFromLastBeat, DEC);
     // Serial.print(" to:");
     // Serial.print(millisToNextBeat, DEC);
     // Serial.print(" Brightness: ");
     // Serial.println(max(255 - (int)floor(255 * progress), 8), DEC);
+#endif
     ledBrightness = max(255 - (int)floor(255 * progress), 8);
     analogWrite(petalRedPin, ledBrightness);
     
@@ -475,11 +507,13 @@ int readPulseSensor(PulsePlug *pulse) {
     
     if (pulse->red == 0 && pulse->IR1 == 0 && pulse->IR2 == 0) {
         delay(500);
+#ifdef USE_SERIAL
         Serial.println(" ---> Resetting to fix Pulse Sensor");
+#endif
         resetArduino();
     }
-#ifdef PRINT_LED_VALS
 
+#ifdef PRINT_LED_VALS
     Serial.print(pulse->red);
     Serial.print(F("\t"));
     Serial.print(pulse->IR1);
@@ -487,7 +521,6 @@ int readPulseSensor(PulsePlug *pulse) {
     Serial.print(pulse->IR2);
     Serial.print(F("\t"));
     Serial.println((long)total);   
-
 #endif
 
     if (pulse->lastTotal < 20000L && total > 20000L) pulse->foundNewFinger = 1;  // found new finger!
@@ -499,6 +532,7 @@ int readPulseSensor(PulsePlug *pulse) {
     
     if (pulse->foundNewFinger < 20) {
         pulse->IR_baseline = total - 200;   // take a guess at the baseline to prime smooth filter
+#ifdef USE_SERIAL
         if (pulse->foundNewFinger == 2) {
             Serial.print(F(" ---> Found new finger - "));
             if (pulse->role == ROLE_PRIMARY) {
@@ -507,6 +541,7 @@ int readPulseSensor(PulsePlug *pulse) {
                 Serial.println(F("secondary"));
             }
         }
+#endif
     } else if (total > 20000L) {    // main running function
         // baseline is the moving average of the signal - the middle of the waveform
         // the idea here is to keep track of a high frequency signal, HFoutput and a 
@@ -535,7 +570,9 @@ int readPulseSensor(PulsePlug *pulse) {
         
         // default reset - only if reset fails to occur for 1800 ms
         if (millis() - pulse->lastPeakTime > 1800) {  // reset peak detector slower than lowest human HB
+#ifdef USE_SERIAL
             Serial.println(" ---> Reseting peak detector, took too long");
+#endif
             pulse->IR_smoothPeak = smooth((float)pulse->IR_peak, 0.6, (float)pulse->IR_smoothPeak);  // smooth peaks
             pulse->IR_peak = 0;
             
@@ -549,7 +586,9 @@ int readPulseSensor(PulsePlug *pulse) {
         if (pulse->red_HFoutput < pulse->red_valley) pulse->red_valley = pulse->red_HFoutput;
         
         if (millis() - pulse->lastValleyTime > 1800) {  // insure reset slower than lowest human HB
+#ifdef USE_SERIAL
             Serial.println(" ---> Reseting valley detector, took too long");
+#endif
             pulse->IR_smoothValley =  smooth((float)pulse->IR_valley, 0.6, (float)pulse->IR_smoothValley);  // smooth valleys
             pulse->IR_valley = 0;
             pulse->lastValleyTime = millis();           
@@ -584,7 +623,9 @@ int readPulseSensor(PulsePlug *pulse) {
         } 
 
         if (pulse->lastBinOut == 1 && pulse->binOut == 0) {
+#ifdef USE_SERIAL
             // Serial.println(" ---> Heartbeat finished");
+#endif
             return -1;
         }
 
@@ -592,6 +633,7 @@ int readPulseSensor(PulsePlug *pulse) {
             pulse->previousBeat = pulse->lastBeat;
             pulse->lastBeat = millis();
             pulse->latestBpm = 60000 / (pulse->lastBeat - pulse->previousBeat);
+#ifdef USE_SERIAL
             Serial.print(F(" ---> Heartbeat started on "));
             Serial.print(pulse->role);
             Serial.print(F(": "));
@@ -601,6 +643,7 @@ int readPulseSensor(PulsePlug *pulse) {
             Serial.print(IR_signalSize);
             Serial.print(F("\t PSO2 "));         
             Serial.println(((float)pulse->red_baseline / (float)(pulse->IR_baseline/2)), 3);                     
+#endif
 
             return 1;
         }

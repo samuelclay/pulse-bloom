@@ -22,6 +22,7 @@ LIBS        += -I./libs/atmega328
 LIBS        += -I./libs/avr
 LIBS        += -I./libs/neopixel
 LIBS        += -I./libs/si114
+LIBS        += -I./libs/easing
 LIBS        += -I./libs
 LIBS        += -I./src
 LIBS        += -I.
@@ -45,14 +46,16 @@ CPP_SRC := libs/arduino/main.o \
            libs/arduino/WMath.o \
            libs/arduino/WString.o \
            libs/neopixel/Adafruit_NeoPixel.o \
-           libs/si1143/si1143.o
+           libs/si1143/si1143.o \
+           libs/easing/EasingBase.o \
+           libs/easing/QuinticEase.o
 SRC     := src/pulse.o \
            src/smooth.o
 
 OBJECTS = $(C_SRC:.c=.o) $(CPP_SRC:.cpp=.o) $(SRC:.cpp=.o)
 COMPILE = avr-gcc -Wall -Os -DF_CPU=$(F_CPU) $(CFLAGS) -mmcu=$(DEVICE_MCCU)
 
-all: clean fuse program
+all: clean pulse.hex fuse program
 
 # symbolic targets:
 help:

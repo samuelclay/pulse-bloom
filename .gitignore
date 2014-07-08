@@ -25,4 +25,4 @@
 *.hex
 *.d
 core.a
-*.lst
+*.lst.DS_Store
