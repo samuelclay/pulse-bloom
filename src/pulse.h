@@ -6,6 +6,8 @@
 void setupPulseSensor(PulsePlug *pulse);
 int readPulseSensor(PulsePlug *pulse);
 void newHeartbeat(PulsePlug *pulse);
+void runResting();
+void runRestStem();
 void clearStemLeds(PulsePlug *pulse);
 bool runStemRising(PulsePlug *pulse);
 void beginLedRising(PulsePlug *pulse);
