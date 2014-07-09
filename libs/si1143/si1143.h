@@ -16,6 +16,7 @@
 
 #include <stdint.h>
 #include <avr/pgmspace.h>
+#include <easing/CubicEase.h>
 //#include <util/delay.h>
 
 typedef enum
@@ -305,6 +306,7 @@ public:
     unsigned int latestBpm;
     
     role_t role;
+    CubicEase ease;
 };
 
 

@@ -49,8 +49,9 @@ CPP_SRC := libs/arduino/main.o \
            libs/neopixel/Adafruit_NeoPixel.o \
            libs/si1143/si1143.o \
            libs/easing/EasingBase.o \
-           libs/easing/QuinticEase.o
+           libs/easing/CubicEase.o
 SRC     := src/pulse.o \
+           src/sensor.o \
            src/smooth.o
 
 OBJECTS = $(C_SRC:.c=.o) $(CPP_SRC:.cpp=.o) $(SRC:.cpp=.o)
