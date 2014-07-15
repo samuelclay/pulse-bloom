@@ -6,6 +6,7 @@
 void newHeartbeat(PulsePlug *pulse);
 void runResting();
 void runRestStem();
+void runRestStem(PulsePlug *pulse, int16_t currentLed);
 void clearStemLeds(PulsePlug *pulse);
 bool runStemRising(PulsePlug *pulse, PulsePlug *shadowPulse);
 void beginLedRising(PulsePlug *pulse);

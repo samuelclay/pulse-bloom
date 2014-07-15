@@ -20,7 +20,6 @@
 #include "smooth.h"
 
 #define USE_SERIAL
-// #define PRINT_LED_VALS
 
 // ===================
 // = Pin Definitions =
@@ -60,6 +59,7 @@ const int8_t STEM1_PULSE_WIDTH = 32;
 const int8_t STEM2_PULSE_WIDTH = 8;
 volatile int strip1CurrentLed = 0;
 volatile int strip2CurrentLed = 0;
+const int REST_PULSE_WIDTH = 4;
 
 // Petals
 unsigned long beginLedRiseTime = 0;
@@ -148,22 +148,23 @@ void setup(){
 
 void loop() {
     // printHeader();
-    int sensor1On = readPulseSensor(&pulseA);
+    // int sensor1On = readPulseSensor(&pulseA);
+    int sensor1On = false;
     int sensor2On = readPulseSensor(&pulseB);
     PulsePlug *pulse1 = &pulseA;
     PulsePlug *pulse2 = &pulseB;
     
 #ifdef USE_SERIAL
-    Serial.print(F(" ---> Player mode: "));
-    Serial.print(playerMode);
-    Serial.print(F(", sensor1On: "));
-    Serial.print(sensor1On);
-    Serial.print(F(", sensor2On: "));
-    Serial.print(sensor2On);
-    Serial.print(F(", app1State: "));
-    Serial.print(app1State);
-    Serial.print(F(", app2State: "));
-    Serial.println(app2State);
+    // Serial.print(F(" ---> Player mode: "));
+    // Serial.print(playerMode);
+    // Serial.print(F(", sensor1On: "));
+    // Serial.print(sensor1On);
+    // Serial.print(F(", sensor2On: "));
+    // Serial.print(sensor2On);
+    // Serial.print(F(", app1State: "));
+    // Serial.print(app1State);
+    // Serial.print(F(", app2State: "));
+    // Serial.println(app2State);
 #endif
 
     if (playerMode == MODE_NONE) {
@@ -282,26 +283,35 @@ void runResting() {
 }
 
 void runRestStem() {
-    Adafruit_NeoPixel strip1 = Adafruit_NeoPixel(NUMBER_OF_STEM1_LEDS, stem1LedPin, NEO_GRB + NEO_KHZ800);
-    strip1.setPixelColor(strip1CurrentLed, strip1.Color(0, 0, 0));
-
     int currentLed = strip1CurrentLed - 1;
     if (currentLed < 0) {
         currentLed = NUMBER_OF_STEM1_LEDS - 1;
     }
     strip1CurrentLed = currentLed;
+    strip2CurrentLed = NUMBER_OF_STEM1_LEDS - strip1CurrentLed;
+    runRestStem(&pulseA, strip1CurrentLed);
+    runRestStem(&pulseB, strip2CurrentLed);
+}
 
-    uint32_t color1 = strip1.Color(0, 0, 150);
-    strip1.setPixelColor(currentLed, color1);
-    strip1.show();
-//     Adafruit_NeoPixel strip2 = Adafruit_NeoPixel(NUMBER_OF_STEM1_LEDS, stem1LedPin, NEO_GRB + NEO_KHZ800);
-//     uint32_t color2 = strip2.Color(0, 250, 0);    
-//     strip2.setPixelColor(currentLed, color2);
-// #ifdef USE_SERIAL
-//     Serial.print(" ---> Free RAM: ");
-//     Serial.println(freeRam());
-//     Serial.println(" ---> Ran rest stem.");
-// #endif
+void runRestStem(PulsePlug *pulse, int16_t currentLed) {
+    Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMBER_OF_STEM1_LEDS, 
+                                                pulse->role == ROLE_PRIMARY ? stem1LedPin : stem2LedPin,
+                                                NEO_GRB + NEO_KHZ800);
+
+    for (int i=(-1*REST_PULSE_WIDTH) - 1; i <= REST_PULSE_WIDTH; i++) {
+        // strip.setPixelColor(max(0, currentLed+i), strip.Color(0, 0, 0));
+    }
+
+    uint32_t color;
+    // Serial.print(" Colors: ");
+    for (int i=(-1*REST_PULSE_WIDTH); i <= REST_PULSE_WIDTH; i++) {
+        // Serial.print((int)floor(255.0/(float)max(abs(i), 1)));
+        // Serial.print(" ");
+        color = strip.Color(0, 0, (int)floor(255.0/(float)max(abs(i), 1)));
+        strip.setPixelColor(currentLed+i, color);
+    }
+    // Serial.println(currentLed);
+    strip.show();
 }
 
 void beginStateOn(PulsePlug *pulse) {
