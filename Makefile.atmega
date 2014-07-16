@@ -16,6 +16,7 @@ FUSE_H      = 0xD9
 FUSE_E      = 0x01
 
 AVRDUDE     = avrdude -v -v -v -v -c $(PROGRAMMER) -p $(DEVICE) -P usb -F -B1
+# Uncomment below to program new chip (won't work with -B1 option)
 # AVRDUDE     = avrdude -v -v -v -v -c $(PROGRAMMER) -p $(DEVICE) -P usb -F
 
 LIBS        =  -I./libs/arduino

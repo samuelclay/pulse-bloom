@@ -820,11 +820,11 @@ void Adafruit_NeoPixel::setPin(uint8_t p) {
 void Adafruit_NeoPixel::setPixelColor(
  uint16_t n, uint8_t r, uint8_t g, uint8_t b) {
   if(n < numLEDs) {
-    if(brightness) { // See notes in setBrightness()
-      r = (r * brightness) >> 8;
-      g = (g * brightness) >> 8;
-      b = (b * brightness) >> 8;
-    }
+    // if(brightness) { // See notes in setBrightness()
+    //   r = (r * brightness) >> 8;
+    //   g = (g * brightness) >> 8;
+    //   b = (b * brightness) >> 8;
+    // }
     uint8_t *p = &pixels[n * 3];
     p[rOffset] = r;
     p[gOffset] = g;
@@ -839,11 +839,11 @@ void Adafruit_NeoPixel::setPixelColor(uint16_t n, uint32_t c) {
       r = (uint8_t)(c >> 16),
       g = (uint8_t)(c >>  8),
       b = (uint8_t)c;
-    if(brightness) { // See notes in setBrightness()
-      r = (r * brightness) >> 8;
-      g = (g * brightness) >> 8;
-      b = (b * brightness) >> 8;
-    }
+    // if(brightness) { // See notes in setBrightness()
+    //   r = (r * brightness) >> 8;
+    //   g = (g * brightness) >> 8;
+    //   b = (b * brightness) >> 8;
+    // }
     uint8_t *p = &pixels[n * 3];
     p[rOffset] = r;
     p[gOffset] = g;

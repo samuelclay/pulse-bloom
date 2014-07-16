@@ -53,11 +53,10 @@ SoftwareSerial Serial(0, serialPin); // RX, TX
 #endif
 
 // Stem
-const int NUMBER_OF_STEMA_LEDS = 300;
-const int NUMBER_OF_STEMB_LEDS = 300;
+const int NUMBER_OF_STEM_LEDS = 300;
 const int REST_PULSE_WIDTH = 4;
 const int8_t STEMA_PULSE_WIDTH = 32;
-const int8_t STEMB_PULSE_WIDTH = 8;
+const int8_t STEMB_PULSE_WIDTH = 32;
 volatile int stripACurrentLed = 0;
 volatile int stripBCurrentLed = 0;
 
@@ -164,7 +163,7 @@ void loop() {
     PulsePlug *pulse2 = &pulseB;
     
 #ifdef USE_SERIAL
-    if (false && (heartbeat1 || heartbeat2 || sensor1On || sensor2On)) {
+    if (true && (heartbeat1 || heartbeat2 || sensor1On || sensor2On)) {
         Serial.print(F(" ---> [TICK] mode: "));
         Serial.print(playerMode);
         Serial.print(F(", heartbeat1: "));
@@ -190,8 +189,16 @@ void loop() {
         heartbeat2 = false;
     }
     
+    if (playerMode == MODE_NONE) {
+        runResting();
+    }
+    
+    // Turn off inactive sensors
+    determinePlayerMode();
+    
     // Check for faked/real heartbeat, turn on stem
     if (sensor1On > 0) {
+        nextPulseATime = millis() + 60000.0/pulse1->latestBpm;
         lastSensorActiveA = millis();
         app1State = STATE_STEM_RISING;
         resetStem(pulse1);
@@ -211,6 +218,7 @@ void loop() {
     } 
     
     if (sensor2On > 0) {
+        nextPulseBTime = millis() + 60000.0/pulse2->latestBpm;        
         lastSensorActiveB = millis();
         app2State = STATE_STEM_RISING;
         resetStem(pulse2);
@@ -242,14 +250,6 @@ void loop() {
             if (app1State == STATE_PETAL_FALLING) app1State = STATE_RESTING;
             petalState = STATE_RESTING;
         }
-    }
-    
-    
-    // Turn off inactive sensors
-    determinePlayerMode();
-
-    if (playerMode == MODE_NONE) {
-        runResting();
     }
 }
 
@@ -304,8 +304,8 @@ void runResting() {
     // Serial.println(restState);
 #endif
     if (restState == STATE_RESTING) {
-        clearStemLeds(&pulseA);
-        clearStemLeds(&pulseB);
+        resetStem(&pulseA);
+        resetStem(&pulseB);
         restState = STATE_STEM_FALLING;
     } else if (restState == STATE_STEM_FALLING) {
         runRestStem();
@@ -315,16 +315,16 @@ void runResting() {
 void runRestStem() {
     int currentLed = stripACurrentLed - 1;
     if (currentLed < -1*REST_PULSE_WIDTH*2) {
-        currentLed = NUMBER_OF_STEMA_LEDS + REST_PULSE_WIDTH*2;
+        currentLed = NUMBER_OF_STEM_LEDS + REST_PULSE_WIDTH*2;
     }
     stripACurrentLed = currentLed;
-    stripBCurrentLed = NUMBER_OF_STEMA_LEDS - stripACurrentLed;
+    stripBCurrentLed = NUMBER_OF_STEM_LEDS - stripACurrentLed;
     runRestStem(&pulseA, stripACurrentLed);
     runRestStem(&pulseB, stripBCurrentLed);
 }
 
 void runRestStem(PulsePlug *pulse, int16_t currentLed) {
-    Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMBER_OF_STEMA_LEDS, 
+    Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMBER_OF_STEM_LEDS, 
                                                 pulse->role == ROLE_PRIMARY ? stemALedPin : stemBLedPin,
                                                 NEO_GRB + NEO_KHZ800);
     // Serial.print(" Colors: ");
@@ -349,70 +349,64 @@ void clearStemLeds(PulsePlug *pulse) {
     } else if (pulse->role == ROLE_SECONDARY) {
         pulseWidth = STEMB_PULSE_WIDTH;
     }
-    int ledCount = pulse->role == ROLE_PRIMARY ? NUMBER_OF_STEMA_LEDS : NUMBER_OF_STEMB_LEDS;
-    Adafruit_NeoPixel strip = Adafruit_NeoPixel(ledCount, 
-                                             pulse->role == ROLE_PRIMARY ? stemALedPin : stemBLedPin, 
-                                             NEO_GRB + NEO_KHZ800);
+    Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMBER_OF_STEM_LEDS, 
+                                                pulse->role == ROLE_PRIMARY ? stemALedPin : stemBLedPin, 
+                                                NEO_GRB + NEO_KHZ800);
     strip.begin();
-    for (int i=0; i < ledCount; i++) {
+    for (int i=0; i < NUMBER_OF_STEM_LEDS; i++) {
         strip.setPixelColor(i, 0, 0, 0);
     }
     strip.show();
 #ifdef USE_SERIAL
-    // Serial.print(F(" ---> Clearing stem #"));
-    // Serial.println(pulse->role);
+    Serial.print(F(" ---> Clearing stem #"));
+    Serial.println(pulse->role);
 #endif
     unsigned long now = millis();
     int8_t bpm = max(min(pulse->latestBpm, 100), 45);
-    unsigned long nextBeat = pulse->lastBeat + (int)floor(60000.0/(bpm/.5));
+    unsigned long nextBeat = pulse->lastBeat + (int)floor(60000.0/(bpm/0.6));
     unsigned long millisToNextBeat = (now > nextBeat) ? 0 : (nextBeat - now);
 
     pulse->ease.setDuration(millisToNextBeat);
-    pulse->ease.setTotalChangeInPosition(ledCount + 2*pulseWidth);
+    pulse->ease.setTotalChangeInPosition(NUMBER_OF_STEM_LEDS + 2*pulseWidth);
 }
 
 bool runStemRising(PulsePlug *pulse, PulsePlug *shadowPulse) {
     unsigned long now = millis();
-    int8_t bpm = max(min(shadowPulse->latestBpm, 100), 45);
-    unsigned long nextBeat = shadowPulse->lastBeat + (int)floor(60000.0/(bpm/.5));
-    unsigned long millisToNextBeat = (now > nextBeat) ? 0 : (nextBeat - now);
     unsigned long millisFromLastBeat = now - shadowPulse->lastBeat;
-    double progress = (double)millisFromLastBeat / 
-                      (double)(millisFromLastBeat + millisToNextBeat);
-    Adafruit_NeoPixel strip = Adafruit_NeoPixel(pulse->role == ROLE_PRIMARY ? NUMBER_OF_STEMA_LEDS : NUMBER_OF_STEMB_LEDS, 
-                                             pulse->role == ROLE_PRIMARY ? stemALedPin : stemBLedPin, 
-                                             NEO_GRB + NEO_KHZ800);
+    // int8_t bpm = max(min(shadowPulse->latestBpm, 100), 45);
+    // unsigned long nextBeat = shadowPulse->lastBeat + (int)floor(60000.0/(bpm/.5));
+    // unsigned long millisToNextBeat = (now > nextBeat) ? 0 : (nextBeat - now);
+    // double progress = (double)millisFromLastBeat / 
+    //                   (double)(millisFromLastBeat + millisToNextBeat);
+    Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMBER_OF_STEM_LEDS, 
+                                                pulse->role == ROLE_PRIMARY ? stemALedPin : stemBLedPin, 
+                                                NEO_GRB + NEO_KHZ800);
+
     uint8_t pulseWidth = STEMA_PULSE_WIDTH;
     if (pulse->role == ROLE_SECONDARY) {
         pulseWidth = STEMB_PULSE_WIDTH;
     }
 
-#ifdef USE_SERIAL
-    // Serial.print(" ---> Strip: ");
-    // Serial.print(pulse->role);
-    // Serial.print("=");
-    // Serial.print(pulse->role==ROLE_PRIMARY);
-    // Serial.print("=");
-    // Serial.println(pulse->role==ROLE_SECONDARY);
-#endif
-    int ledCount = strip.numPixels();
     int currentLed = pulse->role == ROLE_PRIMARY ? stripACurrentLed : stripBCurrentLed;
-    // int newLed = (int)floor(progress * ledCount); // Linear
+    // int newLed = (int)floor(progress * NUMBER_OF_STEM_LEDS); // Linear
     int newLed = (int)floor(shadowPulse->ease.easeIn(millisFromLastBeat)) - pulseWidth;
     
 #ifdef USE_SERIAL
-    // Serial.print("LEDs (");
-    // Serial.print(ledCount);
-    // Serial.print(") ");
-    // Serial.print(currentLed);
-    // Serial.print(" -> ");
-    // Serial.println(newLed);
+    Serial.print(" ---> Strip: ");
+    Serial.print(pulse->role==shadowPulse->role ? "" :  "(shadowing) ");
+    Serial.print(pulse->role == ROLE_PRIMARY ? "primary" : "secondary");
+    Serial.print(": ");
+    Serial.print(NUMBER_OF_STEM_LEDS);
+    Serial.print(" LEDs, currently at ");
+    Serial.print(currentLed);
+    Serial.print(" -> ");
+    Serial.println(newLed);
 #endif
     
     if (currentLed != newLed) {
         // Reset old pixels that won't be refreshed
         for (int i = -1*pulseWidth; i < pulseWidth; i++) {
-            if (currentLed + i < 0 || currentLed + i >= ledCount) continue;
+            if (currentLed + i < 0 || currentLed + i >= NUMBER_OF_STEM_LEDS) continue;
             strip.setPixelColor(currentLed + i, strip.Color(0, 0, 0));
         }
         
@@ -426,7 +420,7 @@ bool runStemRising(PulsePlug *pulse, PulsePlug *shadowPulse) {
         // Fade new pixels
 #ifdef USE_SERIAL
         // Serial.print("LEDs (");
-        // Serial.print(ledCount);
+        // Serial.print(NUMBER_OF_STEM_LEDS);
         // Serial.print(") ");
         // Serial.print(" ---> Pulsing (width: ");
         // Serial.print(pulseWidth);
@@ -435,14 +429,14 @@ bool runStemRising(PulsePlug *pulse, PulsePlug *shadowPulse) {
         // Serial.println(freeRam());
 #endif
         for (int i = -1*pulseWidth; i < pulseWidth; i++) {
-            if ((currentLed + i < 0) || (currentLed + i >= ledCount)) {
+            if ((currentLed + i < 0) || (currentLed + i >= NUMBER_OF_STEM_LEDS)) {
 #ifdef USE_SERIAL
                 // Serial.print(F(" ---> REJECTED in stem pulse width: "));
                 // Serial.print(currentLed + i, DEC);
                 // Serial.print(F(" ("));
                 // Serial.print(i);
                 // Serial.print(F(") / "));
-                // Serial.println(ledCount, DEC);
+                // Serial.println(NUMBER_OF_STEM_LEDS, DEC);
 #endif
                 continue;
             }
@@ -470,7 +464,7 @@ bool runStemRising(PulsePlug *pulse, PulsePlug *shadowPulse) {
     }
     
     // At end of stem
-    if (currentLed == ledCount || progress >= 1.0) {
+    if (currentLed >= NUMBER_OF_STEM_LEDS) {
         return true;
     }
 
