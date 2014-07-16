@@ -148,23 +148,24 @@ void setup(){
 
 void loop() {
     // printHeader();
-    // int sensor1On = readPulseSensor(&pulseA);
-    int sensor1On = false;
+    int sensor1On = readPulseSensor(&pulseA);
     int sensor2On = readPulseSensor(&pulseB);
     PulsePlug *pulse1 = &pulseA;
     PulsePlug *pulse2 = &pulseB;
     
 #ifdef USE_SERIAL
-    // Serial.print(F(" ---> Player mode: "));
-    // Serial.print(playerMode);
-    // Serial.print(F(", sensor1On: "));
-    // Serial.print(sensor1On);
-    // Serial.print(F(", sensor2On: "));
-    // Serial.print(sensor2On);
-    // Serial.print(F(", app1State: "));
-    // Serial.print(app1State);
-    // Serial.print(F(", app2State: "));
-    // Serial.println(app2State);
+    if (sensor1On || sensor2On || app1State || app2State) {
+        Serial.print(F(" ---> Player mode: "));
+        Serial.print(playerMode);
+        Serial.print(F(", sensor1On: "));
+        Serial.print(sensor1On);
+        Serial.print(F(", sensor2On: "));
+        Serial.print(sensor2On);
+        Serial.print(F(", app1State: "));
+        Serial.print(app1State);
+        Serial.print(F(", app2State: "));
+        Serial.println(app2State);
+    }
 #endif
 
     if (playerMode == MODE_NONE) {
@@ -182,7 +183,7 @@ void loop() {
                (playerMode == MODE_SINGLE_B && app2State == STATE_STEM_RISING)) {
         bool stem1Done = runStemRising(pulse1, playerMode == MODE_SINGLE_B ? pulse2 : pulse1);
         if (stem1Done) {
-            app1State = STATE_LED_RISING;
+            app1State = STATE_RESTING;
             petalState = STATE_LED_RISING;
             if (playerMode == MODE_SINGLE_A) newHeartbeat(pulse2);
             newHeartbeat(pulse1);
@@ -201,7 +202,7 @@ void loop() {
                (playerMode == MODE_SINGLE_A && app1State == STATE_STEM_RISING)) {
         bool stem2Done = runStemRising(pulse2, playerMode == MODE_SINGLE_A ? pulse1 : pulse2);
         if (stem2Done) {
-            app2State = STATE_LED_RISING;
+            app2State = STATE_RESTING;
             petalState = STATE_LED_RISING;
             if (playerMode == MODE_SINGLE_B) newHeartbeat(pulse1);
             newHeartbeat(pulse2);
@@ -226,8 +227,10 @@ void loop() {
     
     
     // Turn off inactive sensors
-    bool activeA = lastSensorActiveA > (millis() - MILLISECONDS_SENSOR_DECAY);
-    bool activeB = lastSensorActiveB > (millis() - MILLISECONDS_SENSOR_DECAY);
+    long decay = millis();
+    decay = decay > MILLISECONDS_SENSOR_DECAY ? decay - MILLISECONDS_SENSOR_DECAY : 0;
+    bool activeA = lastSensorActiveA > decay;
+    bool activeB = lastSensorActiveB > decay;
     if (playerMode == MODE_NONE) {
         if (activeA && activeB) {
             playerMode = MODE_DOUBLE;
@@ -297,20 +300,13 @@ void runRestStem(PulsePlug *pulse, int16_t currentLed) {
     Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMBER_OF_STEM1_LEDS, 
                                                 pulse->role == ROLE_PRIMARY ? stem1LedPin : stem2LedPin,
                                                 NEO_GRB + NEO_KHZ800);
-
-    for (int i=(-1*REST_PULSE_WIDTH) - 1; i <= REST_PULSE_WIDTH; i++) {
-        // strip.setPixelColor(max(0, currentLed+i), strip.Color(0, 0, 0));
-    }
-
-    uint32_t color;
-    // Serial.print(" Colors: ");
+    Serial.print(" Colors: ");
     for (int i=(-1*REST_PULSE_WIDTH); i <= REST_PULSE_WIDTH; i++) {
-        // Serial.print((int)floor(255.0/(float)max(abs(i), 1)));
-        // Serial.print(" ");
-        color = strip.Color(0, 0, (int)floor(255.0/(float)max(abs(i), 1)));
-        strip.setPixelColor(currentLed+i, color);
+        Serial.print((int)floor(255.0/(float)max(abs(i), 1)));
+        Serial.print(" ");
+        strip.setPixelColor(currentLed+i, 0, 0, (int)floor(255.0/(float)max(abs(i), 1)));
     }
-    // Serial.println(currentLed);
+    Serial.println(currentLed);
     strip.show();
 }
 
