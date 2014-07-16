@@ -124,6 +124,16 @@ int readPulseSensor(PulsePlug *pulse) {
             }
         }
 #endif
+    } else if (total < 1000L) { // finger's gone
+#ifdef USE_SERIAL
+        Serial.print(F(" ---> Finger's gone - "));
+            if (pulse->role == ROLE_PRIMARY) {
+                Serial.println(F("primary"));
+            } else if (pulse->role == ROLE_SECONDARY) {
+                Serial.println(F("secondary"));
+            }
+#endif
+        return -1;
     } else if (total > 5000L) {    // main running function
         // baseline is the moving average of the signal - the middle of the waveform
         // the idea here is to keep track of a high frequency signal, HFoutput and a 
@@ -208,7 +218,7 @@ int readPulseSensor(PulsePlug *pulse) {
 #ifdef USE_SERIAL
             // Serial.println(" ---> Heartbeat finished");
 #endif
-            return -1;
+            return 0;
         }
 
         if (pulse->lastBinOut == 0 && pulse->binOut == 1) {

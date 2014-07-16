@@ -86,14 +86,14 @@ inline void store_char(unsigned char c, HardwareSerial *s)
       unsigned char c = UDR0;
       store_char(c, &Serial);
     } else {
-      unsigned char c = UDR0;
+      // unsigned char c = UDR0;
     };
   #elif defined(UDR)
     if (bit_is_clear(UCSRA, PE)) {
       unsigned char c = UDR;
       store_char(c, &Serial);
     } else {
-      unsigned char c = UDR;
+      // unsigned char c = UDR;
     };
   #else
     #error UDR not defined
@@ -326,7 +326,7 @@ try_again:
 void HardwareSerial::begin(unsigned long baud, byte config)
 {
   uint16_t baud_setting;
-  uint8_t current_config;
+  // uint8_t current_config;
   bool use_u2x = true;
 
 #if F_CPU == 16000000UL

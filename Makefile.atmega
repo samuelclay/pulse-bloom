@@ -30,17 +30,17 @@ LIBS        += -I.
 
 CFLAGS      = $(LIBS) \
               -fno-exceptions -ffunction-sections -fdata-sections \
-              -Wl,--gc-sections \
-              -felide-constructors \
-              -std=c++0x
+              -Wl,--gc-sections
+CPPFLAGS    = -std=c++0x \
+              -felide-constructors
 
 C_SRC   := libs/arduino/wiring.o \
            libs/arduino/wiring_analog.o \
            libs/arduino/wiring_digital.o \
            libs/arduino/wiring_pulse.o \
-           libs/arduino/wiring_shift.o
+           libs/arduino/wiring_shift.o \
+           libs/arduino/hooks.o
 CPP_SRC := libs/arduino/main.o \
-           libs/arduino/hooks.o \
            libs/arduino/HardwareSerial.o \
            libs/arduino/Print.o \
            libs/arduino/Tone.o \
@@ -95,7 +95,7 @@ clean:
 	$(COMPILE) -g -c $< -o $@
 
 .cpp.o:
-	$(COMPILE) -g -c $< -o $@
+	$(COMPILE) $(CPPFLAGS) -g -c $< -o $@
 
 # Generic rule for compiling C to assembler, used for debugging only.
 .c.s:
