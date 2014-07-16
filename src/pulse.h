@@ -5,6 +5,7 @@
 
 void determinePlayerMode();
 void resetStem(PulsePlug *pulse);
+uint8_t adjustBpm(PulsePlug *pulse);
 void runResting();
 void runRestStem();
 void runRestStem(PulsePlug *pulse, int16_t currentLed);
