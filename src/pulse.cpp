@@ -66,6 +66,7 @@ unsigned long beginLedRiseTime = 0;
 unsigned long endLedRiseTime = 0;
 unsigned long beginLedFallTime = 0;
 unsigned long endLedFallTime = 0;
+const int16_t PETAL_DECAY_TIME = 1600;
 
 // Pulse sensor
 PortI2C myBus(sensor1Pin);
@@ -154,7 +155,7 @@ void loop() {
     PulsePlug *pulse2 = &pulseB;
     
 #ifdef USE_SERIAL
-    if (sensor1On || sensor2On || app1State || app2State) {
+    if (false && (sensor1On || sensor2On || app1State || app2State)) {
         Serial.print(F(" ---> Player mode: "));
         Serial.print(playerMode);
         Serial.print(F(", sensor1On: "));
@@ -182,7 +183,7 @@ void loop() {
     } else if (app1State == STATE_STEM_RISING ||
                (playerMode == MODE_SINGLE_B && app2State == STATE_STEM_RISING)) {
         bool stem1Done = runStemRising(pulse1, playerMode == MODE_SINGLE_B ? pulse2 : pulse1);
-        if (stem1Done) {
+        if (stem1Done && app1State == STATE_STEM_RISING) {
             app1State = STATE_RESTING;
             petalState = STATE_LED_RISING;
             if (playerMode == MODE_SINGLE_A) newHeartbeat(pulse2);
@@ -201,7 +202,7 @@ void loop() {
     } else if (app2State == STATE_STEM_RISING ||
                (playerMode == MODE_SINGLE_A && app1State == STATE_STEM_RISING)) {
         bool stem2Done = runStemRising(pulse2, playerMode == MODE_SINGLE_A ? pulse1 : pulse2);
-        if (stem2Done) {
+        if (stem2Done && app2State == STATE_STEM_RISING) {
             app2State = STATE_RESTING;
             petalState = STATE_LED_RISING;
             if (playerMode == MODE_SINGLE_B) newHeartbeat(pulse1);
@@ -227,6 +228,10 @@ void loop() {
     
     
     // Turn off inactive sensors
+    determinePlayerMode();
+}
+
+void determinePlayerMode() {
     long decay = millis();
     decay = decay > MILLISECONDS_SENSOR_DECAY ? decay - MILLISECONDS_SENSOR_DECAY : 0;
     bool activeA = lastSensorActiveA > decay;
@@ -287,8 +292,8 @@ void runResting() {
 
 void runRestStem() {
     int currentLed = strip1CurrentLed - 1;
-    if (currentLed < 0) {
-        currentLed = NUMBER_OF_STEM1_LEDS - 1;
+    if (currentLed < -1*REST_PULSE_WIDTH*2) {
+        currentLed = NUMBER_OF_STEM1_LEDS + REST_PULSE_WIDTH*2;
     }
     strip1CurrentLed = currentLed;
     strip2CurrentLed = NUMBER_OF_STEM1_LEDS - strip1CurrentLed;
@@ -300,13 +305,13 @@ void runRestStem(PulsePlug *pulse, int16_t currentLed) {
     Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMBER_OF_STEM1_LEDS, 
                                                 pulse->role == ROLE_PRIMARY ? stem1LedPin : stem2LedPin,
                                                 NEO_GRB + NEO_KHZ800);
-    Serial.print(" Colors: ");
+    // Serial.print(" Colors: ");
     for (int i=(-1*REST_PULSE_WIDTH); i <= REST_PULSE_WIDTH; i++) {
-        Serial.print((int)floor(255.0/(float)max(abs(i), 1)));
-        Serial.print(" ");
+        // Serial.print((int)floor(255.0/(float)max(abs(i), 1)));
+        // Serial.print(" ");
         strip.setPixelColor(currentLed+i, 0, 0, (int)floor(255.0/(float)max(abs(i), 1)));
     }
-    Serial.println(currentLed);
+    // Serial.println(currentLed);
     strip.show();
 }
 
@@ -332,8 +337,8 @@ void clearStemLeds(PulsePlug *pulse) {
     }
     strip.show();
 #ifdef USE_SERIAL
-    Serial.print(F(" ---> Clearing stem #"));
-    Serial.println(pulse->role);
+    // Serial.print(F(" ---> Clearing stem #"));
+    // Serial.println(pulse->role);
 #endif
     unsigned long now = millis();
     int8_t bpm = max(min(pulse->latestBpm, 100), 45);
@@ -376,12 +381,12 @@ bool runStemRising(PulsePlug *pulse, PulsePlug *shadowPulse) {
     int newLed = (int)floor(shadowPulse->ease.easeIn(millisFromLastBeat)) - pulseWidth;
     
 #ifdef USE_SERIAL
-    Serial.print("LEDs (");
-    Serial.print(ledCount);
-    Serial.print(") ");
-    Serial.print(currentLed);
-    Serial.print(" -> ");
-    Serial.println(newLed);
+    // Serial.print("LEDs (");
+    // Serial.print(ledCount);
+    // Serial.print(") ");
+    // Serial.print(currentLed);
+    // Serial.print(" -> ");
+    // Serial.println(newLed);
 #endif
     
     if (currentLed != newLed) {
@@ -471,7 +476,7 @@ void beginLedRising(PulsePlug *pulse) {
         Serial.print(F(" ---> Compensating for still falling led: "));
         Serial.println(remainingFallTime, DEC);
 #endif
-        beginLedRiseTime = beginLedRiseTime - (int)floor((400.0*((double)remainingFallTime/800.0)));
+        beginLedRiseTime = beginLedRiseTime - (int)floor((400.0*((double)remainingFallTime/PETAL_DECAY_TIME)));
         beginLedFallTime = 0;
         endLedFallTime = 0;
     }
@@ -515,7 +520,7 @@ void beginLedFalling(PulsePlug *pulse) {
 
     beginLedFallTime = millis();
     // endLedFallTime = beginLedFallTime + 2*(nextBeat - beginLedFallTime);
-    endLedFallTime = beginLedFallTime + 800;
+    endLedFallTime = beginLedFallTime + PETAL_DECAY_TIME;
 }
 
 bool runLedFalling(PulsePlug *pulse) {

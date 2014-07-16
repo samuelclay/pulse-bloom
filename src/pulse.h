@@ -3,6 +3,7 @@
 #ifndef PULSE_H
 #define PULSE_H
 
+void determinePlayerMode();
 void newHeartbeat(PulsePlug *pulse);
 void runResting();
 void runRestStem();
