@@ -1,3 +1,6 @@
+// Pulse & Bloom - Pulse Sensor and Lighting
+// 2014 - Samuel Clay, samuel@ofbrooklyn.com
+
 #include <avr/io.h>
 #include <util/delay.h>     /* for _delay_ms() */
 #include <stdio.h>
