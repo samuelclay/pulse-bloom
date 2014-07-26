@@ -54,7 +54,7 @@ void setup() {
 // ========
 
 void loop() {
-    int pulseFound = digitalRead(boardPin);
+    int pulseFound = (millis() % 1000 < 100) || digitalRead(boardPin);
 
     if (appState == STATE_RESTING) {
         if (pulseFound) {
@@ -91,5 +91,6 @@ void loop() {
 void clearWires() {
     for (int i=2; i <= 9; i++) {
         digitalWrite(i, HIGH);
+        i++;
     }
 }

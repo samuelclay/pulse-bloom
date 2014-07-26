@@ -17,6 +17,7 @@
 #endif
 #include <neopixel/Adafruit_NeoPixel.h>
 #include <si1143/si1143.h>
+#include <CubicEase.h>
 
 #include "pulse.h"
 #include "sensor.h"
@@ -37,8 +38,8 @@ const uint8_t sensorAPin = 0; // SCL=18, SDA=19
 const uint8_t sensorBPin = 14; // SCL=A0, SDA=A1
 const uint8_t stemALedPin = 8;
 const uint8_t stemBLedPin = 7;
-const uint8_t petalRedPin = 6;
-const uint8_t petalGreenPin = 5;
+const uint8_t petalRedPin = 5;
+const uint8_t petalGreenPin = 6;
 const uint8_t petalBluePin = 3;
 const uint8_t petalWhitePin = 9;
 #endif
@@ -68,6 +69,8 @@ unsigned long beginLedRiseTime = 0;
 unsigned long endLedRiseTime = 0;
 unsigned long beginLedFallTime = 0;
 unsigned long endLedFallTime = 0;
+uint8_t ledBrightness = 0;
+CubicEase ledEase;
 const int16_t PETAL_DECAY_MS = 1600;
 
 // Pulses
@@ -121,10 +124,11 @@ void setup(){
     pinMode(petalGreenPin, OUTPUT);
     pinMode(petalBluePin, OUTPUT);
     pinMode(petalWhitePin, OUTPUT);
-    analogWrite(petalRedPin, 8);
-    analogWrite(petalGreenPin, 0);
-    analogWrite(petalBluePin, 0);
+    analogWrite(petalRedPin, 0);
+    analogWrite(petalGreenPin, 8);
+    analogWrite(petalBluePin, 8);
     analogWrite(petalWhitePin, 0);
+    ledBrightness = 8;
     
     app1State = STATE_RESTING;
     app2State = STATE_RESTING;
@@ -154,7 +158,7 @@ void setup(){
     setupPulseSensor(&pulseA);
     setupPulseSensor(&pulseB);
 
-    blink(3, 25, true);
+    // blink(3, 25, true);
 }
 
 void loop() {
@@ -166,7 +170,7 @@ void loop() {
     PulsePlug *pulse2 = &pulseB;
     
 #ifdef USE_SERIAL
-    if (true && (heartbeat1 || heartbeat2 || sensor1On > 0 || sensor2On > 0 || app1State || app2State)) {
+    if (false && (heartbeat1 || heartbeat2 || sensor1On > 0 || sensor2On > 0 || app1State || app2State)) {
         Serial.print(F(" ---> ["));
         Serial.print(millis());
         Serial.print(F("] mode: "));
@@ -191,6 +195,7 @@ void loop() {
         lastPulseBTime = 0;
         nextPulseATime = 0;
         nextPulseBTime = 0;
+        ledBrightness = 8;
         app1State = STATE_RESTING;
         app2State = STATE_RESTING;
         runResting();
@@ -299,6 +304,7 @@ void loop() {
         bool ledDone = runPetalFalling(pulse1);
         if (ledDone) {
             if (app1State == STATE_PETAL_FALLING) app1State = STATE_RESTING;
+            Serial.println(" ---> PETAL DONE, RESTING");
             petalState = STATE_RESTING;
         }
     }
@@ -534,50 +540,76 @@ bool runStemRising(PulsePlug *pulse, PulsePlug *shadowPulse) {
 }
 
 void beginPetalRising(PulsePlug *pulse) {
-    unsigned long nextBeat = pulse->role == ROLE_PRIMARY ? nextPulseATime : nextPulseBTime;
+    unsigned long nextBeatTime = max(nextPulseATime, nextPulseBTime);
+    unsigned long nextBeat = 350;
     unsigned long now = millis();
-
+    int16_t nextBeatOffset = nextBeatTime - now;
+    float progress = 0;
+    
+    if (!nextBeat) {
+        return;
+    }
 #ifdef USE_SERIAL
-    // Serial.print(F(" ---> Led Rising: "));
-    // Serial.println(nextBeat);    
+    Serial.print(F(" ---> Led Rising, "));
+    Serial.print(nextBeatOffset);
+    Serial.println("ms until next beat");
 #endif
 
-    beginLedRiseTime = now;
-
-    if (now < endLedFallTime) {
+    
+    if (now < endLedRiseTime) {
+        // Still rising, just ignore
+        return;
+    } else if (now < endLedFallTime) {
         // Compensate for still falling led
-        unsigned int remainingFallTime = endLedFallTime - now;
-#ifdef USE_SERIAL
-        // Serial.print(F(" ---> Compensating for still falling led: "));
-        // Serial.println(remainingFallTime, DEC);
-#endif
-        beginLedRiseTime = beginLedRiseTime - (int)floor((400.0*((double)remainingFallTime/PETAL_DECAY_MS)));
+        int16_t remainingFallTime = endLedFallTime - now;
+        progress = ((double)PETAL_DECAY_MS - (double)remainingFallTime) / (double)PETAL_DECAY_MS;
+        beginLedRiseTime = now - ((1-progress)*nextBeat);
         beginLedFallTime = 0;
         endLedFallTime = 0;
+#ifdef USE_SERIAL
+        Serial.print(F(" ---> Compensating for still falling led: "));
+        Serial.print(remainingFallTime, DEC);
+        Serial.print(" (Progress: ");
+        Serial.print(progress);
+        Serial.println(")");
+#endif
+    } else {
+        beginLedRiseTime = now;
     }
-    endLedRiseTime = beginLedRiseTime + 0.6*(nextBeat - beginLedRiseTime);
-    // endLedRiseTime = beginLedRiseTime + 400;
+        
+    Serial.print(" ---> Rise time: ");
+    Serial.print(nextBeat);
+    Serial.print(" (nextBeat: ");
+    Serial.print(nextBeat);
+    Serial.print(", begin: ");
+    Serial.print(beginLedRiseTime);
+    Serial.println(")");
+    uint16_t riseTime = nextBeat;
+    endLedRiseTime = beginLedRiseTime + riseTime;
 }
 
 bool runPetalRising(PulsePlug *pulse) {
-    uint16_t ledBrightness;
     unsigned long now = millis();
     unsigned long millisToNextBeat = (now > endLedRiseTime) ? 0 : (endLedRiseTime - now);
     unsigned long millisFromLastBeat = now - beginLedRiseTime;
     double progress = (double)millisFromLastBeat / (double)(millisFromLastBeat + millisToNextBeat);
 
 #ifdef USE_SERIAL
-    // Serial.print(" ---> STATE: Led Rising - from:");
-    // Serial.print(millisFromLastBeat, DEC);
-    // Serial.print(" to:");
-    // Serial.print(millisToNextBeat, DEC);
-    // Serial.print(" Brightness: ");
-    // Serial.println(max(8, min((int)floor(255 * progress), 255)), DEC);
+    Serial.print(" ---> STATE: Led Rising (");
+    Serial.print(progress);
+    Serial.print(") from:");
+    Serial.print(millisFromLastBeat, DEC);
+    Serial.print(" to:");
+    Serial.print(millisToNextBeat, DEC);
+    Serial.print(" Brightness: ");
+    Serial.println(max(8, min((int)floor(255 * progress), 255)), DEC);
 #endif
 
     // Set Lotus LED brightness
     ledBrightness = max(8, min((int)floor(255 * progress), 255));
-    analogWrite(petalRedPin, ledBrightness);
+    analogWrite(petalRedPin, 0);
+    analogWrite(petalGreenPin, ledBrightness);
+    analogWrite(petalBluePin, ledBrightness);
     if (progress >= 1.0) {
         return true;
     }
@@ -598,22 +630,23 @@ void beginPetalFalling(PulsePlug *pulse) {
 }
 
 bool runPetalFalling(PulsePlug *pulse) {
-    uint16_t ledBrightness;
     unsigned long now = millis();
     unsigned long millisToNextBeat = (now > endLedFallTime) ? 0 : (endLedFallTime - now);
     unsigned long millisFromLastBeat = now - beginLedFallTime;
     double progress = (double)millisFromLastBeat / (double)(millisFromLastBeat + millisToNextBeat);
 
 #ifdef USE_SERIAL
-    // Serial.print(" ---> STATE: Led Falling - from:");
-    // Serial.print(millisFromLastBeat, DEC);
-    // Serial.print(" to:");
-    // Serial.print(millisToNextBeat, DEC);
-    // Serial.print(" Brightness: ");
-    // Serial.println(max(255 - (int)floor(255 * progress), 8), DEC);
+    Serial.print(" ---> STATE: Led Falling - from:");
+    Serial.print(millisFromLastBeat, DEC);
+    Serial.print(" to:");
+    Serial.print(millisToNextBeat, DEC);
+    Serial.print(" Brightness: ");
+    Serial.println(max(255 - (int)floor(255 * progress), 8), DEC);
 #endif
     ledBrightness = max(255 - (int)floor(255 * progress), 8);
-    analogWrite(petalRedPin, ledBrightness);
+    analogWrite(petalRedPin, 0);
+    analogWrite(petalGreenPin, ledBrightness);
+    analogWrite(petalBluePin, ledBrightness);
     
     if (progress >= 1.0) {
         return true;

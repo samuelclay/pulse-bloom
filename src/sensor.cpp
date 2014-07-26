@@ -2,8 +2,8 @@
 #include "smooth.h"
 #include "sensor.h"
 
-#define USE_SERIAL
-#define PRINT_LED_VALS
+// #define USE_SERIAL
+// #define PRINT_LED_VALS
 
 const int SAMPLES_TO_AVERAGE = 3;
 
