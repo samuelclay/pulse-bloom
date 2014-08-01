@@ -1,9 +1,10 @@
 #include <si1143/si1143.h>
+#include <si1143/si114_defs.h>
 #include "smooth.h"
 #include "sensor.h"
 
-// #define USE_SERIAL
-// #define PRINT_LED_VALS
+#define USE_SERIAL
+#define PRINT_LED_VALS
 
 const int SAMPLES_TO_AVERAGE = 3;
 
@@ -25,13 +26,13 @@ void setupPulseSensor(PulsePlug *pulse) {
     pulse->setReg(PulsePlug::ALS_RATE, 0x08);      // take measurement every wakeup
     pulse->setReg(PulsePlug::PS_RATE, 0x08);       // take measurement every wakeup
     
-    pulse->setReg(PulsePlug::PS_LED21, 0x39);      // LED current for 2 (IR1 - high nibble) & LEDs 1 (red - low nibble) 
-    pulse->setReg(PulsePlug::PS_LED3, 0x02);       // LED current for LED 3 (IR2)
+    pulse->setReg(PulsePlug::PS_LED21, (SI114_LEDI_022 << 4) | (SI114_LEDI_157));      // LED current for 2 (IR1 - high nibble) & LEDs 1 (red - low nibble) 
+    pulse->setReg(PulsePlug::PS_LED3, SI114_LEDI_022);       // LED current for LED 3 (IR2)
 /*  debug infor for the led currents */
-    // Serial.print( "PS_LED21 = ");                                         
-    // Serial.println(pulse->getReg(PulsePlug::PS_LED21), BIN);                                          
-    // Serial.print("CHLIST = ");
-    // Serial.println(pulse->readParam(0x01), BIN);
+    Serial.print( "PS_LED21 = ");                                         
+    Serial.println(pulse->getReg(PulsePlug::PS_LED21), BIN);                                          
+    Serial.print("CHLIST = ");
+    Serial.println(pulse->readParam(0x01), BIN);
 
     pulse->writeParam(PulsePlug::PARAM_CH_LIST, 0x77);         // all measurements on
     // increasing PARAM_PS_ADC_GAIN will increase the LED on time and ADC window

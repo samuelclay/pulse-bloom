@@ -595,14 +595,14 @@ bool runPetalRising(PulsePlug *pulse) {
     double progress = (double)millisFromLastBeat / (double)(millisFromLastBeat + millisToNextBeat);
 
 #ifdef USE_SERIAL
-    Serial.print(" ---> STATE: Led Rising (");
-    Serial.print(progress);
-    Serial.print(") from:");
-    Serial.print(millisFromLastBeat, DEC);
-    Serial.print(" to:");
-    Serial.print(millisToNextBeat, DEC);
-    Serial.print(" Brightness: ");
-    Serial.println(max(8, min((int)floor(255 * progress), 255)), DEC);
+    // Serial.print(" ---> STATE: Led Rising (");
+    // Serial.print(progress);
+    // Serial.print(") from:");
+    // Serial.print(millisFromLastBeat, DEC);
+    // Serial.print(" to:");
+    // Serial.print(millisToNextBeat, DEC);
+    // Serial.print(" Brightness: ");
+    // Serial.println(max(8, min((int)floor(255 * progress), 255)), DEC);
 #endif
 
     // Set Lotus LED brightness
@@ -636,12 +636,12 @@ bool runPetalFalling(PulsePlug *pulse) {
     double progress = (double)millisFromLastBeat / (double)(millisFromLastBeat + millisToNextBeat);
 
 #ifdef USE_SERIAL
-    Serial.print(" ---> STATE: Led Falling - from:");
-    Serial.print(millisFromLastBeat, DEC);
-    Serial.print(" to:");
-    Serial.print(millisToNextBeat, DEC);
-    Serial.print(" Brightness: ");
-    Serial.println(max(255 - (int)floor(255 * progress), 8), DEC);
+    // Serial.print(" ---> STATE: Led Falling - from:");
+    // Serial.print(millisFromLastBeat, DEC);
+    // Serial.print(" to:");
+    // Serial.print(millisToNextBeat, DEC);
+    // Serial.print(" Brightness: ");
+    // Serial.println(max(255 - (int)floor(255 * progress), 8), DEC);
 #endif
     ledBrightness = max(255 - (int)floor(255 * progress), 8);
     analogWrite(petalRedPin, 0);
