@@ -17,7 +17,7 @@
 #endif
 #include <neopixel/Adafruit_NeoPixel.h>
 #include <si1143/si1143.h>
-#include <CubicEase.h>
+#include <QuadraticEase.h>
 
 #include "pulse.h"
 #include "sensor.h"
@@ -70,7 +70,6 @@ unsigned long endLedRiseTime = 0;
 unsigned long beginLedFallTime = 0;
 unsigned long endLedFallTime = 0;
 uint8_t ledBrightness = 0;
-CubicEase ledEase;
 const int16_t PETAL_DECAY_MS = 1600;
 
 // Pulses
@@ -82,7 +81,10 @@ unsigned int bpmPulseA = 60;
 unsigned int bpmPulseB = 60;
 unsigned long lastSensorActiveA = 0;
 unsigned long lastSensorActiveB = 0;
-const int SENSOR_DECAY_MS = 5000;
+unsigned long lastFingerSeenA = 0;
+unsigned long lastFingerSeenB = 0;
+const int SENSOR_DECAY_MS = 6000;
+const int FINGERLESS_DECAY_MS = 2000;
 
 // Pulse sensor
 PortI2C myBus(sensorAPin);
@@ -112,6 +114,7 @@ typedef enum
     MODE_DOUBLE = 3
 } player_mode_t;
 player_mode_t playerMode;
+player_mode_t fingerMode;
 
 // ============
 // = Routines =
@@ -133,7 +136,9 @@ void setup(){
     app1State = STATE_RESTING;
     app2State = STATE_RESTING;
     petalState = STATE_RESTING;
+    restState = STATE_RESTING;
     playerMode = MODE_NONE;
+    fingerMode = MODE_NONE;
     
     delay(50);
 #ifdef USE_SERIAL
@@ -170,22 +175,22 @@ void loop() {
     PulsePlug *pulse2 = &pulseB;
     
 #ifdef USE_SERIAL
-    if (false && (heartbeat1 || heartbeat2 || sensor1On > 0 || sensor2On > 0 || app1State || app2State)) {
+    if (true && (heartbeat1 || heartbeat2 || sensor1On >= 0 || sensor2On >= 0 || app1State || app2State)) {
         Serial.print(F(" ---> ["));
         Serial.print(millis());
         Serial.print(F("] mode: "));
         Serial.print(playerMode);
-        Serial.print(F(", heartbeat1: "));
+        Serial.print(F(" heartbeat: "));
         Serial.print(heartbeat1);
-        Serial.print(F(", heartbeat2: "));
+        Serial.print(F("/"));
         Serial.print(heartbeat2);
-        Serial.print(F(", sensor1On: "));
+        Serial.print(F(" sensorOn: "));
         Serial.print(sensor1On);
-        Serial.print(F(", sensor2On: "));
+        Serial.print(F("/"));
         Serial.print(sensor2On);
-        Serial.print(F(", app1State: "));
+        Serial.print(F(" appState: "));
         Serial.print(app1State);
-        Serial.print(F(", app2State: "));
+        Serial.print(F("/"));
         Serial.println(app2State);
     }
 #endif    
@@ -198,7 +203,9 @@ void loop() {
         ledBrightness = 8;
         app1State = STATE_RESTING;
         app2State = STATE_RESTING;
-        runResting();
+        if (fingerMode == MODE_NONE) {
+            runResting();
+        }
     }
     
     // Check for real heartbeat, adjust fake heartbeat
@@ -245,11 +252,15 @@ void loop() {
         heartbeat1 = false;
         lastPulseATime = 0;
         nextPulseATime = 0;
+    } else {
+        lastFingerSeenA = millis();
     }
     if (sensor2On < 0) {
         heartbeat2 = false;
         lastPulseBTime = 0;
         nextPulseBTime = 0;
+    } else {
+        lastFingerSeenB = millis();
     }
     
     // Check for faked/real heartbeat, turn on stem
@@ -311,13 +322,43 @@ void loop() {
     
     // Turn off inactive sensors
     determinePlayerMode();
+    determineFingerMode(sensor1On, sensor2On);
 }
 
 void determinePlayerMode() {
     unsigned long decay = millis();
+    unsigned long fingerDecay;
     decay = decay > (unsigned long)SENSOR_DECAY_MS ? decay - SENSOR_DECAY_MS : 0;
     bool activeA = lastSensorActiveA > decay;
     bool activeB = lastSensorActiveB > decay;
+    
+    Serial.print(" --> PlayerMode: ");
+    Serial.print(playerMode);
+    if (activeA && lastFingerSeenA) {
+        fingerDecay = millis();
+        fingerDecay = fingerDecay > (unsigned long)FINGERLESS_DECAY_MS ? fingerDecay - FINGERLESS_DECAY_MS : 0;
+        Serial.print(" AFinger's gone? ");
+        Serial.print(lastFingerSeenA);
+        Serial.print("-");
+        Serial.print(fingerDecay);
+        Serial.print(" finger: ");
+        Serial.println(lastFingerSeenA > fingerDecay);
+        activeA = lastFingerSeenA > fingerDecay;
+    }
+    if (activeB && lastFingerSeenB) {
+        fingerDecay = millis();
+        fingerDecay = fingerDecay > (unsigned long)FINGERLESS_DECAY_MS ? fingerDecay - FINGERLESS_DECAY_MS : 0;
+        Serial.print(" BFinger's gone? ");
+        Serial.print(lastFingerSeenB);
+        Serial.print("-");
+        Serial.print(fingerDecay);
+        Serial.print(" finger: ");
+        Serial.println(lastFingerSeenB > fingerDecay);
+        activeB = lastFingerSeenB > fingerDecay;
+    }
+    if (!activeA && !activeB) {
+        Serial.println();
+    }
     if (playerMode == MODE_NONE) {
         if (activeA && activeB) {
             playerMode = MODE_DOUBLE;
@@ -338,6 +379,27 @@ void determinePlayerMode() {
         } else if (!activeA && !activeB) {
             playerMode = MODE_NONE;
             restState = STATE_RESTING;
+        }
+    }
+}
+
+void determineFingerMode(int sensor1On, int sensor2On) {
+    player_mode_t originalFingerMode = fingerMode;
+    
+    if (sensor1On >= 0 && sensor2On >= 0) {
+        fingerMode = MODE_DOUBLE;
+    } else if (sensor1On >= 0) {
+        fingerMode = MODE_SINGLE_A;
+    } else if (sensor2On >= 0) {
+        fingerMode = MODE_SINGLE_B;
+    } else {
+        fingerMode = MODE_NONE;
+    }
+    
+    if (fingerMode != originalFingerMode) {
+        if (originalFingerMode == MODE_NONE) {
+            resetStem(&pulseA);
+            resetStem(&pulseB);
         }
     }
 }
@@ -376,6 +438,7 @@ void runResting() {
         Serial.println(" ---> RESETTING Strip current led, due to start resting");
         stripACurrentLed = NUMBER_OF_STEM_LEDS + REST_PULSE_WIDTH*2;
         restState = STATE_STEM_FALLING;
+        runRestStem();
     } else if (restState == STATE_STEM_FALLING) {
         runRestStem();
     }

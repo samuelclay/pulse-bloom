@@ -49,7 +49,7 @@ CPP_SRC := libs/arduino/main.o \
            libs/neopixel/Adafruit_NeoPixel.o \
            libs/si1143/si1143.o \
            libs/easing/EasingBase.o \
-           libs/easing/CubicEase.o
+           libs/easing/QuadraticEase.o
 SRC     := src/pulse.o \
            src/sensor.o \
            src/smooth.o

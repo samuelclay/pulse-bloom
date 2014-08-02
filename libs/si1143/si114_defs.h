@@ -102,8 +102,8 @@
 
 
 // REG_IRQ_CFG 
-#define SI114_ ICG_INTOE                0x01
-#define SI114_ ICG_INTMODE              0x02
+#define SI114_ICG_INTOE                 0x01
+#define SI114_ICG_INTMODE               0x02
 
 
 // REG_IRQ_ENABLE

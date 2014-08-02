@@ -3,8 +3,8 @@
 #include "smooth.h"
 #include "sensor.h"
 
-#define USE_SERIAL
-#define PRINT_LED_VALS
+// #define USE_SERIAL
+// #define PRINT_LED_VALS
 
 const int SAMPLES_TO_AVERAGE = 3;
 
@@ -106,7 +106,7 @@ int readPulseSensor(PulsePlug *pulse) {
     Serial.println((long)total);   
 #endif
 
-    if (pulse->lastTotal < 20000L && total > 20000L) pulse->foundNewFinger = 1;  // found new finger!
+    if (pulse->lastTotal < 40000L && total > 40000L) pulse->foundNewFinger = 1;  // found new finger!
 
     pulse->lastTotal = total;
     
@@ -125,7 +125,7 @@ int readPulseSensor(PulsePlug *pulse) {
             }
         }
 #endif
-    } else if (total < 5000L) { // finger's gone
+    } else if (total < 30000L) { // finger's gone
 // #ifdef USE_SERIAL
 //         Serial.print(F(" ---> Finger's gone - "));
 //             if (pulse->role == ROLE_PRIMARY) {
@@ -135,7 +135,7 @@ int readPulseSensor(PulsePlug *pulse) {
 //             }
 // #endif
         return -1;
-    } else if (total > 20000L) {    // main running function
+    } else if (total > 40000L) {    // main running function
         // baseline is the moving average of the signal - the middle of the waveform
         // the idea here is to keep track of a high frequency signal, HFoutput and a 
         // low frequency signal, LFoutput
