@@ -63,6 +63,11 @@ const int8_t STEMA_PULSE_WIDTH = 32;
 const int8_t STEMB_PULSE_WIDTH = 32;
 volatile int16_t stripACurrentLed = 0;
 volatile int16_t stripBCurrentLed = 0;
+volatile int16_t splitPivotPoint = 0;
+unsigned long beginSplitTime = 0;
+unsigned long endSplitTime = 0;
+const int STEM_SPLIT_MS = 500;
+QuadraticEase splitEase;
 
 // Petals
 unsigned long beginLedRiseTime = 0;
@@ -83,7 +88,7 @@ unsigned long lastSensorActiveA = 0;
 unsigned long lastSensorActiveB = 0;
 unsigned long lastFingerSeenA = 0;
 unsigned long lastFingerSeenB = 0;
-const int SENSOR_DECAY_MS = 6000;
+const int SENSOR_DECAY_MS = 10000;
 const int FINGERLESS_DECAY_MS = 2000;
 
 // Pulse sensor
@@ -116,9 +121,9 @@ typedef enum
 player_mode_t playerMode;
 player_mode_t fingerMode;
 
-// ============
-// = Routines =
-// ============
+// ========
+// = Init =
+// ========
 
 void setup(){
     int startRam = freeRam();
@@ -175,26 +180,28 @@ void loop() {
     PulsePlug *pulse2 = &pulseB;
     
 #ifdef USE_SERIAL
-    if (true && (heartbeat1 || heartbeat2 || sensor1On >= 0 || sensor2On >= 0 || app1State || app2State)) {
+    if (true && (heartbeat1 || heartbeat2 || 
+                 sensor1On >= 0 || sensor2On >= 0 || 
+                 app1State || app2State)) {
         Serial.print(F(" ---> ["));
         Serial.print(millis());
-        Serial.print(F("] mode: "));
-        Serial.print(playerMode);
-        Serial.print(F(" heartbeat: "));
-        Serial.print(heartbeat1);
-        Serial.print(F("/"));
-        Serial.print(heartbeat2);
-        Serial.print(F(" sensorOn: "));
-        Serial.print(sensor1On);
-        Serial.print(F("/"));
-        Serial.print(sensor2On);
-        Serial.print(F(" appState: "));
-        Serial.print(app1State);
-        Serial.print(F("/"));
-        Serial.println(app2State);
+        Serial.print(F("] mode: "));        Serial.print(playerMode);
+        Serial.print(F(" heartbeat: "));    Serial.print(heartbeat1);
+        Serial.print(F("/"));               Serial.print(heartbeat2);
+        Serial.print(F(" sensorOn: "));     Serial.print(sensor1On);
+        Serial.print(F("/"));               Serial.print(sensor2On);
+        Serial.print(F(" appState: "));     Serial.print(app1State);
+        Serial.print(F("/"));               Serial.print(app2State);
+        Serial.print(F(" restState: "));    Serial.print(restState);
+        Serial.println();
     }
 #endif    
     
+    // Found fingers, now in transitory state, just skip everything until done
+    if (restState == STATE_STEM_RISING) {
+        runSplittingStem();
+        return;
+    }
     if (playerMode == MODE_NONE) {
         lastPulseATime = 0;
         lastPulseBTime = 0;
@@ -213,7 +220,8 @@ void loop() {
         bpmPulseA = adjustBpm(pulse1);
         float progress = 1.0;
         if (lastPulseATime) {
-            progress = ((float)(millis()-lastPulseATime))/((float)(nextPulseATime-lastPulseATime));
+            progress = ((float)(millis()-lastPulseATime))/
+                       ((float)(nextPulseATime-lastPulseATime));
         }
         lastSensorActiveA = millis();
         if (progress > 0.5) {
@@ -319,7 +327,7 @@ void loop() {
             petalState = STATE_RESTING;
         }
     }
-    
+
     // Turn off inactive sensors
     determinePlayerMode();
     determineFingerMode(sensor1On, sensor2On);
@@ -398,8 +406,9 @@ void determineFingerMode(int sensor1On, int sensor2On) {
     
     if (fingerMode != originalFingerMode) {
         if (originalFingerMode == MODE_NONE) {
-            resetStem(&pulseA);
-            resetStem(&pulseB);
+            beginSplittingStem();
+            // resetStem(&pulseA);
+            // resetStem(&pulseB);
         }
     }
 }
@@ -501,6 +510,62 @@ void clearStemLeds(PulsePlug *pulse) {
 
     pulse->ease.setDuration(millisToNextBeat);
     pulse->ease.setTotalChangeInPosition(NUMBER_OF_STEM_LEDS + 2*pulseWidth);
+}
+
+// ======================
+// = States - Splitting =
+// ======================
+
+void beginSplittingStem() {
+#ifdef USE_SERIAL
+    Serial.print(F(" ---> Run splitting, current LED: "));
+    Serial.print(stripACurrentLed);
+    Serial.print(F(", rest state: "));
+    Serial.println(restState);
+#endif
+    if (restState == STATE_RESTING || restState == STATE_STEM_FALLING) {
+        splitEase.setDuration(STEM_SPLIT_MS);
+        splitEase.setTotalChangeInPosition(NUMBER_OF_STEM_LEDS + STEMA_PULSE_WIDTH);
+        beginSplitTime = millis();
+        splitPivotPoint = stripACurrentLed;
+        restState = STATE_STEM_RISING;
+    }
+}
+
+void runSplittingStem() {
+    int progress = (int)ceil(splitEase.easeOut(millis()-beginSplitTime));
+    Serial.print(" --> Splitting progress: ");
+    Serial.print(progress);
+    Serial.print(" pivoting: ");
+    Serial.println(splitPivotPoint);
+    
+    if (progress >= NUMBER_OF_STEM_LEDS + STEMA_PULSE_WIDTH) {
+        Serial.println(" --> Done splitting!");
+        restState = STATE_RESTING;
+        return;
+    }
+    int16_t currentLed = splitPivotPoint + progress;
+    if (currentLed < -1*REST_PULSE_WIDTH*2) {
+        currentLed = NUMBER_OF_STEM_LEDS + REST_PULSE_WIDTH*2;
+    }
+    stripACurrentLed = currentLed;
+    stripBCurrentLed = NUMBER_OF_STEM_LEDS - stripACurrentLed;
+    runSplittingStem(&pulseA, stripACurrentLed);
+    runSplittingStem(&pulseB, stripBCurrentLed);
+}
+
+void runSplittingStem(PulsePlug *pulse, int16_t currentLed) {
+    Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMBER_OF_STEM_LEDS, 
+                                                pulse->role == ROLE_PRIMARY ? stemALedPin : stemBLedPin,
+                                                NEO_GRB + NEO_KHZ800);
+    // Serial.print(" Colors: ");
+    for (int i=(-1*REST_PULSE_WIDTH); i <= REST_PULSE_WIDTH; i++) {
+        // Serial.print((int)floor(255.0/(float)max(abs(i), 1)));
+        // Serial.print(" ");
+        strip.setPixelColor(currentLed+i, 0, 0, (int)floor(255.0/(float)max(abs(i), 1)));
+    }
+    // Serial.println(currentLed);
+    strip.show();
 }
 
 bool runStemRising(PulsePlug *pulse, PulsePlug *shadowPulse) {

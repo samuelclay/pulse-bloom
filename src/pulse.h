@@ -13,6 +13,11 @@ void runRestStem();
 void runRestStem(PulsePlug *pulse, int16_t currentLed);
 void clearStemLeds(PulsePlug *pulse);
 
+// State: end resting
+void beginSplittingStem();
+void runSplittingStem();
+void runSplittingStem(PulsePlug *pulse, int16_t currentLed);
+
 // State: stem rising
 bool runStemRising(PulsePlug *pulse, PulsePlug *shadowPulse);
 
