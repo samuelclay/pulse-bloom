@@ -23,7 +23,7 @@
 #include "sensor.h"
 #include "smooth.h"
 
-#define USE_SERIAL
+// #define USE_SERIAL
 
 // ===================
 // = Pin Definitions =
@@ -340,33 +340,17 @@ void determinePlayerMode() {
     bool activeA = lastSensorActiveA > decay;
     bool activeB = lastSensorActiveB > decay;
     
-    Serial.print(" --> PlayerMode: ");
-    Serial.print(playerMode);
     if (activeA && lastFingerSeenA) {
         fingerDecay = millis();
         fingerDecay = fingerDecay > (unsigned long)FINGERLESS_DECAY_MS ? fingerDecay - FINGERLESS_DECAY_MS : 0;
-        Serial.print(" AFinger's gone? ");
-        Serial.print(lastFingerSeenA);
-        Serial.print("-");
-        Serial.print(fingerDecay);
-        Serial.print(" finger: ");
-        Serial.println(lastFingerSeenA > fingerDecay);
         activeA = lastFingerSeenA > fingerDecay;
     }
     if (activeB && lastFingerSeenB) {
         fingerDecay = millis();
         fingerDecay = fingerDecay > (unsigned long)FINGERLESS_DECAY_MS ? fingerDecay - FINGERLESS_DECAY_MS : 0;
-        Serial.print(" BFinger's gone? ");
-        Serial.print(lastFingerSeenB);
-        Serial.print("-");
-        Serial.print(fingerDecay);
-        Serial.print(" finger: ");
-        Serial.println(lastFingerSeenB > fingerDecay);
         activeB = lastFingerSeenB > fingerDecay;
     }
-    if (!activeA && !activeB) {
-        Serial.println();
-    }
+
     if (playerMode == MODE_NONE) {
         if (activeA && activeB) {
             playerMode = MODE_DOUBLE;
@@ -647,12 +631,12 @@ bool runStemRising(PulsePlug *pulse, PulsePlug *shadowPulse) {
             uint32_t color;
             if (playerMode == MODE_DOUBLE) {
                 if (pulse->role == ROLE_PRIMARY) {
-                    color = strip.Color((int)floor(255.0/(float)max(abs(i)-2, 1)), 0, 0);
+                    color = strip.Color((int)floor(255.0/(float)max(abs(i)-2, 1)), 0, (int)floor(255.0/(float)max(abs(i)-2, 1)));
                 } else {
-                    color = strip.Color(0, (int)floor(255.0/(float)max(abs(i)-2, 1)), 0);
+                    color = strip.Color(0, (int)floor(255.0/(float)max(abs(i)-2, 1)), (int)floor(255.0/(float)max(abs(i)-2, 1)));
                 }
             } else {
-                color = strip.Color((int)floor(255.0/(float)max(abs(i)-2, 1)), 0, 0);
+                color = strip.Color(0, 0, (int)floor(255.0/(float)max(abs(i)-2, 1)));
             }
             strip.setPixelColor(currentLed + i, color);
         }
