@@ -66,7 +66,7 @@ volatile int16_t stripBCurrentLed = 0;
 volatile int16_t splitPivotPoint = 0;
 unsigned long beginSplitTime = 0;
 unsigned long endSplitTime = 0;
-const int STEM_SPLIT_MS = 500;
+const int STEM_SPLIT_MS = 600;
 QuadraticEase splitEase;
 
 // Petals
@@ -533,7 +533,7 @@ void beginSplittingStem() {
 }
 
 void runSplittingStem() {
-    int progress = (int)ceil(splitEase.easeOut(millis()-beginSplitTime));
+    int progress = (int)ceil(splitEase.easeIn(millis()-beginSplitTime));
     Serial.print(" --> Splitting progress: ");
     Serial.print(progress);
     Serial.print(" pivoting: ");
