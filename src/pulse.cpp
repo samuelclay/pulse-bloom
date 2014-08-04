@@ -23,7 +23,7 @@
 #include "sensor.h"
 #include "smooth.h"
 
-// #define USE_SERIAL
+#define USE_SERIAL
 
 // ===================
 // = Pin Definitions =
@@ -631,7 +631,7 @@ bool runStemRising(PulsePlug *pulse, PulsePlug *shadowPulse) {
             uint32_t color;
             if (playerMode == MODE_DOUBLE) {
                 if (pulse->role == ROLE_PRIMARY) {
-                    color = strip.Color((int)floor(255.0/(float)max(abs(i)-2, 1)), 0, (int)floor(255.0/(float)max(abs(i)-2, 1)));
+                    color = strip.Color((int)floor(255.0/(float)max(abs(i)-2, 1)), 0, 0);
                 } else {
                     color = strip.Color(0, (int)floor(255.0/(float)max(abs(i)-2, 1)), (int)floor(255.0/(float)max(abs(i)-2, 1)));
                 }
