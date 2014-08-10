@@ -23,7 +23,7 @@
 #include "sensor.h"
 #include "smooth.h"
 
-#define USE_SERIAL
+// #define USE_SERIAL
 
 // ===================
 // = Pin Definitions =
@@ -59,14 +59,15 @@ SoftwareSerial Serial(0, serialPin); // RX, TX
 // Stem
 const int NUMBER_OF_STEM_LEDS = 300;
 const int REST_PULSE_WIDTH = 4;
-const int8_t STEMA_PULSE_WIDTH = 32;
-const int8_t STEMB_PULSE_WIDTH = 32;
+const int8_t STEMA_PULSE_WIDTH = 16;
+const int8_t STEMB_PULSE_WIDTH = 16;
 volatile int16_t stripACurrentLed = 0;
 volatile int16_t stripBCurrentLed = 0;
 volatile int16_t splitPivotPoint = 0;
 unsigned long beginSplitTime = 0;
 unsigned long endSplitTime = 0;
 const int STEM_SPLIT_MS = 600;
+const double STEM_DURATION_PCT = 0.85;
 QuadraticEase splitEase;
 
 // Petals
@@ -75,21 +76,23 @@ unsigned long endLedRiseTime = 0;
 unsigned long beginLedFallTime = 0;
 unsigned long endLedFallTime = 0;
 uint8_t ledBrightness = 0;
-const int16_t PETAL_DECAY_MS = 1600;
+uint8_t lastBpm = 75;
+const int16_t PETAL_DECAY_MS = 1000;
 
 // Pulses
 unsigned long lastPulseATime = 0;
 unsigned long lastPulseBTime = 0;
 unsigned long nextPulseATime = 0;
 unsigned long nextPulseBTime = 0;
-unsigned int bpmPulseA = 60;
-unsigned int bpmPulseB = 60;
+unsigned int bpmPulseA = lastBpm;
+unsigned int bpmPulseB = lastBpm;
 unsigned long lastSensorActiveA = 0;
 unsigned long lastSensorActiveB = 0;
 unsigned long lastFingerSeenA = 0;
 unsigned long lastFingerSeenB = 0;
-const int SENSOR_DECAY_MS = 10000;
-const int FINGERLESS_DECAY_MS = 2000;
+const int SENSOR_DECAY_MS = 60000;
+const int FINGERLESS_DECAY_MS = 1500;
+const double SHOW_HEARTBEAT_BEYOND_PCT = 0.5;
 
 // Pulse sensor
 PortI2C myBus(sensorAPin);
@@ -126,7 +129,6 @@ player_mode_t fingerMode;
 // ========
 
 void setup(){
-    int startRam = freeRam();
     analogReference(EXTERNAL);
     pinMode(petalRedPin, OUTPUT);
     pinMode(petalGreenPin, OUTPUT);
@@ -151,8 +153,6 @@ void setup(){
     Serial.flush();
     
     Serial.print(F(" ---> Free RAM: "));
-    Serial.print(startRam);
-    Serial.print(F(" - "));
     Serial.println(freeRam());
 #endif
     printHeader();
@@ -224,7 +224,7 @@ void loop() {
                        ((float)(nextPulseATime-lastPulseATime));
         }
         lastSensorActiveA = millis();
-        if (progress > 0.5) {
+        if (progress > SHOW_HEARTBEAT_BEYOND_PCT) {
             // If half-way to next heartbeat, immediately show heartbeat
             heartbeat1 = true;
         } else {
@@ -409,8 +409,13 @@ void resetStem(PulsePlug *pulse) {
 
 uint8_t adjustBpm(PulsePlug *pulse) {
     uint8_t bpm = pulse->latestBpm;
-    if (bpm < 45) bpm = 60;
-    if (bpm > 135) bpm = 60;
+    bpm = (uint8_t)floor(smooth((float)bpm, .33, (float)lastBpm));
+
+    if (bpm < 45) bpm = 75;
+    if (bpm > 135) bpm = 75;
+
+    lastBpm = bpm;
+
     return bpm;
 }
 
@@ -462,10 +467,6 @@ void runRestStem(PulsePlug *pulse, int16_t currentLed) {
     strip.show();
 }
 
-void beginStateOn(PulsePlug *pulse) {
-    
-}
-
 void clearStemLeds(PulsePlug *pulse) {
     // Reset stem LEDs
     uint8_t pulseWidth = STEMA_PULSE_WIDTH;
@@ -489,7 +490,7 @@ void clearStemLeds(PulsePlug *pulse) {
     // Serial.println(pulse->role);
 #endif
     unsigned long now = millis();
-    unsigned long nextBeat = lastBeat + (int)floor(60000.0/(bpm/0.6));
+    unsigned long nextBeat = lastBeat + (int)floor(60000.0/(bpm/STEM_DURATION_PCT));
     unsigned long millisToNextBeat = (now > nextBeat) ? 0 : (nextBeat - now);
 
     pulse->ease.setDuration(millisToNextBeat);
@@ -567,7 +568,7 @@ bool runStemRising(PulsePlug *pulse, PulsePlug *shadowPulse) {
     }
 
     int16_t currentLed = pulse->role == ROLE_PRIMARY ? stripACurrentLed : stripBCurrentLed;
-    int16_t newLed = (int16_t)floor(shadowPulse->ease.easeIn(millisFromLastBeat)) - pulseWidth;
+    int16_t newLed = (int16_t)floor(shadowPulse->ease.easeOut(millisFromLastBeat)) - pulseWidth;
     
 #ifdef USE_SERIAL
     // Serial.print(" ---> Strip: ");
@@ -631,12 +632,12 @@ bool runStemRising(PulsePlug *pulse, PulsePlug *shadowPulse) {
             uint32_t color;
             if (playerMode == MODE_DOUBLE) {
                 if (pulse->role == ROLE_PRIMARY) {
-                    color = strip.Color((int)floor(255.0/(float)max(abs(i)-2, 1)), 0, 0);
+                    color = strip.Color(0, 0, (int)floor(255.0/(float)max(abs(i)-2, 1)));
                 } else {
                     color = strip.Color(0, (int)floor(255.0/(float)max(abs(i)-2, 1)), (int)floor(255.0/(float)max(abs(i)-2, 1)));
                 }
             } else {
-                color = strip.Color(0, 0, (int)floor(255.0/(float)max(abs(i)-2, 1)));
+                color = strip.Color((int)floor(255.0/(float)max(abs(i)-2, 1)), 255.0/(float)max(abs(i)-2, 1), 0);
             }
             strip.setPixelColor(currentLed + i, color);
         }
@@ -655,13 +656,13 @@ void beginPetalRising(PulsePlug *pulse) {
     unsigned long nextBeatTime = max(nextPulseATime, nextPulseBTime);
     unsigned long nextBeat = 350;
     unsigned long now = millis();
-    int16_t nextBeatOffset = nextBeatTime - now;
     float progress = 0;
     
     if (!nextBeat) {
         return;
     }
 #ifdef USE_SERIAL
+    int16_t nextBeatOffset = nextBeatTime - now;
     Serial.print(F(" ---> Led Rising, "));
     Serial.print(nextBeatOffset);
     Serial.println("ms until next beat");
