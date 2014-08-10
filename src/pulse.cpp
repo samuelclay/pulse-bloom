@@ -23,7 +23,7 @@
 #include "sensor.h"
 #include "smooth.h"
 
-// #define USE_SERIAL
+#define USE_SERIAL
 
 // ===================
 // = Pin Definitions =
@@ -67,7 +67,7 @@ volatile int16_t splitPivotPoint = 0;
 unsigned long beginSplitTime = 0;
 unsigned long endSplitTime = 0;
 const int STEM_SPLIT_MS = 600;
-const double STEM_DURATION_PCT = 0.85;
+const double STEM_DURATION_PCT = 0.65;
 QuadraticEase splitEase;
 
 // Petals
@@ -77,7 +77,7 @@ unsigned long beginLedFallTime = 0;
 unsigned long endLedFallTime = 0;
 uint8_t ledBrightness = 0;
 uint8_t lastBpm = 75;
-const int16_t PETAL_DECAY_MS = 1000;
+const int16_t PETAL_DECAY_MS = 800;
 
 // Pulses
 unsigned long lastPulseATime = 0;
@@ -92,7 +92,7 @@ unsigned long lastFingerSeenA = 0;
 unsigned long lastFingerSeenB = 0;
 const int SENSOR_DECAY_MS = 60000;
 const int FINGERLESS_DECAY_MS = 1500;
-const double SHOW_HEARTBEAT_BEYOND_PCT = 0.5;
+const double SHOW_HEARTBEAT_BEYOND_PCT = 0.85;
 
 // Pulse sensor
 PortI2C myBus(sensorAPin);
@@ -180,7 +180,7 @@ void loop() {
     PulsePlug *pulse2 = &pulseB;
     
 #ifdef USE_SERIAL
-    if (true && (heartbeat1 || heartbeat2 || 
+    if (false && (heartbeat1 || heartbeat2 || 
                  sensor1On >= 0 || sensor2On >= 0 || 
                  app1State || app2State)) {
         Serial.print(F(" ---> ["));
@@ -234,7 +234,6 @@ void loop() {
         }
     }
     if (sensor2On > 0) {
-        bpmPulseB = adjustBpm(pulse2);
         float progress = 1.0;
         if (lastPulseBTime) {
             progress = ((float)(millis()-lastPulseBTime))/((float)(nextPulseBTime-lastPulseBTime));
@@ -242,13 +241,14 @@ void loop() {
         lastSensorActiveB = millis();
         Serial.print(" ---> Progress: ");
         Serial.print(progress);
-        Serial.print(" lastPulse: ");
-        Serial.print(lastPulseBTime);
-        Serial.print(" nextPulseBTime: ");
-        Serial.print(nextPulseBTime);
-        Serial.print(" millis: ");
-        Serial.println(millis());
-        if (progress > 0.5) {
+        Serial.print(" lastbpm: ");
+        Serial.print(lastBpm);
+        Serial.print(" bpm: ");
+        Serial.print(pulse2->latestBpm);
+        Serial.print(" newbpm: ");
+        Serial.println(adjustBpm(pulse2));
+        bpmPulseB = adjustBpm(pulse2);
+        if (progress > SHOW_HEARTBEAT_BEYOND_PCT) {
             heartbeat2 = true;
         } else {
             nextPulseBTime = millis() + 60000.0/bpmPulseB;
@@ -333,6 +333,10 @@ void loop() {
     determineFingerMode(sensor1On, sensor2On);
 }
 
+// =================
+// = State Machine =
+// =================
+
 void determinePlayerMode() {
     unsigned long decay = millis();
     unsigned long fingerDecay;
@@ -407,6 +411,36 @@ void resetStem(PulsePlug *pulse) {
     }
 }
 
+void clearStemLeds(PulsePlug *pulse) {
+    // Reset stem LEDs
+    uint8_t pulseWidth = STEMA_PULSE_WIDTH;
+    uint8_t bpm = bpmPulseA;
+    unsigned long lastBeat = lastPulseATime;
+    if (pulse->role == ROLE_SECONDARY) {
+        pulseWidth = STEMB_PULSE_WIDTH;
+        bpm = bpmPulseB;
+        lastBeat = lastPulseBTime;
+    }
+    Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMBER_OF_STEM_LEDS, 
+                                                pulse->role == ROLE_PRIMARY ? stemALedPin : stemBLedPin, 
+                                                NEO_GRB + NEO_KHZ800);
+    strip.begin();
+    for (int i=0; i < NUMBER_OF_STEM_LEDS; i++) {
+        strip.setPixelColor(i, 0, 0, 0);
+    }
+    strip.show();
+#ifdef USE_SERIAL
+    // Serial.print(F(" ---> Clearing stem #"));
+    // Serial.println(pulse->role);
+#endif
+    unsigned long now = millis();
+    unsigned long nextBeat = lastBeat + (int)floor(60000.0/(bpm/STEM_DURATION_PCT));
+    unsigned long millisToNextBeat = (now > nextBeat) ? 0 : (nextBeat - now);
+
+    pulse->ease.setDuration(millisToNextBeat);
+    pulse->ease.setTotalChangeInPosition(NUMBER_OF_STEM_LEDS + 2*pulseWidth);
+}
+
 uint8_t adjustBpm(PulsePlug *pulse) {
     uint8_t bpm = pulse->latestBpm;
     bpm = (uint8_t)floor(smooth((float)bpm, .33, (float)lastBpm));
@@ -454,47 +488,22 @@ void runRestStem() {
 }
 
 void runRestStem(PulsePlug *pulse, int16_t currentLed) {
+    double progress = min(max(0, (float)currentLed/(float)NUMBER_OF_STEM_LEDS), 1.0);
     Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMBER_OF_STEM_LEDS, 
                                                 pulse->role == ROLE_PRIMARY ? stemALedPin : stemBLedPin,
                                                 NEO_GRB + NEO_KHZ800);
-    // Serial.print(" Colors: ");
+    Serial.print(" Colors ");
+    Serial.print((int)floor(100*progress));
+    Serial.print("%: ");
     for (int i=(-1*REST_PULSE_WIDTH); i <= REST_PULSE_WIDTH; i++) {
-        // Serial.print((int)floor(255.0/(float)max(abs(i), 1)));
-        // Serial.print(" ");
-        strip.setPixelColor(currentLed+i, 0, 0, (int)floor(255.0/(float)max(abs(i), 1)));
+        Serial.print((int)floor((progress)*255.0/(float)max(abs(i), 1)));
+        Serial.print("/");
+        Serial.print((int)floor(1-progress*255.0/(float)max(abs(i), 1)));
+        Serial.print(" ");
+        strip.setPixelColor(currentLed+i, 0, (int)floor((progress)*255.0/(float)max(abs(i), 1)), (int)floor(1-progress*255.0/(float)max(abs(i), 1)));
     }
-    // Serial.println(currentLed);
+    Serial.println(currentLed);
     strip.show();
-}
-
-void clearStemLeds(PulsePlug *pulse) {
-    // Reset stem LEDs
-    uint8_t pulseWidth = STEMA_PULSE_WIDTH;
-    uint8_t bpm = bpmPulseA;
-    unsigned long lastBeat = lastPulseATime;
-    if (pulse->role == ROLE_SECONDARY) {
-        pulseWidth = STEMB_PULSE_WIDTH;
-        bpm = bpmPulseB;
-        lastBeat = lastPulseBTime;
-    }
-    Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMBER_OF_STEM_LEDS, 
-                                                pulse->role == ROLE_PRIMARY ? stemALedPin : stemBLedPin, 
-                                                NEO_GRB + NEO_KHZ800);
-    strip.begin();
-    for (int i=0; i < NUMBER_OF_STEM_LEDS; i++) {
-        strip.setPixelColor(i, 0, 0, 0);
-    }
-    strip.show();
-#ifdef USE_SERIAL
-    // Serial.print(F(" ---> Clearing stem #"));
-    // Serial.println(pulse->role);
-#endif
-    unsigned long now = millis();
-    unsigned long nextBeat = lastBeat + (int)floor(60000.0/(bpm/STEM_DURATION_PCT));
-    unsigned long millisToNextBeat = (now > nextBeat) ? 0 : (nextBeat - now);
-
-    pulse->ease.setDuration(millisToNextBeat);
-    pulse->ease.setTotalChangeInPosition(NUMBER_OF_STEM_LEDS + 2*pulseWidth);
 }
 
 // ======================
@@ -540,6 +549,7 @@ void runSplittingStem() {
 }
 
 void runSplittingStem(PulsePlug *pulse, int16_t currentLed) {
+    double progress = min(max(0, (float)currentLed/(float)NUMBER_OF_STEM_LEDS), 1.0);
     Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMBER_OF_STEM_LEDS, 
                                                 pulse->role == ROLE_PRIMARY ? stemALedPin : stemBLedPin,
                                                 NEO_GRB + NEO_KHZ800);
@@ -547,11 +557,16 @@ void runSplittingStem(PulsePlug *pulse, int16_t currentLed) {
     for (int i=(-1*REST_PULSE_WIDTH); i <= REST_PULSE_WIDTH; i++) {
         // Serial.print((int)floor(255.0/(float)max(abs(i), 1)));
         // Serial.print(" ");
-        strip.setPixelColor(currentLed+i, 0, 0, (int)floor(255.0/(float)max(abs(i), 1)));
+        strip.setPixelColor(currentLed+i, 0, (int)floor((progress)*255.0/(float)max(abs(i), 1)), (int)floor(1-progress*255.0/(float)max(abs(i), 1)));
+
     }
     // Serial.println(currentLed);
     strip.show();
 }
+
+// ========================
+// = States - Stem Rising =
+// ========================
 
 bool runStemRising(PulsePlug *pulse, PulsePlug *shadowPulse) {
     unsigned long now = millis();
@@ -651,6 +666,10 @@ bool runStemRising(PulsePlug *pulse, PulsePlug *shadowPulse) {
 
     return false;
 }
+
+// ==================
+// = States - Petal =
+// ==================
 
 void beginPetalRising(PulsePlug *pulse) {
     unsigned long nextBeatTime = max(nextPulseATime, nextPulseBTime);
