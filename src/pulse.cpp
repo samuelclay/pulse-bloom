@@ -396,8 +396,13 @@ void determineFingerMode(int sensor1On, int sensor2On) {
         fingerMode = MODE_NONE;
     }
     
+    // Serial.print(" ---> Finger mode: ");
+    // Serial.print(fingerMode);
+    // Serial.print("/");
+    // Serial.println(originalFingerMode);
+    
     if (fingerMode != originalFingerMode) {
-        if (originalFingerMode == MODE_NONE && app1State == STATE_RESTING) {
+        if (originalFingerMode == MODE_NONE && restState == STATE_STEM_FALLING) {
             // When moving to a finger from rest, split stem.
             beginSplittingStem();
         } else if (fingerMode == MODE_DOUBLE &&
@@ -554,7 +559,7 @@ void runSplittingStem() {
         return;
     }
     
-    if (progress >= NUMBER_OF_STEM_LEDS + STEMA_PULSE_WIDTH) {
+    if (progress >= NUMBER_OF_STEM_LEDS + STEMA_PULSE_WIDTH - splitPivotPoint) {
 #ifdef USE_SERIAL
         Serial.println(" --> Done splitting!");
 #endif
