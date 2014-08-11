@@ -401,6 +401,11 @@ void determineFingerMode(int sensor1On, int sensor2On) {
             beginSplittingStem();
             // resetStem(&pulseA);
             // resetStem(&pulseB);
+        } else if (fingerMode == MODE_DOUBLE &&
+                   (originalFingerMode == MODE_SINGLE_A || 
+                    originalFingerMode == MODE_SINGLE_B)) {
+            clearStemLeds(&pulseA);
+            clearStemLeds(&pulseB);
         }
     }
 }
