@@ -92,7 +92,7 @@ unsigned long lastFingerSeenA = 0;
 unsigned long lastFingerSeenB = 0;
 const int SENSOR_DECAY_MS = 60000;
 const int FINGERLESS_DECAY_MS = 1500;
-const double SHOW_HEARTBEAT_BEYOND_PCT = 0.85;
+const double SHOW_HEARTBEAT_BEYOND_PCT = 0.25;
 
 // Pulse sensor
 PortI2C myBus(sensorAPin);
@@ -393,7 +393,7 @@ void determineFingerMode(int sensor1On, int sensor2On) {
     }
     
     if (fingerMode != originalFingerMode) {
-        if (originalFingerMode == MODE_NONE) {
+        if (originalFingerMode == MODE_NONE && app1State == STATE_RESTING) {
             beginSplittingStem();
             // resetStem(&pulseA);
             // resetStem(&pulseB);
