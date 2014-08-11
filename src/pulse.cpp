@@ -492,17 +492,17 @@ void runRestStem(PulsePlug *pulse, int16_t currentLed) {
     Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMBER_OF_STEM_LEDS, 
                                                 pulse->role == ROLE_PRIMARY ? stemALedPin : stemBLedPin,
                                                 NEO_GRB + NEO_KHZ800);
-    Serial.print(" Colors ");
-    Serial.print((int)floor(100*progress));
-    Serial.print("%: ");
+    // Serial.print(" Colors ");
+    // Serial.print((int)floor(100*progress));
+    // Serial.print("%: ");
     for (int i=(-1*REST_PULSE_WIDTH); i <= REST_PULSE_WIDTH; i++) {
-        Serial.print((int)floor((progress)*255.0/(float)max(abs(i), 1)));
-        Serial.print("/");
-        Serial.print((int)floor(1-progress*255.0/(float)max(abs(i), 1)));
-        Serial.print(" ");
+        // Serial.print((int)floor((progress)*255.0/(float)max(abs(i), 1)));
+        // Serial.print("/");
+        // Serial.print((int)floor(1-progress*255.0/(float)max(abs(i), 1)));
+        // Serial.print(" ");
         strip.setPixelColor(currentLed+i, 0, (int)floor((progress)*255.0/(float)max(abs(i), 1)), (int)floor(1-progress*255.0/(float)max(abs(i), 1)));
     }
-    Serial.println(currentLed);
+    // Serial.println(currentLed);
     strip.show();
 }
 
@@ -532,6 +532,12 @@ void runSplittingStem() {
     Serial.print(progress);
     Serial.print(" pivoting: ");
     Serial.println(splitPivotPoint);
+    
+    if (splitPivotPoint == 0) {
+        Serial.println(" ---> Ignoring split");
+        restState = STATE_RESTING;
+        return;
+    }
     
     if (progress >= NUMBER_OF_STEM_LEDS + STEMA_PULSE_WIDTH) {
         Serial.println(" --> Done splitting!");
