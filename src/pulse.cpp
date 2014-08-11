@@ -30,69 +30,62 @@
 // ===================
 
 #if defined (__AVR_ATtiny84__)
-const uint8_t stemLedPin = PB2;
-const uint8_t serialPin = 7;
+const uint8_t stemLedPin          = PB2;
+const uint8_t serialPin           = 7;
 #elif defined (__AVR_ATmega328P__)
 // See si1143.h:digiPin for sensor pins
-const uint8_t sensorAPin = 0; // SCL=18, SDA=19
-const uint8_t sensorBPin = 14; // SCL=A0, SDA=A1
-const uint8_t stemALedPin = 8;
-const uint8_t stemBLedPin = 7;
-const uint8_t petalRedPin = 5;
-const uint8_t petalGreenPin = 6;
-const uint8_t petalBluePin = 3;
-const uint8_t petalWhitePin = 9;
+const uint8_t sensorAPin          = 0;  // SCL=18, SDA=19
+const uint8_t sensorBPin          = 14; // SCL=A0, SDA=A1
+const uint8_t stemALedPin         = 8;
+const uint8_t stemBLedPin         = 7;
+const uint8_t petalRedPin         = 5;
+const uint8_t petalGreenPin       = 6;
+const uint8_t petalBluePin        = 3;
+const uint8_t petalWhitePin       = 9;
 #endif
 
 // ===========
 // = Globals =
 // ===========
 
-long timer = 0;
-long loops = 0;
-
-// Serial
-#if defined (__AVR_ATtiny84__)
-SoftwareSerial Serial(0, serialPin); // RX, TX
-#endif
-
 // Stem
-const int NUMBER_OF_STEM_LEDS = 300;
-const int REST_PULSE_WIDTH = 4;
-const int8_t STEMA_PULSE_WIDTH = 16;
-const int8_t STEMB_PULSE_WIDTH = 16;
+const int NUMBER_OF_STEM_LEDS     = 300;
+const int REST_PULSE_WIDTH        = 4;
+const int8_t STEMA_PULSE_WIDTH    = 16;
+const int8_t STEMB_PULSE_WIDTH    = 16;
 volatile int16_t stripACurrentLed = 0;
 volatile int16_t stripBCurrentLed = 0;
-volatile int16_t splitPivotPoint = 0;
-unsigned long beginSplitTime = 0;
-unsigned long endSplitTime = 0;
-const int STEM_SPLIT_MS = 600;
-const double STEM_DURATION_PCT = 0.65;
+volatile int16_t splitPivotPoint  = 0;
+unsigned long beginSplitTime      = 0;
+unsigned long endSplitTime        = 0;
+const int STEM_SPLIT_MS           = 600;
+const double STEM_DURATION_PCT    = 0.65;
+
 QuadraticEase splitEase;
 
 // Petals
-unsigned long beginLedRiseTime = 0;
-unsigned long endLedRiseTime = 0;
-unsigned long beginLedFallTime = 0;
-unsigned long endLedFallTime = 0;
-uint8_t ledBrightness = 0;
-uint8_t lastBpm = 75;
-const int16_t PETAL_DECAY_MS = 800;
+unsigned long beginLedRiseTime    = 0;
+unsigned long endLedRiseTime      = 0;
+unsigned long beginLedFallTime    = 0;
+unsigned long endLedFallTime      = 0;
+uint8_t ledBrightness             = 0;
+uint8_t lastBpm                   = 75;
+const int16_t PETAL_DECAY_MS      = 800;
 
 // Pulses
-unsigned long lastPulseATime = 0;
-unsigned long lastPulseBTime = 0;
-unsigned long nextPulseATime = 0;
-unsigned long nextPulseBTime = 0;
-unsigned int bpmPulseA = lastBpm;
-unsigned int bpmPulseB = lastBpm;
-unsigned long lastSensorActiveA = 0;
-unsigned long lastSensorActiveB = 0;
-unsigned long lastFingerSeenA = 0;
-unsigned long lastFingerSeenB = 0;
-const int SENSOR_DECAY_MS = 60000;
-const int FINGERLESS_DECAY_MS = 1500;
-const double SHOW_HEARTBEAT_BEYOND_PCT = 0.25;
+unsigned long lastPulseATime      = 0;
+unsigned long lastPulseBTime      = 0;
+unsigned long nextPulseATime      = 0;
+unsigned long nextPulseBTime      = 0;
+unsigned int bpmPulseA            = lastBpm;
+unsigned int bpmPulseB            = lastBpm;
+unsigned long lastSensorActiveA   = 0;
+unsigned long lastSensorActiveB   = 0;
+unsigned long lastFingerSeenA     = 0;
+unsigned long lastFingerSeenB     = 0;
+const int SENSOR_DECAY_MS         = 60000;
+const int FINGERLESS_DECAY_MS     = 1500;
+const double SHOW_HEARTBEAT_PCT   = 0.25;
 
 // Pulse sensor
 PortI2C myBus(sensorAPin);
@@ -103,10 +96,10 @@ PulsePlug pulseB(myBus2);
 // States
 typedef enum
 {
-    STATE_RESTING = 0,
-    STATE_STEM_RISING = 1,
-    STATE_STEM_FALLING = 2,
-    STATE_PETAL_RISING = 3,
+    STATE_RESTING       = 0,
+    STATE_STEM_RISING   = 1,
+    STATE_STEM_FALLING  = 2,
+    STATE_PETAL_RISING  = 3,
     STATE_PETAL_FALLING = 4
 } state_app_t;
 state_app_t app1State;
@@ -116,13 +109,22 @@ state_app_t petalState;
 
 typedef enum
 {
-    MODE_NONE = 0,
+    MODE_NONE     = 0,
     MODE_SINGLE_A = 1,
     MODE_SINGLE_B = 2,
-    MODE_DOUBLE = 3
+    MODE_DOUBLE   = 3
 } player_mode_t;
 player_mode_t playerMode;
 player_mode_t fingerMode;
+
+// Serial
+#if defined (__AVR_ATtiny84__)
+SoftwareSerial Serial(0, serialPin); // RX, TX
+#endif
+
+// Debugging
+long debuggingTimer   = 0;
+long debuggingSeconds = 0;
 
 // ========
 // = Init =
@@ -140,10 +142,10 @@ void setup(){
     analogWrite(petalWhitePin, 0);
     ledBrightness = 8;
     
-    app1State = STATE_RESTING;
-    app2State = STATE_RESTING;
+    app1State  = STATE_RESTING;
+    app2State  = STATE_RESTING;
     petalState = STATE_RESTING;
-    restState = STATE_RESTING;
+    restState  = STATE_RESTING;
     playerMode = MODE_NONE;
     fingerMode = MODE_NONE;
     
@@ -207,7 +209,7 @@ void loop() {
         lastPulseBTime = 0;
         nextPulseATime = 0;
         nextPulseBTime = 0;
-        ledBrightness = 8;
+        ledBrightness  = 8;
         app1State = STATE_RESTING;
         app2State = STATE_RESTING;
         if (fingerMode == MODE_NONE) {
@@ -224,7 +226,7 @@ void loop() {
                        ((float)(nextPulseATime-lastPulseATime));
         }
         lastSensorActiveA = millis();
-        if (progress > SHOW_HEARTBEAT_BEYOND_PCT) {
+        if (progress > SHOW_HEARTBEAT_PCT) {
             // If half-way to next heartbeat, immediately show heartbeat
             heartbeat1 = true;
         } else {
@@ -250,7 +252,7 @@ void loop() {
         Serial.println(adjustBpm(pulse2));
 #endif
         bpmPulseB = adjustBpm(pulse2);
-        if (progress > SHOW_HEARTBEAT_BEYOND_PCT) {
+        if (progress > SHOW_HEARTBEAT_PCT) {
             heartbeat2 = true;
         } else {
             nextPulseBTime = millis() + 60000.0/bpmPulseB;
@@ -810,14 +812,14 @@ bool runPetalFalling(PulsePlug *pulse) {
 // ====================
 
 void printHeader() {
-    if (millis() - timer > 1000) {
+    if (millis() - debuggingTimer > 1000) {
 #ifdef USE_SERIAL
         Serial.print(F("------------------ "));
-        Serial.print(loops);
+        Serial.print(debuggingSeconds);
         Serial.println(" ------------------");
 #endif
-        timer = millis();
-        loops += 1;
+        debuggingTimer = millis();
+        debuggingSeconds += 1;
     }
 }
 
