@@ -58,7 +58,7 @@ volatile int16_t stripBCurrentLed = 0;
 volatile int16_t splitPivotPoint  = 0;
 unsigned long beginSplitTime      = 0;
 unsigned long endSplitTime        = 0;
-const int STEM_SPLIT_MS           = 600;
+const int STEM_SPLIT_MS           = 800;
 const double STEM_DURATION_PCT    = 0.65;
 
 QuadraticEase splitEase;
@@ -70,7 +70,7 @@ unsigned long beginLedFallTime    = 0;
 unsigned long endLedFallTime      = 0;
 uint8_t ledBrightness             = 0;
 uint8_t lastBpm                   = 75;
-const int16_t PETAL_DECAY_MS      = 800;
+const int16_t PETAL_DECAY_MS      = 850;
 
 // Pulses
 unsigned long lastPulseATime      = 0;
@@ -398,12 +398,12 @@ void determineFingerMode(int sensor1On, int sensor2On) {
     
     if (fingerMode != originalFingerMode) {
         if (originalFingerMode == MODE_NONE && app1State == STATE_RESTING) {
+            // When moving to a finger from rest, split stem.
             beginSplittingStem();
-            // resetStem(&pulseA);
-            // resetStem(&pulseB);
         } else if (fingerMode == MODE_DOUBLE &&
                    (originalFingerMode == MODE_SINGLE_A || 
                     originalFingerMode == MODE_SINGLE_B)) {
+            // When moving to double fingers, possibly freezing of stem leds.
             clearStemLeds(&pulseA);
             clearStemLeds(&pulseB);
         }
@@ -659,23 +659,24 @@ bool runStemRising(PulsePlug *pulse, PulsePlug *shadowPulse) {
 #endif
                 continue;
             }
+            uint32_t color;
+            uint8_t shade = (int)floor(255.0/(float)max(abs(i)-2, 1));
 #ifdef USE_SERIAL
             // Serial.print(F(" ---> in stem pulse width: "));
             // Serial.print(currentLed + i);
             // Serial.print(F(" ("));
             // Serial.print(i);
             // Serial.print(F(") / "));
-            // Serial.println((int)floor(255.0/(max(abs(i)-1, 1))));
+            // Serial.println(shade);
 #endif
-            uint32_t color;
-            if (playerMode == MODE_DOUBLE) {
+            if (playerMode == MODE_SINGLE_A || playerMode == MODE_SINGLE_B) {
+                color = strip.Color(shade, shade, 0);
+            } else if (playerMode == MODE_DOUBLE) {
                 if (pulse->role == ROLE_PRIMARY) {
-                    color = strip.Color(0, 0, (int)floor(255.0/(float)max(abs(i)-2, 1)));
+                    color = strip.Color(shade/2, 0, shade);
                 } else {
-                    color = strip.Color(0, (int)floor(255.0/(float)max(abs(i)-2, 1)), (int)floor(255.0/(float)max(abs(i)-2, 1)));
+                    color = strip.Color(shade/10, shade/10, shade);
                 }
-            } else {
-                color = strip.Color((int)floor(255.0/(float)max(abs(i)-2, 1)), 255.0/(float)max(abs(i)-2, 1), 0);
             }
             strip.setPixelColor(currentLed + i, color);
         }
