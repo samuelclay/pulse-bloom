@@ -11,7 +11,6 @@
 #if defined (__AVR_ATtiny84__)
 #include <tiny/wiring.h>
 #include <SoftwareSerial/SoftwareSerial.h>
-#include <easing/QuinticEase.h>
 #else
 #include <HardwareSerial.h>
 #endif
@@ -664,7 +663,7 @@ bool runStemRising(PulsePlug *pulse, PulsePlug *shadowPulse) {
 #endif
                 continue;
             }
-            uint32_t color;
+            uint32_t color = 0;
             uint8_t shade = (int)floor(255.0/(float)max(abs(i)-2, 1));
 #ifdef USE_SERIAL
             // Serial.print(F(" ---> in stem pulse width: "));
