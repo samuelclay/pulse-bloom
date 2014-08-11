@@ -239,6 +239,7 @@ void loop() {
             progress = ((float)(millis()-lastPulseBTime))/((float)(nextPulseBTime-lastPulseBTime));
         }
         lastSensorActiveB = millis();
+#ifdef USE_SERIAL
         Serial.print(" ---> Progress: ");
         Serial.print(progress);
         Serial.print(" lastbpm: ");
@@ -247,6 +248,7 @@ void loop() {
         Serial.print(pulse2->latestBpm);
         Serial.print(" newbpm: ");
         Serial.println(adjustBpm(pulse2));
+#endif
         bpmPulseB = adjustBpm(pulse2);
         if (progress > SHOW_HEARTBEAT_BEYOND_PCT) {
             heartbeat2 = true;
@@ -323,7 +325,7 @@ void loop() {
         bool ledDone = runPetalFalling(pulse1);
         if (ledDone) {
             if (app1State == STATE_PETAL_FALLING) app1State = STATE_RESTING;
-            Serial.println(" ---> PETAL DONE, RESTING");
+            // Serial.println(" ---> PETAL DONE, RESTING");
             petalState = STATE_RESTING;
         }
     }
@@ -467,7 +469,9 @@ void runResting() {
     if (restState == STATE_RESTING) {
         resetStem(&pulseA);
         resetStem(&pulseB);
+#ifdef USE_SERIAL
         Serial.println(" ---> RESETTING Strip current led, due to start resting");
+#endif
         stripACurrentLed = NUMBER_OF_STEM_LEDS + REST_PULSE_WIDTH*2;
         restState = STATE_STEM_FALLING;
         runRestStem();
@@ -528,19 +532,25 @@ void beginSplittingStem() {
 
 void runSplittingStem() {
     int progress = (int)ceil(splitEase.easeIn(millis()-beginSplitTime));
+#ifdef USE_SERIAL
     Serial.print(" --> Splitting progress: ");
     Serial.print(progress);
     Serial.print(" pivoting: ");
     Serial.println(splitPivotPoint);
+#endif
     
     if (splitPivotPoint == 0) {
+#ifdef USE_SERIAL
         Serial.println(" ---> Ignoring split");
+#endif
         restState = STATE_RESTING;
         return;
     }
     
     if (progress >= NUMBER_OF_STEM_LEDS + STEMA_PULSE_WIDTH) {
+#ifdef USE_SERIAL
         Serial.println(" --> Done splitting!");
+#endif
         restState = STATE_RESTING;
         return;
     }
@@ -714,7 +724,8 @@ void beginPetalRising(PulsePlug *pulse) {
     } else {
         beginLedRiseTime = now;
     }
-        
+
+#ifdef USE_SERIAL
     Serial.print(" ---> Rise time: ");
     Serial.print(nextBeat);
     Serial.print(" (nextBeat: ");
@@ -722,6 +733,7 @@ void beginPetalRising(PulsePlug *pulse) {
     Serial.print(", begin: ");
     Serial.print(beginLedRiseTime);
     Serial.println(")");
+#endif
     uint16_t riseTime = nextBeat;
     endLedRiseTime = beginLedRiseTime + riseTime;
 }
@@ -819,7 +831,8 @@ void blink(int loops, int loopTime, bool half) {
 }
 
 int freeRam () {
-  extern int __heap_start, *__brkval; 
-  int v; 
-  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
+    extern int __heap_start, *__brkval; 
+    int v; 
+
+    return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval); 
 }
