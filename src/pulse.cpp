@@ -70,6 +70,7 @@ unsigned long endLedFallTime      = 0;
 uint8_t ledBrightness             = 0;
 uint8_t lastBpm                   = 75;
 const int16_t PETAL_DECAY_MS      = 850;
+const int16_t PETAL_DELAY_MS      = 100;
 
 // Pulses
 unsigned long lastPulseATime      = 0;
@@ -786,17 +787,21 @@ void beginPetalFalling(PulsePlug *pulse) {
     // Serial.println(nextBeat);    
 #endif
 
-    beginLedFallTime = millis();
+    beginLedFallTime = PETAL_DELAY_MS + millis();
     // endLedFallTime = beginLedFallTime + 2*(nextBeat - beginLedFallTime);
-    endLedFallTime = beginLedFallTime + PETAL_DECAY_MS;
+    endLedFallTime = PETAL_DELAY_MS + beginLedFallTime + PETAL_DECAY_MS;
 }
 
 bool runPetalFalling(PulsePlug *pulse) {
     unsigned long now = millis();
+    if (now < beginLedFallTime) {
+        // Petal fall is delayed, don't start fall yet.
+        return false;
+    }
     unsigned long millisToNextBeat = (now > endLedFallTime) ? 0 : (endLedFallTime - now);
     unsigned long millisFromLastBeat = now - beginLedFallTime;
     double progress = (double)millisFromLastBeat / (double)(millisFromLastBeat + millisToNextBeat);
-
+    
 #ifdef USE_SERIAL
     // Serial.print(" ---> STATE: Led Falling - from:");
     // Serial.print(millisFromLastBeat, DEC);
