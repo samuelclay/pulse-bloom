@@ -22,7 +22,7 @@
 #include "sensor.h"
 #include "smooth.h"
 
-// #define USE_SERIAL
+#define USE_SERIAL
 
 // ===================
 // = Pin Definitions =
@@ -67,12 +67,12 @@ unsigned long beginLedRiseTime    = 0;
 unsigned long endLedRiseTime      = 0;
 unsigned long beginLedFallTime    = 0;
 unsigned long endLedFallTime      = 0;
-unsigned long beginLedLandTime    = 0;
-unsigned long endLedLandTime      = 0;
+unsigned long beginLedRestTime    = 0;
+unsigned long endLedRestTime      = 0;
 uint8_t ledBrightness             = 0;
 uint8_t lastBpm                   = 75;
 const int16_t PETAL_DECAY_MS      = 850;
-const int16_t PETAL_DELAY_MS      = 100;
+const int16_t PETAL_DELAY_MS      = 60;
 
 // Pulses
 unsigned long lastPulseATime      = 0;
@@ -99,12 +99,12 @@ PulsePlug pulseB(myBus2);
 typedef enum
 {
     STATE_RESTING       = 0,
-    STATE_STEM_RISING   = 1,
-    STATE_STEM_FALLING  = 2,
-    STATE_PETAL_RISING  = 3,
-    STATE_PETAL_FALLING = 4,
-    STATE_PETAL_LANDING = 5,
-    STATE_PETAL_LANDED  = 6
+    STATE_AWAKE         = 1,
+    STATE_STEM_RISING   = 2,
+    STATE_STEM_FALLING  = 3,
+    STATE_PETAL_RISING  = 4,
+    STATE_PETAL_FALLING = 5,
+    STATE_PETAL_LANDING = 6
 } state_app_t;
 state_app_t app1State;
 state_app_t app2State;
@@ -140,11 +140,10 @@ void setup(){
     pinMode(petalGreenPin, OUTPUT);
     pinMode(petalBluePin, OUTPUT);
     pinMode(petalWhitePin, OUTPUT);
-    analogWrite(petalRedPin, 8);
-    analogWrite(petalGreenPin, 8);
-    analogWrite(petalBluePin, 0);
+    analogWrite(petalRedPin, 0);
+    analogWrite(petalGreenPin, 0);
+    analogWrite(petalBluePin, 255);
     analogWrite(petalWhitePin, 0);
-    ledBrightness = 8;
     
     app1State  = STATE_RESTING;
     app2State  = STATE_RESTING;
@@ -186,7 +185,7 @@ void loop() {
     PulsePlug *pulse2 = &pulseB;
     
 #ifdef USE_SERIAL
-    if (false && (heartbeat1 || heartbeat2 || 
+    if (true && (heartbeat1 || heartbeat2 || 
                  sensor1On >= 0 || sensor2On >= 0 || 
                  app1State || app2State)) {
         Serial.print(F(" ---> ["));
@@ -199,6 +198,8 @@ void loop() {
         Serial.print(F(" appState: "));     Serial.print(app1State);
         Serial.print(F("/"));               Serial.print(app2State);
         Serial.print(F(" restState: "));    Serial.print(restState);
+        Serial.print(F("/"));               Serial.print(app2State);
+        Serial.print(F(" petalState: "));   Serial.print(petalState);
         Serial.println();
     }
 #endif    
@@ -213,12 +214,11 @@ void loop() {
         lastPulseBTime = 0;
         nextPulseATime = 0;
         nextPulseBTime = 0;
-        ledBrightness  = 8;
         app1State = STATE_RESTING;
         app2State = STATE_RESTING;
         if (fingerMode == MODE_NONE) {
             runResting();
-            if (petalState != STATE_PETAL_LANDED) {
+            if (petalState != STATE_RESTING) {
                 petalState = STATE_PETAL_LANDING;
             }
         }
@@ -334,7 +334,7 @@ void loop() {
     } 
     
     if (petalState == STATE_PETAL_LANDING) {
-        bool ledDone = runPetalLanding(pulse1);
+        bool ledDone = runPetalResting();
         if (ledDone) {
             petalState = STATE_RESTING;
         }
@@ -350,7 +350,7 @@ void loop() {
         if (ledDone) {
             if (app1State == STATE_PETAL_FALLING) app1State = STATE_RESTING;
             // Serial.println(" ---> PETAL DONE, RESTING");
-            petalState = STATE_RESTING;
+            petalState = STATE_AWAKE;
         }
     }
 
@@ -512,6 +512,7 @@ void runResting() {
         stripACurrentLed = NUMBER_OF_STEM_LEDS + REST_PULSE_WIDTH*2;
         restState = STATE_STEM_FALLING;
         runRestStem();
+        beginPetalResting();
     } else if (restState == STATE_STEM_FALLING) {
         runRestStem();
     }
@@ -572,6 +573,7 @@ void beginSplittingStem() {
 
 void runSplittingStem() {
     int progress = (int)ceil(splitEase.easeIn(millis()-beginSplitTime));
+    int total = NUMBER_OF_STEM_LEDS + STEMA_PULSE_WIDTH - splitPivotPoint;
 #ifdef USE_SERIAL
     Serial.print(" --> Splitting progress: ");
     Serial.print(progress);
@@ -587,7 +589,7 @@ void runSplittingStem() {
         return;
     }
     
-    if (progress >= NUMBER_OF_STEM_LEDS + STEMA_PULSE_WIDTH - splitPivotPoint) {
+    if (progress >= total) {
 #ifdef USE_SERIAL
         Serial.println(" --> Done splitting!");
 #endif
@@ -602,6 +604,11 @@ void runSplittingStem() {
     stripBCurrentLed = NUMBER_OF_STEM_LEDS - stripACurrentLed;
     runSplittingStem(&pulseA, stripACurrentLed);
     runSplittingStem(&pulseB, stripBCurrentLed);
+    
+    double progressPct = (double)progress / total;
+    analogWrite(petalRedPin, 8*progressPct);
+    analogWrite(petalGreenPin, 8*progressPct);
+    analogWrite(petalBluePin, 255*(1-progressPct));
 }
 
 void runSplittingStem(PulsePlug *pulse, int16_t currentLed) {
@@ -801,7 +808,7 @@ bool runPetalRising(PulsePlug *pulse) {
     if (playerMode == MODE_DOUBLE) {
         analogWrite(petalRedPin, ledBrightness);
         analogWrite(petalGreenPin, ledBrightness);
-        analogWrite(petalBluePin, ledBrightness);
+        analogWrite(petalBluePin, 0);
     } else {
         analogWrite(petalRedPin, ledBrightness);
         analogWrite(petalGreenPin, ledBrightness/2);
@@ -849,7 +856,7 @@ bool runPetalFalling(PulsePlug *pulse) {
     if (playerMode == MODE_DOUBLE) {
         analogWrite(petalRedPin, ledBrightness);
         analogWrite(petalGreenPin, ledBrightness);
-        analogWrite(petalBluePin, ledBrightness);
+        analogWrite(petalBluePin, 0);
     } else {
         analogWrite(petalRedPin, ledBrightness);
         analogWrite(petalGreenPin, ledBrightness/2);
@@ -863,29 +870,44 @@ bool runPetalFalling(PulsePlug *pulse) {
     return false;
 }
 
-void beginPetalLanding(PulsePlug *pulse) {
-    beginLedLandTime = PETAL_DELAY_MS + millis();
-    endLedLandTime = PETAL_DELAY_MS + beginLedLandTime + PETAL_DECAY_MS;
+void beginPetalResting() {
+#ifdef USE_SERIAL
+    Serial.print(F(" ---> Begin petal resting: "));
+    Serial.println(restState);
+#endif
+    beginLedRestTime = PETAL_DELAY_MS + millis();
+    endLedRestTime = PETAL_DELAY_MS + beginLedRestTime + PETAL_DECAY_MS;
+    petalState = STATE_PETAL_LANDING;
 }
 
-bool runPetalLanding(PulsePlug *pulse) {
+bool runPetalResting() {
     unsigned long now = millis();
-    if (now < beginLedLandTime) {
+    unsigned long millisToNextBeat = (now > endLedRestTime) ? 
+                                     0 : (endLedRestTime - now);
+    unsigned long millisFromLastBeat = now - beginLedRestTime;
+    double progress = (double)millisFromLastBeat / 
+                      (double)(millisFromLastBeat + millisToNextBeat);
+
+    if (now < beginLedRestTime) {
         // Petal land is delayed, don't start fall yet.
         return false;
     }
-    unsigned long millisToNextBeat = (now > endLedLandTime) ? 0 : (endLedLandTime - now);
-    unsigned long millisFromLastBeat = now - beginLedLandTime;
-    double progress = (double)millisFromLastBeat / (double)(millisFromLastBeat + millisToNextBeat);
+
     
-    ledBrightness = max((int)floor(min(8, 255 * progress)), 255);
-    if (playerMode == MODE_NONE) {
-        analogWrite(petalRedPin, ledBrightness);
-        analogWrite(petalGreenPin, ledBrightness);
-        analogWrite(petalBluePin, ledBrightness);
-    } else {
-        return true;
-    }
+#ifdef USE_SERIAL
+    Serial.print(F(" ---> Run petal resting: "));
+    Serial.print(playerMode);
+    Serial.print(" - ");
+    Serial.print(beginLedRestTime);
+    Serial.print(" - ");
+    Serial.print(endLedRestTime);
+    Serial.print(" - ");
+    Serial.println(progress);
+#endif
+
+    analogWrite(petalRedPin, 8*(1-progress));
+    analogWrite(petalGreenPin, 8*(1-progress));
+    analogWrite(petalBluePin, 255*progress);
 
     if (progress >= 1.0) {
         return true;
