@@ -22,7 +22,7 @@
 #include "sensor.h"
 #include "smooth.h"
 
-#define USE_SERIAL
+// #define USE_SERIAL
 
 // ===================
 // = Pin Definitions =
@@ -37,8 +37,8 @@ const uint8_t sensorAPin          = 0;  // SCL=18, SDA=19
 const uint8_t sensorBPin          = 14; // SCL=A0, SDA=A1
 const uint8_t stemALedPin         = 8;
 const uint8_t stemBLedPin         = 7;
-const uint8_t petalRedPin         = 5;
-const uint8_t petalGreenPin       = 6;
+const uint8_t petalRedPin         = 6;
+const uint8_t petalGreenPin       = 5;
 const uint8_t petalBluePin        = 3;
 const uint8_t petalWhitePin       = 9;
 #endif
@@ -67,6 +67,8 @@ unsigned long beginLedRiseTime    = 0;
 unsigned long endLedRiseTime      = 0;
 unsigned long beginLedFallTime    = 0;
 unsigned long endLedFallTime      = 0;
+unsigned long beginLedLandTime    = 0;
+unsigned long endLedLandTime      = 0;
 uint8_t ledBrightness             = 0;
 uint8_t lastBpm                   = 75;
 const int16_t PETAL_DECAY_MS      = 850;
@@ -100,7 +102,9 @@ typedef enum
     STATE_STEM_RISING   = 1,
     STATE_STEM_FALLING  = 2,
     STATE_PETAL_RISING  = 3,
-    STATE_PETAL_FALLING = 4
+    STATE_PETAL_FALLING = 4,
+    STATE_PETAL_LANDING = 5,
+    STATE_PETAL_LANDED  = 6
 } state_app_t;
 state_app_t app1State;
 state_app_t app2State;
@@ -136,9 +140,9 @@ void setup(){
     pinMode(petalGreenPin, OUTPUT);
     pinMode(petalBluePin, OUTPUT);
     pinMode(petalWhitePin, OUTPUT);
-    analogWrite(petalRedPin, 0);
+    analogWrite(petalRedPin, 8);
     analogWrite(petalGreenPin, 8);
-    analogWrite(petalBluePin, 8);
+    analogWrite(petalBluePin, 0);
     analogWrite(petalWhitePin, 0);
     ledBrightness = 8;
     
@@ -214,6 +218,9 @@ void loop() {
         app2State = STATE_RESTING;
         if (fingerMode == MODE_NONE) {
             runResting();
+            if (petalState != STATE_PETAL_LANDED) {
+                petalState = STATE_PETAL_LANDING;
+            }
         }
     }
     
@@ -326,7 +333,12 @@ void loop() {
         }
     } 
     
-    if (petalState == STATE_PETAL_RISING) {
+    if (petalState == STATE_PETAL_LANDING) {
+        bool ledDone = runPetalLanding(pulse1);
+        if (ledDone) {
+            petalState = STATE_RESTING;
+        }
+    } else if (petalState == STATE_PETAL_RISING) {
         bool ledDone = runPetalRising(pulse1);
         if (ledDone) {
             if (app1State == STATE_PETAL_RISING) app1State = STATE_PETAL_FALLING;
@@ -530,15 +542,9 @@ void runRestStem(PulsePlug *pulse, int16_t currentLed) {
         // Serial.print("/");
         // Serial.print((int)floor(1-progress*255.0/(float)max(abs(i), 1)));
         // Serial.print(" ");
-        if (pulse->role == ROLE_PRIMARY) {
-            strip.setPixelColor(currentLed+i, 0, 
-                                0, 
-                                (int)floor(1-progress*255.0/(float)max(abs(i), 1)));
-        } else {
-            strip.setPixelColor(currentLed+i, 0, 
-                                (int)floor((progress)*255.0/(float)max(abs(i), 1)), 
-                                (int)floor(1-progress*255.0/(float)max(abs(i), 1)));
-        }
+        strip.setPixelColor(currentLed+i, 0, 
+                            (int)floor((progress)*255.0/(float)max(abs(i), 1)), 
+                            (int)floor(1-progress*255.0/(float)max(abs(i), 1)));
     }
     // Serial.println(currentLed);
     strip.show();
@@ -700,9 +706,9 @@ bool runStemRising(PulsePlug *pulse, PulsePlug *shadowPulse) {
                 color = strip.Color(shade, shade, 0);
             } else if (playerMode == MODE_DOUBLE) {
                 if (pulse->role == ROLE_PRIMARY) {
-                    color = strip.Color(shade/2, 0, shade);
+                    color = strip.Color(shade/10, 0, shade);
                 } else {
-                    color = strip.Color(shade/10, shade/10, shade);
+                    color = strip.Color(shade, 0, shade);
                 }
             }
             strip.setPixelColor(currentLed + i, color);
@@ -723,7 +729,6 @@ bool runStemRising(PulsePlug *pulse, PulsePlug *shadowPulse) {
 // ==================
 
 void beginPetalRising(PulsePlug *pulse) {
-    unsigned long nextBeatTime = max(nextPulseATime, nextPulseBTime);
     unsigned long nextBeat = 350;
     unsigned long now = millis();
     float progress = 0;
@@ -732,6 +737,7 @@ void beginPetalRising(PulsePlug *pulse) {
         return;
     }
 #ifdef USE_SERIAL
+    unsigned long nextBeatTime = max(nextPulseATime, nextPulseBTime);
     int16_t nextBeatOffset = nextBeatTime - now;
     Serial.print(F(" ---> Led Rising, "));
     Serial.print(nextBeatOffset);
@@ -792,15 +798,22 @@ bool runPetalRising(PulsePlug *pulse) {
 
     // Set Lotus LED brightness
     ledBrightness = max(8, min((int)floor(255 * progress), 255));
-    analogWrite(petalRedPin, 0);
-    analogWrite(petalGreenPin, ledBrightness);
-    analogWrite(petalBluePin, ledBrightness);
+    if (playerMode == MODE_DOUBLE) {
+        analogWrite(petalRedPin, ledBrightness);
+        analogWrite(petalGreenPin, ledBrightness);
+        analogWrite(petalBluePin, ledBrightness);
+    } else {
+        analogWrite(petalRedPin, ledBrightness);
+        analogWrite(petalGreenPin, ledBrightness/2);
+        analogWrite(petalBluePin, 0);
+    }
     if (progress >= 1.0) {
         return true;
     }
 
     return false;
 }
+
 
 void beginPetalFalling(PulsePlug *pulse) {
 #ifdef USE_SERIAL
@@ -833,10 +846,47 @@ bool runPetalFalling(PulsePlug *pulse) {
     // Serial.println(max(255 - (int)floor(255 * progress), 8), DEC);
 #endif
     ledBrightness = max(255 - (int)floor(255 * progress), 8);
-    analogWrite(petalRedPin, 0);
-    analogWrite(petalGreenPin, ledBrightness);
-    analogWrite(petalBluePin, ledBrightness);
+    if (playerMode == MODE_DOUBLE) {
+        analogWrite(petalRedPin, ledBrightness);
+        analogWrite(petalGreenPin, ledBrightness);
+        analogWrite(petalBluePin, ledBrightness);
+    } else {
+        analogWrite(petalRedPin, ledBrightness);
+        analogWrite(petalGreenPin, ledBrightness/2);
+        analogWrite(petalBluePin, 0);
+    }
+
+    if (progress >= 1.0) {
+        return true;
+    }
     
+    return false;
+}
+
+void beginPetalLanding(PulsePlug *pulse) {
+    beginLedLandTime = PETAL_DELAY_MS + millis();
+    endLedLandTime = PETAL_DELAY_MS + beginLedLandTime + PETAL_DECAY_MS;
+}
+
+bool runPetalLanding(PulsePlug *pulse) {
+    unsigned long now = millis();
+    if (now < beginLedLandTime) {
+        // Petal land is delayed, don't start fall yet.
+        return false;
+    }
+    unsigned long millisToNextBeat = (now > endLedLandTime) ? 0 : (endLedLandTime - now);
+    unsigned long millisFromLastBeat = now - beginLedLandTime;
+    double progress = (double)millisFromLastBeat / (double)(millisFromLastBeat + millisToNextBeat);
+    
+    ledBrightness = max((int)floor(min(8, 255 * progress)), 255);
+    if (playerMode == MODE_NONE) {
+        analogWrite(petalRedPin, ledBrightness);
+        analogWrite(petalGreenPin, ledBrightness);
+        analogWrite(petalBluePin, ledBrightness);
+    } else {
+        return true;
+    }
+
     if (progress >= 1.0) {
         return true;
     }

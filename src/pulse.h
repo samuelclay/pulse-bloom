@@ -29,6 +29,9 @@ bool runPetalRising(PulsePlug *pulse);
 void beginPetalFalling(PulsePlug *pulse);
 bool runPetalFalling(PulsePlug *pulse);
 
+// State: petal landing
+void beginPetalLanding(PulsePlug *pulse);
+bool runPetalLanding(PulsePlug *pulse);
 
 // Debugging
 void printHeader();
