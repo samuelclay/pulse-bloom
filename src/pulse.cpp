@@ -279,6 +279,11 @@ void loop() {
     if (heartbeat1) {
         lastPulseATime = millis();
         nextPulseATime = lastPulseATime + 60000.0/bpmPulseA;
+        if (app1State == STATE_STEM_RISING) {
+            // If stem is already rising and is about to be cut off, pulse petals
+            petalState = STATE_PETAL_RISING;
+            beginPetalRising(pulse1);
+        }
         app1State = STATE_STEM_RISING;
         resetStem(pulse1);
         // Use both stems if in single player mode
@@ -299,6 +304,11 @@ void loop() {
     if (heartbeat2) {
         lastPulseBTime = millis();
         nextPulseBTime = lastPulseBTime + 60000.0/bpmPulseB;
+        if (app2State == STATE_STEM_RISING) {
+            // If stem is already rising and is about to be cut off, pulse petals
+            petalState = STATE_PETAL_RISING;
+            beginPetalRising(pulse2);
+        }
         app2State = STATE_STEM_RISING;
         resetStem(pulse2);
         if (playerMode == MODE_SINGLE_B) {
@@ -350,13 +360,15 @@ void determinePlayerMode() {
     
     if (activeA && lastFingerSeenA) {
         fingerDecay = millis();
-        fingerDecay = fingerDecay > (unsigned long)FINGERLESS_DECAY_MS ? fingerDecay - FINGERLESS_DECAY_MS : 0;
+        fingerDecay = fingerDecay > (unsigned long)FINGERLESS_DECAY_MS ? 
+                      fingerDecay - FINGERLESS_DECAY_MS : 0;
         activeA = lastFingerSeenA > fingerDecay;
     }
     if (activeB && lastFingerSeenB) {
         fingerDecay = millis();
-        fingerDecay = fingerDecay > (unsigned long)FINGERLESS_DECAY_MS ? fingerDecay - FINGERLESS_DECAY_MS : 0;
-        activeB = lastFingerSeenB > fingerDecay;
+        fingerDecay = fingerDecay > (unsigned long)FINGERLESS_DECAY_MS ? 
+                      fingerDecay - FINGERLESS_DECAY_MS : 0;
+            activeB = lastFingerSeenB > fingerDecay;
     }
 
     if (playerMode == MODE_NONE) {
@@ -436,7 +448,8 @@ void clearStemLeds(PulsePlug *pulse) {
         lastBeat = lastPulseBTime;
     }
     Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMBER_OF_STEM_LEDS, 
-                                                pulse->role == ROLE_PRIMARY ? stemALedPin : stemBLedPin, 
+                                                pulse->role == ROLE_PRIMARY ? 
+                                                stemALedPin : stemBLedPin, 
                                                 NEO_GRB + NEO_KHZ800);
     strip.begin();
     for (int i=0; i < NUMBER_OF_STEM_LEDS; i++) {
@@ -506,7 +519,8 @@ void runRestStem() {
 void runRestStem(PulsePlug *pulse, int16_t currentLed) {
     double progress = min(max(0, (float)currentLed/(float)NUMBER_OF_STEM_LEDS), 1.0);
     Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMBER_OF_STEM_LEDS, 
-                                                pulse->role == ROLE_PRIMARY ? stemALedPin : stemBLedPin,
+                                                pulse->role == ROLE_PRIMARY ? 
+                                                stemALedPin : stemBLedPin,
                                                 NEO_GRB + NEO_KHZ800);
     // Serial.print(" Colors ");
     // Serial.print((int)floor(100*progress));
@@ -516,7 +530,15 @@ void runRestStem(PulsePlug *pulse, int16_t currentLed) {
         // Serial.print("/");
         // Serial.print((int)floor(1-progress*255.0/(float)max(abs(i), 1)));
         // Serial.print(" ");
-        strip.setPixelColor(currentLed+i, 0, (int)floor((progress)*255.0/(float)max(abs(i), 1)), (int)floor(1-progress*255.0/(float)max(abs(i), 1)));
+        if (pulse->role == ROLE_PRIMARY) {
+            strip.setPixelColor(currentLed+i, 0, 
+                                0, 
+                                (int)floor(1-progress*255.0/(float)max(abs(i), 1)));
+        } else {
+            strip.setPixelColor(currentLed+i, 0, 
+                                (int)floor((progress)*255.0/(float)max(abs(i), 1)), 
+                                (int)floor(1-progress*255.0/(float)max(abs(i), 1)));
+        }
     }
     // Serial.println(currentLed);
     strip.show();
