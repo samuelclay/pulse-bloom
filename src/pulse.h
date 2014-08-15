@@ -22,12 +22,12 @@ void runSplittingStem(PulsePlug *pulse, int16_t currentLed);
 bool runStemRising(PulsePlug *pulse, PulsePlug *shadowPulse);
 
 // State: petal rising
-void beginPetalRising(PulsePlug *pulse);
-bool runPetalRising(PulsePlug *pulse);
+void beginPetalRising();
+bool runPetalRising();
 
 // State: petal falling
-void beginPetalFalling(PulsePlug *pulse);
-bool runPetalFalling(PulsePlug *pulse);
+void beginPetalFalling();
+bool runPetalFalling();
 
 // State: petal rest states
 void beginPetalResting();
