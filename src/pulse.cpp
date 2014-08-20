@@ -22,7 +22,7 @@
 #include "sensor.h"
 #include "smooth.h"
 
-#define USE_SERIAL
+// #define USE_SERIAL
 
 // ===================
 // = Pin Definitions =
@@ -37,9 +37,9 @@ const uint8_t sensorAPin          = 0;  // SCL=18, SDA=19
 const uint8_t sensorBPin          = 14; // SCL=A0, SDA=A1
 const uint8_t stemALedPin         = 8;
 const uint8_t stemBLedPin         = 7;
-const uint8_t petalRedPin         = 6;
-const uint8_t petalGreenPin       = 5;
-const uint8_t petalBluePin        = 3;
+const uint8_t petalRedPin         = 3;
+const uint8_t petalGreenPin       = 6;
+const uint8_t petalBluePin        = 5;
 const uint8_t petalWhitePin       = 9;
 #endif
 
@@ -140,9 +140,10 @@ void setup(){
     pinMode(petalGreenPin, OUTPUT);
     pinMode(petalBluePin, OUTPUT);
     pinMode(petalWhitePin, OUTPUT);
+    
     analogWrite(petalRedPin, 0);
     analogWrite(petalGreenPin, 0);
-    analogWrite(petalBluePin, 255);
+    analogWrite(petalBluePin, 0);
     analogWrite(petalWhitePin, 0);
     
     app1State  = STATE_RESTING;
@@ -173,6 +174,37 @@ void setup(){
     setupPulseSensor(&pulseA);
     setupPulseSensor(&pulseB);
 
+    for (int i=0; i < 255; i++) {
+        analogWrite(petalRedPin, i);
+        delay(1);
+    }
+    for (int i=255; i > 0; i--) {
+        analogWrite(petalRedPin, i);
+        delay(1);
+    }
+    for (int i=0; i < 255; i++) {
+        analogWrite(petalGreenPin, i);
+        delay(1);
+    }
+    for (int i=255; i > 0; i--) {
+        analogWrite(petalGreenPin, i);
+        delay(1);
+    }
+    for (int i=0; i < 255; i++) {
+        analogWrite(petalBluePin, i);
+        delay(1);
+    }
+    for (int i=255; i > 0; i--) {
+        analogWrite(petalBluePin, i);
+        delay(1);
+    }
+
+
+    analogWrite(petalRedPin, 0);
+    analogWrite(petalGreenPin, 0);
+    analogWrite(petalBluePin, 255);
+    analogWrite(petalWhitePin, 0);
+    
     // blink(3, 25, true);
 }
 
