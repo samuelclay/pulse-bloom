@@ -105,7 +105,11 @@ int readPulseSensor(PulsePlug *pulse) {
     Serial.print(F("\t"));
     Serial.println((long)total);   
 #endif
-
+    
+    if (pulse->red == pulse->IR1 && pulse->IR1 == pulse->IR2) {
+        // Missing sensor
+        return -1;
+    }
     if (pulse->lastTotal < 40000L && total > 40000L) pulse->foundNewFinger = 1;  // found new finger!
 
     pulse->lastTotal = total;
