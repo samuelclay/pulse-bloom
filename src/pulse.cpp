@@ -49,7 +49,7 @@ const uint8_t petalWhitePin       = 9;
 
 // Stem
 const int NUMBER_OF_STEM_LEDS     = 300;
-const int REST_PULSE_WIDTH        = 4;
+const int REST_PULSE_WIDTH        = 8;
 const int8_t STEMA_PULSE_WIDTH    = 16;
 const int8_t STEMB_PULSE_WIDTH    = 16;
 volatile int16_t stripACurrentLed = 0;
@@ -87,7 +87,7 @@ unsigned long lastFingerSeenA     = 0;
 unsigned long lastFingerSeenB     = 0;
 const int SENSOR_DECAY_MS         = 60000;
 const int FINGERLESS_DECAY_MS     = 1500;
-const double SHOW_HEARTBEAT_PCT   = 0.25;
+const double SHOW_HEARTBEAT_PCT   = 0.35;
 
 // Pulse sensor
 PortI2C myBus(sensorAPin);
@@ -462,12 +462,14 @@ void determineFingerMode(int sensor1On, int sensor2On) {
     } else {
         fingerMode = MODE_NONE;
     }
-    
+
+#ifdef USE_SERIAL
     // Serial.print(" ---> Finger mode: ");
     // Serial.print(fingerMode);
     // Serial.print("/");
     // Serial.println(originalFingerMode);
-    
+#endif
+
     if (fingerMode != originalFingerMode) {
         if (originalFingerMode == MODE_NONE && restState == STATE_STEM_FALLING) {
             // When moving to a finger from rest, split stem.
@@ -528,7 +530,7 @@ uint8_t adjustBpm(PulsePlug *pulse) {
     bpm = (uint8_t)floor(smooth((float)bpm, .33, (float)lastBpm));
 
     if (bpm < 45) bpm = 75;
-    if (bpm > 135) bpm = 75;
+    if (bpm > 105) bpm = 75;
 
     lastBpm = bpm;
 
@@ -552,7 +554,7 @@ void runResting() {
 #ifdef USE_SERIAL
         Serial.println(" ---> RESETTING Strip current led, due to start resting");
 #endif
-        stripACurrentLed = NUMBER_OF_STEM_LEDS + REST_PULSE_WIDTH*2;
+        stripACurrentLed = NUMBER_OF_STEM_LEDS + REST_PULSE_WIDTH;
         restState = STATE_STEM_FALLING;
         runRestStem();
         beginPetalResting();
@@ -563,8 +565,8 @@ void runResting() {
 
 void runRestStem() {
     int16_t currentLed = stripACurrentLed - 1;
-    if (currentLed < -1*REST_PULSE_WIDTH*2) {
-        currentLed = NUMBER_OF_STEM_LEDS + REST_PULSE_WIDTH*2;
+    if (currentLed < -1*REST_PULSE_WIDTH) {
+        currentLed = NUMBER_OF_STEM_LEDS + REST_PULSE_WIDTH;
     }
     stripACurrentLed = currentLed;
     stripBCurrentLed = NUMBER_OF_STEM_LEDS - stripACurrentLed;
@@ -581,14 +583,17 @@ void runRestStem(PulsePlug *pulse, int16_t currentLed) {
     // Serial.print(" Colors ");
     // Serial.print((int)floor(100*progress));
     // Serial.print("%: ");
-    for (int i=(-1*REST_PULSE_WIDTH); i <= REST_PULSE_WIDTH; i++) {
+    int head = pulse->role == ROLE_PRIMARY ? 0 : (-1*REST_PULSE_WIDTH);
+    int tail = pulse->role == ROLE_PRIMARY ? (REST_PULSE_WIDTH) : 1;
+                                            
+    for (int i=head; i < tail; i++) {
         // Serial.print((int)floor((progress)*255.0/(float)max(abs(i), 1)));
         // Serial.print("/");
         // Serial.print((int)floor(1-progress*255.0/(float)max(abs(i), 1)));
         // Serial.print(" ");
         strip.setPixelColor(currentLed+i, 0, 
-                            (int)floor((progress)*255.0/(float)max(abs(i), 1)), 
-                            (int)floor(1-progress*255.0/(float)max(abs(i), 1)));
+                            progress*255.0, 
+                            (int)floor(255.0/(float)max(abs(i*3), 1)));
     }
     // Serial.println(currentLed);
     strip.show();
@@ -640,8 +645,8 @@ void runSplittingStem() {
         return;
     }
     int16_t currentLed = splitPivotPoint + progress;
-    if (currentLed < -1*REST_PULSE_WIDTH*2) {
-        currentLed = NUMBER_OF_STEM_LEDS + REST_PULSE_WIDTH*2;
+    if (currentLed < -1*REST_PULSE_WIDTH) {
+        currentLed = NUMBER_OF_STEM_LEDS + REST_PULSE_WIDTH;
     }
     stripACurrentLed = currentLed;
     stripBCurrentLed = NUMBER_OF_STEM_LEDS - stripACurrentLed;
@@ -660,11 +665,17 @@ void runSplittingStem(PulsePlug *pulse, int16_t currentLed) {
                                                 pulse->role == ROLE_PRIMARY ? stemALedPin : stemBLedPin,
                                                 NEO_GRB + NEO_KHZ800);
     // Serial.print(" Colors: ");
-    for (int i=(-1*REST_PULSE_WIDTH); i <= REST_PULSE_WIDTH; i++) {
-        // Serial.print((int)floor(255.0/(float)max(abs(i), 1)));
+    int head = pulse->role == ROLE_PRIMARY ? 0 : (-1*REST_PULSE_WIDTH);
+    int tail = pulse->role == ROLE_PRIMARY ? (REST_PULSE_WIDTH) : 1;
+                                            
+    for (int i=head; i < tail; i++) {
+        // Serial.print((int)floor((progress)*255.0/(float)max(abs(i), 1)));
+        // Serial.print("/");
+        // Serial.print((int)floor(1-progress*255.0/(float)max(abs(i), 1)));
         // Serial.print(" ");
-        strip.setPixelColor(currentLed+i, 0, (int)floor((progress)*255.0/(float)max(abs(i), 1)), (int)floor(1-progress*255.0/(float)max(abs(i), 1)));
-
+        strip.setPixelColor(currentLed+i, 0, 
+                            progress*255.0, 
+                            (int)floor(255.0/(float)max(abs(i*3), 1)));
     }
     // Serial.println(currentLed);
     strip.show();
