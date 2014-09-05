@@ -1,4 +1,7 @@
 <style>
+#OB-pulse-bloom ol li {
+    list-style-type: decimal;
+}
 #OB-pulse-bloom img {
     margin: 24px auto;
     border: 1px solid #303030;
@@ -33,16 +36,53 @@ When a pulse is read, the lotus flower shoots their heartbeat up the stem and in
 
 ## How the electronics are made
 
-### Making the custom circuit boards
+There are five stages to making the electronics:
+
+ 1. [Making the custom circuit boards](#boards)
+ 2. [Making the custom pulse sensors](#sensors)
+ 3. [Driving the high current LEDs](#leds)
+ 4. [Writing the firmware](#firmware)
+ 5. [Powering the lotuses](#power)
+
+<a name="boards"></a>
+
+### 1. Making the custom circuit boards
+
+The circuit board for the lotus controls all of the lighting, sensors, timing, and debugging sequences. A reliable circuit board couldn't just be an Arduino and a breadboard. I decided to use [OSH Park](http://www.oshpark.com) and [OSH Stencils](http://www.oshstencils.com) to fabricate inexpensive circuit boards. I ultimately went through seven revisions while we worked out the final design of the lotuses.
+
+This board has support for multiple high current petal LEDs, driving both digital RGB (used for fading colors in and out using PWM), and multiple voltages. The high current petal LEDs used 12V, while came directly off the battery, while the ATmega328p chip and stem LEDs used 5V, while the pulse sensor used 3.3V.
+
+To convert 12V to 5V I use [a switching voltage regulator which cost $3 at Electrodragon](http://www.electrodragon.com/product/better-than-lm2596-dc-dc-step-down-adjustable-power-supply-module/). This requires a +/- connection for both 12V in and 5V out. To convert 5V to 3.3V I used a linear regulator soldered on the board, sinc ethe current requirements of the pulse sensor were around 20mA.
+
+I also added terminal connections for two 5 meter LEDs that wrapped around the tall lotus stem. There were two stem LEDs because when two people put their hands on the two pulse sensors, we need an easy way to show both heartbeats without one winning out over the other. When only one person's hand in being measured, both 5 meter stem lights show the same color, which makes it that much brighter for a single person.
+
+Lastly, the two pulse sensors terminals their I2C wires on the board. I used two separate I2C channels instead of one to cut down on time. I could easily have put both pulse sensors on the same I2C connections, but that would've required both pull-up resistors on the SDA and SCL data lines as well as a rewrite of the timing functions for the sensor.
+
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20board%20schematic.png" width="650" class="no-border">
+
+The board was laid out to be as big as a pack of gum. All of the 12V traces are thickened and isolated on the right side of the board. They are rated for 3 amps although they would end up only driving 1 amp on the playa.
+
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20board%20layout.png" width="650" class="no-border">
+
+These boards are then stenciled with solder paste and populated with their chips and passive components.
+
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Soldering%20boards.jpg" width="650">
+
+An inexpensive hot plate is used to reflow the solder. The chip is in a TQFP packages, which has a 0.5mm pitch between pins, which is nearly impossible to hand solder. This technique works well and my yield stayed high at around 95%.
+
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Reflowing%20boards.jpg" width="650">
+
+Finally, the board is ready to be populated with screw terminals.
+
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Naked%20Board.jpg" width="650">
 
+The final board in a dust-proof enclosure.
 
+<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20enclosure.jpg" width="650">
 
-### Making the custom pulse sensors
+<a name="sensors"></a>
+
+### 2. Making the custom pulse sensors
 
 <video src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Sensor%20opamp.mp4" autoplay loop muted width="650"></video>
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20sensor%20schematic.png" width="650" class="no-border">
@@ -50,21 +90,27 @@ When a pulse is read, the lotus flower shoots their heartbeat up the stem and in
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Reflowing%20sensors.jpg" width="650">
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Sensor.jpg" width="650">
 
+<a name="leds"></a>
 
-### The high current LEDs
+### 3. Driving the high current LEDs
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Night.jpg" width="650">
 <a href="https://www.sparkfun.com/products/8718"><img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20LEDs.jpg" width="300" class="small no-border"></a>
 <a href="https://www.sparkfun.com/products/11850"><img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20PicoBuck.jpg" width="300"  class="small no-border" style="margin-right: 0;"></a>
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Petal%20LEDs%20wiring.png" width="650" class="no-border">
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Soldering%20leds.jpg" width="650">
+<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20wired%20picobuck.jpg" width="650">
 
-### Writing the firmware
+<a name="firmware"></a>
+
+### 4. Writing the firmware
 
 The [complete source code for Pulse & Bloom is on GitHub](https://github.com/samuelclay/pulse-bloom). There you can find the firmware used to program the main circuit board's ATmega328p chip, as well as designs for the laser cut cowl that sits over the pulse sensor's Si1143x IC. 
 
-### Powering the lotuses
+<a name="power"></a>
 
-<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20battery.jpg" width="650" class="no-border">
+### 5. Powering the lotuses
+
+<a href="http://www.lifelinebatteries.com/marineflyer.php?id=6"><img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20battery.jpg" width="300" class="no-border"></a>
 
 
 ## Prototyping the lotuses
