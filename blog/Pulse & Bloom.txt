@@ -218,13 +218,17 @@ Lots of debugging messages have been left in the code and are accessible using t
 
 While much of what I built above came out of knowledge I already had, learning how to power this large of an installation off just a battery was all new to me. I'm used to microelectronics that run off a coin cell or AA batteries.
 
-First, in order to figure out how big of a battery we needed, we had to measure how much power we were taking. I hooked up an ammeter in series with a single lotus to measure the current draw. In rest state, a single lotus drew 0.75A at 12V. In the active pulsing heartbeat state, a single lotus drew 1.5A at 12V. Since a lotus spends 95% of its time at rest, we rounded the average current consumption to 1.0A.
+#### Measuring current and power usage
+
+First, in order to figure out how big of a battery we needed, we had to measure how much power we were taking. I hooked up an ammeter in series with a single lotus to measure the current draw. In rest state, a single lotus drew 0.75A at 12V. In the active pulsing heartbeat state, a single lotus drew 1.5A at 12V. Since a lotus spends 95% of its time at rest, we rounded the average current consumption to 1A.
 
 Twenty lotuses at 1A at 12V meant we needed 240Ah to sustain a 12 hour night. A car battery was recommended, but car batteries can only discharge down to 80% without irreparable harm. However, a marine deep-cycle battery can go down to 20% without harm. 
 
 <a href="http://www.lifelinebatteries.com/marineflyer.php?id=6"><img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20battery.jpg" width="300" class="no-border"></a>
 
-This battery has enough capacity, although we ended up adding a couple 6V batteries in series (to boost them to 12V) and then running them in parallel to offset some of the load.
+This 150 lb. battery has enough capacity, although we ended up adding a couple 6V batteries in series (to boost them to 12V) and then running them in parallel to offset some of the load.
+
+#### Dealing with the voltage drop
 
 A big issue we ran into was the voltage drop across the power lines. We placed the batteries on the edge of the installation, which meant some of the lotuses had 20 meters of wire between them and the battery. The voltage drop per 10 meter section is nearly 2V, which means that the voltage reaching the further lotuses was down to 7.5V. 
 
@@ -233,16 +237,43 @@ The high current LEDs were not able to be smoothly driven at this low of a volta
 At the end of each night we had to bike out with a trike and bike all 300 lbs. of battery back to camp, where they were hooked up to a 1 kW solar array, where we charged them at 48A over 6 hours.
 
 ## Prototyping the lotuses
+
+Back at American Steel in Oakland, the lotus stems, bases, and petals were ready to be hooked up. These twenty lotus stems were bent by Heather. They range from 6ft to 16ft in length and each weighs 50 lbs. Such a heavy stem needs a larger base and heavy anchors to stay upright in the wind.
+
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Raw%20Stems.jpg" width="650">
+
+We placed the lily pad over the base to cover it up and then added all of the electronics. Lights, sensors, and circuit boards all had to be mounted.
+
+This is a photo of our first complete lotus flower. Just compare its sheer size to Shilo.
+
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20First%20prototype.jpg" width="650">
 
+Once we were confident that one lotus would successfully light we left the other 19 lotuses packed away for assembly on the playa.
 
 ## A dusty scene
+
+We drove out in the biggest rental car I could get my hands on. Our minivan is full of electronics, bicycles, tents, costumes, coolers full of fruit and veggies, dry snacks, and water.
+
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Van.jpg" width="650">
+
+Since we were early arrival, they give you these red bracelets. They say *Work hard, don't do stupid shit*.
+
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Bracelet.jpg" width="650">
+
+The boards would accumulate dust on them everyday. Our plastic enclosures turned out to be too big for the holes we made in the platform. So we ended up using ziploc bags. These baggies stayed attached, but the only reason they didn't cause any issues is that the boards worked just fine in the dust, as you can see here. If dust was a real problem, then I would have spent a whole lot more time making a tight fitting enclosure and a hole for it that protects it both from the elements and from people.
+
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Dusty%20Board.jpg" width="650">
+
+The playa gets covered in dust storms regularly throughout the week. A particularly nasty dust storm is pictured here, eating out poor lotus flowers alive.
+
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Dust.jpg" width="650">
+
+Even during the day the lotuses offer a cozy respite from the heat of the playa. 
+
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Day.jpg" width="650">
 
+The entire process lasted 4 months with 2.5 months of nearly full-time work on my part. I'm thrilled that I get to open-source both the process and the firmware. I hope others who build art installations can use some of my lessons learned here. 
+
+See you next year on the playa!
 
 </div>
