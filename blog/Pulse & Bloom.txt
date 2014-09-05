@@ -1,25 +1,83 @@
-This was my second year attending Burning Man. 
+<style>
+#OB-pulse-bloom img {
+    margin: 24px auto;
+    border: 1px solid #303030;
+    display: block;
+}
+#OB-pulse-bloom img.small {
+    float: left;
+    margin-right: 24px;
+}
+#OB-pulse-bloom img.no-border {
+    border: none;
+}
+</style>
+
+<div id="OB-pulse-bloom">
+
+This was my second year attending Burning Man. Many use Burning Man as a week to detach from their workweek and experience a new life of intense leisure. Not me, I come to Burning Man to build.
+
+Pulse & Bloom is a [2014 honorarium installation](http://www.burningman.com/installations/art_honor.html). The core team of 6 people, including myself, built 20 steel interactive lotus flowers, ranging from 8 to 18 feet tall, which lit up with your pulse. You and another person put your hands on a couple of Hamsa hands at the base of the lotus flower and your heartbeat would light up the flower.
+
+As usual, the [complete source code for Pulse & Bloom is on GitHub](https://github.com/samuelclay/pulse-bloom).
+
+Here's a video of all twenty lotus flowers in full working order.
 
 <video src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom.mp4" autoplay loop muted width="650"></video>
 
-<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Van.jpg" width="650">
-<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Soldering%20leds.jpg" width="650">
-<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Soldering%20boards.jpg" width="650">
-<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Sensor.jpg" width="650">
-<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Reflowing%20sensors.jpg" width="650">
-<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Reflowing%20boards.jpg" width="650">
-<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Raw%20Stems.jpg" width="650">
-<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20PicoBuck.jpg" width="650">
-<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Petal%20LEDs%20wiring.png" width="650">
-<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Night.jpg" width="650">
-<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Naked%20Board.jpg" width="650">
-<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20LEDs.jpg" width="650">
+Each lotus flower is blue until a person or two sits down at its base and places their hand on the pulse sensor. You can see the Hamsa hand and its embedded pulse sensor in this shot of my girlfriend Brittany and me working on keeping the electronics going.
+
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Glue%20Gun.jpg" width="650">
+
+When a pulse is read, the lotus flower shoots their heartbeat up the stem and into the petals, where it blooms in a brilliant display of amber. When two people's hands are being measured, both of their heartbeats are shown as two distinct colors.
+
+## How the electronics are made
+
+### Making the custom circuit boards
+<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20board%20schematic.png" width="650" class="no-border">
+<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20board%20layout.png" width="650" class="no-border">
+<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Soldering%20boards.jpg" width="650">
+<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Reflowing%20boards.jpg" width="650">
+<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Naked%20Board.jpg" width="650">
+
+
+
+### Making the custom pulse sensors
+
+<video src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Sensor%20opamp.mp4" autoplay loop muted width="650"></video>
+<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20sensor%20schematic.png" width="650" class="no-border">
+<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20sensor%20layout.png" width="650" class="no-border">
+<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Reflowing%20sensors.jpg" width="650">
+<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Sensor.jpg" width="650">
+
+
+### The high current LEDs
+<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Night.jpg" width="650">
+<a href="https://www.sparkfun.com/products/8718"><img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20LEDs.jpg" width="300" class="small no-border"></a>
+<a href="https://www.sparkfun.com/products/11850"><img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20PicoBuck.jpg" width="300"  class="small no-border" style="margin-right: 0;"></a>
+<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Petal%20LEDs%20wiring.png" width="650" class="no-border">
+<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Soldering%20leds.jpg" width="650">
+
+### Writing the firmware
+
+The [complete source code for Pulse & Bloom is on GitHub](https://github.com/samuelclay/pulse-bloom). There you can find the firmware used to program the main circuit board's ATmega328p chip, as well as designs for the laser cut cowl that sits over the pulse sensor's Si1143x IC. 
+
+### Powering the lotuses
+
+<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20battery.jpg" width="650" class="no-border">
+
+
+## Prototyping the lotuses
+<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Raw%20Stems.jpg" width="650">
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20First%20prototype.jpg" width="650">
+
+
+## A dusty scene
+<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Van.jpg" width="650">
+<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Bracelet.jpg" width="650">
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Dusty%20Board.jpg" width="650">
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Dust.jpg" width="650">
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Day.jpg" width="650">
-<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Bracelet.jpg" width="650">
 
 
-<video src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Sensor%20opamp.mp4" autoplay loop muted width="650"></video>
+</div>
