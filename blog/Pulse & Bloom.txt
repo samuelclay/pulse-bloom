@@ -24,6 +24,10 @@
 #OB-pulse-bloom img.no-border {
     border: none;
 }
+#OB-pulse-bloom pre code {
+    display: block;
+    overflow-y: hidden;
+}
 </style>
 
 <div id="OB-pulse-bloom">
@@ -155,12 +159,78 @@ Finally, a shot of a complete picobuck with the wire connectors in the backgroun
 
 The [complete source code for Pulse & Bloom is on GitHub](https://github.com/samuelclay/pulse-bloom). There you can find the firmware used to program the main circuit board's ATmega328p chip, as well as designs for the laser cut cowl that sits over the pulse sensor's Si1143x IC. 
 
+The easiest way to read the firmware is to dive into `src/pulse.cpp`. It has all of the pulse and rest states and handles the high level logic.
+
+The state machine that runs the entire routine is determined by a couple critical measurements. The program takes a measurement of both pulse sensors and determines whether a finger is covered any of them and whether or not that finger has an active pulse going.
+
+    // Modes
+    void determinePlayerMode();
+    void determineFingerMode(int sensor1On, int sensor2On);
+    void resetStem(PulsePlug *pulse);
+    uint8_t adjustBpm(PulsePlug *pulse);
+    
+When there are no fingers on either of the pulse sensors, the program runs the rest state, which is a blue-topped lotus with a small blue snake running up and down the stem. The program is merely waiting for somebody to put their finger on a sensor.
+
+    // State: resting
+    void runResting();
+    void runRestStem();
+    void runRestStem(PulsePlug *pulse, int16_t currentLed);
+    void clearStemLeds(PulsePlug *pulse);
+    void beginPetalResting();
+    bool runPetalResting();
+
+Before a heartbeat is shown an accurate measurement of a heartbeat needs to be read. Before that happens though there are a number of measurements being taken in hopes that the typical heartbeat curve is found. This can take up to two or three seconds, so a bit of animation happens to delay the feeling of waiting.
+
+When a finger is detected, the steam snake lights shoot backwards up and down the lotus in prep for a heartbeat. This looks seamless as it clears the stem. This way a heartbeat doesn't interrupt the rest state.
+
+    // State: end resting
+    void beginSplittingStem();
+    void runSplittingStem();
+    void runSplittingStem(PulsePlug *pulse, int16_t currentLed);
+
+When a heartbeat is detected, it is first shot up the stem. The color is determined by how many pulse sensors are being used.
+
+    // State: stem rising
+    bool runStemRising(PulsePlug *pulse, PulsePlug *shadowPulse);
+
+Once the heartbeat reaches the top of the stem, the petals then fill with light.
+
+    // State: petal rising
+    void beginPetalRising();
+    bool runPetalRising();
+
+After a set delay, the petal slowly lose light while waiting for the next heartbeat.
+
+    // State: petal falling
+    void beginPetalFalling();
+    bool runPetalFalling();
+
+Lots of debugging messages have been left in the code and are accessible using the Serial pin on the board. Just turn on `USE_SERIAL`, which is commented out at top. Note that this increased code size by about 2.5K. I wrote a lot of logging.
+
+    // Debugging
+    void printHeader();
+    void blink(int loops, int loopTime, bool half);
+    int freeRam ();
+
 <a name="power"></a>
 
 ### 5. Powering the lotuses
 
+While much of what I built above came out of knowledge I already had, learning how to power this large of an installation off just a battery was all new to me. I'm used to microelectronics that run off a coin cell or AA batteries.
+
+First, in order to figure out how big of a battery we needed, we had to measure how much power we were taking. I hooked up an ammeter in series with a single lotus to measure the current draw. In rest state, a single lotus drew 0.75A at 12V. In the active pulsing heartbeat state, a single lotus drew 1.5A at 12V. Since a lotus spends 95% of its time at rest, we rounded the average current consumption to 1.0A.
+
+Twenty lotuses at 1A at 12V meant we needed 240Ah to sustain a 12 hour night. A car battery was recommended, but car batteries can only discharge down to 80% without irreparable harm. However, a marine deep-cycle battery can go down to 20% without harm. 
+
 <a href="http://www.lifelinebatteries.com/marineflyer.php?id=6"><img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20battery.jpg" width="300" class="no-border"></a>
 
+This battery has enough capacity, although we ended up adding a couple 6V batteries in series (to boost them to 12V) and then running them in parallel to offset some of the load.
+
+A big issue we ran into was the voltage drop across the power lines. We placed the batteries on the edge of the installation, which meant some of the lotuses had 20 meters of wire between them and the battery. The voltage drop per 10 meter section is nearly 2V, which means that the voltage reaching the further lotuses was down to 7.5V. 
+
+The high current LEDs were not able to be smoothly driven at this low of a voltage, causing them to flicker. We determined that a voltage drop was responsible as the flickering got worse the further from the batteries the lotus was. But the wires had already been trenched 6 inches beneath the playa. We sucked it up and ripped out all of the ground wiring to accommodate the battery which had to be moved into the center of the installation.
+
+At the end of each night we had to bike out with a trike and bike all 300 lbs. of battery back to camp, where they were hooked up to a 1 kW solar array, where we charged them at 48A over 6 hours.
 
 ## Prototyping the lotuses
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Raw%20Stems.jpg" width="650">
