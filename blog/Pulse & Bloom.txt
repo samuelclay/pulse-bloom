@@ -1,5 +1,15 @@
 <style>
+#OB-pulse-bloom ol,
+#OB-pulse-bloom ul {
+    margin-left: 24px;
+}
+#OB-pulse-bloom li {
+    color: inherit;
+    font-size: inherit;
+    list-style-position: outside;
+}
 #OB-pulse-bloom ol li {
+    list-style-position: outside;
     list-style-type: decimal;
 }
 #OB-pulse-bloom img {
@@ -84,20 +94,59 @@ The final board in a dust-proof enclosure.
 
 ### 2. Making the custom pulse sensors
 
+This was both the riskiest piece of the puzzle and also the most fun to build. In order to show your heartbeat on the lotus, I needed to have a clear reading of your pulse. There are a fair number of issues with most heartbeat sensors, including:
+
+ * **Cost**: While a $50 pulse sensor is nice, it's way out of our budget. We spent $6 in components to make each of our pulse sensors for a total of 40 sensors (two per lotus).
+ * **Design affordance**: There were a fair number of pulse sensors that required an infrared light on one side of your finger and an infrared detector/receiver on the other. This clamping of your finger wasn't something we could get away with in the desert. We needed a sensor you could just touch and hold.
+ * **Reliability**: When a sensor gets covered in dust, will it still work? Infrared light, thankfully, passes through a layer of dust and can read the changes in blood flow in your finger. Some options were entirely visual and they would have performed quite poorly out on the playa.
+
+The first prototype I build suffered from the design affordance and reliability issues, although it worked pretty well in ideal conditions.
+
 <video src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Sensor%20opamp.mp4" autoplay loop muted width="650"></video>
+
+We ended up finding an IC by Silicon Labs called the Si1143x, which has three LEDs - two infrared and one visible - and a small QFN-10 sized light sensor.
+
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20sensor%20schematic.png" width="650" class="no-border">
+
+I built out a small PCB the size of a fingertip.
+
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20sensor%20layout.png" width="650" class="no-border">
+
+This tiny IC is a bit tricky to solder as it has no leads and the pins are extremely close together. My yield dropped to about 80%, but 4 out of every 5 I built worked perfectly.
+
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Reflowing%20sensors.jpg" width="650">
+
+Finally the sensor is hooked up and a tiny red light is emitted, letting people know where to put their fingers.
+
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Sensor.jpg" width="650">
 
 <a name="leds"></a>
 
 ### 3. Driving the high current LEDs
+
+What turned these lotuses from flowers into gems are the high current LEDs mounted in the petals at the top. There are 9 LEDs per lotus, split into groups of three, each driven by a constant current driver. 
+
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Night.jpg" width="650">
+
+Normally a single LED is powered by a single constant current driver. This driver can drive up to 1A of current at 12V. Because we were only using a single channel of color (blue) in the rest state, which is where the lotus spent most of its time, we could triple the number of LEDs driven by a single constant current driver. 
+
+When in use, the petals would glow amber, which uses two channels (100% red, 50% green), but only for a moment at peak current. So while the peak current is above what this constant current driver is rated for, it's only at peak and therefore within our tolerance.
+
+Using a Chinese distributor, we bought these Sparkfun high current LEDs for $0.86 each instead of the full $15. However, we also bought 80 PicoBucks to use as our constant current driver. While we could have built this ourselves to save money, buying 80 of something at $15 each is still only $1.2k, while building them ourselves would only have saved a few hundred dollars.
+
 <a href="https://www.sparkfun.com/products/8718"><img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20LEDs.jpg" width="300" class="small no-border"></a>
 <a href="https://www.sparkfun.com/products/11850"><img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20PicoBuck.jpg" width="300"  class="small no-border" style="margin-right: 0;"></a>
-<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Petal%20LEDs%20wiring.png" width="650" class="no-border">
+
+We bought 200 high current LEDs, all of which had to have their 6 anode and cathode connections soldered.
+
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Soldering%20leds.jpg" width="650">
+
+In order to connect 9 high current LEDs to the board, we need to drive them in groups of three. Each group has 6 connections: red, green, blue anodes, and red, green, blue cathodes. The wiring diagram for this setup can get a bit rats nesty, but the end result was fairly easy to work with, as the picobuck groups didn't cross.
+
+<img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Petal%20LEDs%20wiring.png" width="650" class="no-border">
+
+Finally, a shot of a complete picobuck with the wire connectors in the background.
+
 <img src="http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20wired%20picobuck.jpg" width="650">
 
 <a name="firmware"></a>
