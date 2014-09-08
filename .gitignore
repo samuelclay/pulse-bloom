@@ -24,4 +24,7 @@
 *.hex
 *.d
 core.a
-*.lst.DS_Store
+*.lst
+
+# OS X cruft
+.DS_Store
