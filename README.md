@@ -1,3 +1,7 @@
+# Pulse & Bloom
+
+![Pulse & Bloom at Night](http://static.newsblur.com.s3.amazonaws.com/ofbrooklyn/Pulse%20%26%20Bloom%20-%20Night.jpg)
+
 This was my second year attending Burning Man. Many use Burning Man as a week to detach from their workweek and experience a new life of intense leisure. Not me, I come to Burning Man to build.
 
 Pulse & Bloom is a [2014 honorarium installation](http://www.burningman.com/installations/art_honor.html). The core team of 6 people — [Saba Ghole](https://twitter.com/sabarani), [Shilo Shiv Suleman](https://twitter.com/shilo1221), [Rohan Dixit](https://twitter.com/rd108), [Heather Stewart](https://www.facebook.com/heather.stewart.3388), [Luke Iseman](https://twitter.com/liseman), and [myself](http://twitter.com/samuelclay) — built 20 interactive lotus flowers made out of steel and rowlux. Each lotus flower ranges from 8 to 18 feet tall, each of which lights up with your pulse. You and another person can put your hands on a couple of Hamsa hands at the base of the lotus flower and your respective heartbeats will light up the flower.
