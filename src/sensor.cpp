@@ -1,3 +1,6 @@
+// Based on Paul Badger's work at Modern Device
+// http://moderndevice.com/new-products/si1143-based-distance-sensors/
+
 #include <si1143/si1143.h>
 #include <si1143/si114_defs.h>
 #include "smooth.h"
