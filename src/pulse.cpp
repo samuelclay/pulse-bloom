@@ -767,9 +767,9 @@ bool runStemRising(PulsePlug *pulse, PulsePlug *shadowPulse) {
                 color = strip.Color(shade, shade, 0);
             } else if (playerMode == MODE_DOUBLE) {
                 if (pulse->role == ROLE_PRIMARY) {
-                    color = strip.Color(shade/10, 0, shade);
+                    color = strip.Color(shade, shade, shade);
                 } else {
-                    color = strip.Color(shade, 0, shade);
+                    color = strip.Color(shade, shade/3, shade/3);
                 }
             }
             strip.setPixelColor(currentLed + i, color);
@@ -870,7 +870,7 @@ bool runPetalRising() {
         }
         analogWrite(petalRedPin, ledBrightness);
         analogWrite(petalGreenPin, ledBrightness);
-        analogWrite(petalBluePin, 0);
+        analogWrite(petalBluePin, ledBrightness);
     } else {
         analogWrite(petalRedPin, ledBrightness);
         analogWrite(petalGreenPin, ledBrightness/2);
@@ -916,7 +916,7 @@ bool runPetalFalling() {
     if (playerMode == MODE_DOUBLE) {
         analogWrite(petalRedPin, ledBrightness);
         analogWrite(petalGreenPin, ledBrightness);
-        analogWrite(petalBluePin, 0);
+        analogWrite(petalBluePin, ledBrightness);
     } else {
         analogWrite(petalRedPin, ledBrightness);
         analogWrite(petalGreenPin, ledBrightness/2);
