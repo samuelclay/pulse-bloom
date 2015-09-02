@@ -21,7 +21,6 @@
 
 # AVR
 *.elf
-*.hex
 *.d
 core.a
 *.lst
