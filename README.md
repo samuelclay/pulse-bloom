@@ -10,6 +10,12 @@ We've gotten some great press coverage at [the BBC](http://www.bbc.com/news/in-p
 
 Read the entire writeup at http://www.ofbrooklyn.com/2014/09/6/building-pulse-bloom-biofeedback-burning-man-2014/.
 
+## Setup and installation
+
+Download the AVR GCC toolchain. You can use this homebrew-avr library to install on macOS: https://github.com/osx-cross/homebrew-avr
+
+## Firmware
+
 Here you can find the firmware used to program the main circuit board's ATmega328p chip, as well as designs for the laser cut cowl that sits over the pulse sensor's Si1143x IC. 
 
 The easiest way to read the firmware is to dive into `src/pulse.cpp`. It has all of the pulse and rest states and handles the high level logic.
@@ -65,4 +71,6 @@ Lots of debugging messages have been left in the code and are accessible using t
     void blink(int loops, int loopTime, bool half);
     int freeRam ();
 
-I'm happy to [answer any questions on Twitter](https://twitter.com/samuelclay).
+## Contact 
+
+I'm happy to [answer any questions on Twitter](https://twitter.com/samuelclay) or [over email](mailto:pulsebloom@ofbrooklyn.com).
